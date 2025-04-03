@@ -50,3 +50,71 @@ def fetch_case_details(case_id):
         log_and_print(f"❌ Unexpected error: {e}", "error")
 
     return None
+
+
+def fetch_case_documents(case_id: int) -> dict:
+    url = "https://ecourtsdocumentsint.justice.gov.il/api/Documents"
+
+    headers = {
+        "Authorization": f"Bearer {os.getenv('BEARER_TOKEN')}",
+        "Content-Type": "application/json",
+        "Moj-Application-Id": "8Aj5UqGBUtKGh7hxPrfbSQ=="
+    }
+
+    payload = {
+        "defaultValue": {
+            "doc_type": "",
+            "sub_type": "",
+            "department_id": "",
+            "item_type": "",
+            "r_creation_date_from": "",
+            "r_creation_date_to": "",
+            "doc_date_from": "",
+            "doc_date_to": "",
+            "status_date_from": "",
+            "status_date_to": ""
+        },
+        "entitiesOperator": 0,
+        "expression": {
+            "propertiesList": [
+                {
+                    "propertyName": "folder_ids",
+                    "values": [f"1 {case_id}"],
+                    "operator": 0
+                }
+            ],
+            "operator": 0
+        },
+        "itemsPerPage": 40,
+        "pageNo": 1,
+        "sorts": [
+            {
+                "propertyName": "r_creation_date",
+                "ascending": False
+            }
+        ],
+        "viewFields": [
+            "moj_id",
+            "sub_type",
+            "doc_type",
+            "doc_date",
+            "r_creation_date",
+            "status_date",
+            "object_name",
+            "department_id"
+        ]
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload, verify=False)
+        log_and_print(f"🔎 Document API response status: {response.status_code}", "info")
+
+        if response.status_code != 200:
+            log_and_print(f"❌ Failed to fetch documents for case {case_id}. Status: {response.status_code}", "error")
+            return {}
+
+        return response.json()
+
+    except Exception as e:
+        log_and_print(f"❌ Exception occurred while fetching documents: {e}", "error")
+        return {}
