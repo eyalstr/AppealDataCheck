@@ -1,0 +1,20 @@
+{
+    "החלטות": {
+      "url": "https://bo-casemanagement-int.prod.k8s.justice.gov.il/api/Case/GetCase",
+      "table": "Decision.sql",
+      "matchingKeys": [
+        {
+          "key": "Moj_ID",
+          "jsonPath": "$.decisions[*].mojId",
+          "columns": {
+            "Decision_Date": "decisionDate",
+            "Decision_Type_Id": "decisionTypeToCourtId",
+            "Decision_Status": "decisionStatusTypeId",
+            "Is_For_Advertisement": "isForPublication",
+            "Create_User": "decisionJudge"
+            }
+        }
+      ]
+    }
+  }
+  

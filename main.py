@@ -3,33 +3,29 @@ from client_api import fetch_case_details
 from sql_client import fetch_menora_decision_data
 from json_parser import extract_decision_data_from_json
 from decision_comparator import compare_decision_data, compare_decision_counts
+from config_loader import load_tab_config
 from logging_utils import log_and_print
 from tabulate import tabulate
 
 
-def run_decision_comparison(case_id: int, appeal_number: int):
+def run_comparison(case_id: int, appeal_number: int, tab_name: str):
+    tab_config = load_tab_config(tab_name)
+
     # Fetch and parse data
     json_data = fetch_case_details(case_id)
     if not json_data:
         log_and_print("❌ Failed to fetch JSON data.", "error")
         return
 
-    json_df = extract_decision_data_from_json(json_data)
-    menora_df = fetch_menora_decision_data(appeal_number)
+    json_df = extract_decision_data_from_json(json_data)  # For החלטות
+    menora_df = fetch_menora_decision_data(appeal_number)  # Uses static SQL for now
 
-    # Define which fields to compare
-    field_map = {
-        "Decision_Date": "decisionDate",
-        "Decision_Type_Id": "decisionTypeToCourtId",
-        "Decision_Status": "decisionStatusTypeId",
-        "Is_For_Advertisement": "isForPublication",
-        "Create_User": "decisionJudge"
-    }
+    field_map = tab_config["field_map"]
 
     # Compare detailed fields
     comparison_results = compare_decision_data(json_df, menora_df, field_map)
     if comparison_results:
-        print("\n🔍 Detailed Field Comparison (Matched by mojId):")
+        print(f"\n🔍 Detailed Field Comparison (Matched by {tab_config['key_field']}):")
         print(tabulate(comparison_results, headers="keys", tablefmt="grid", showindex=False))
 
         mismatches = [r for r in comparison_results if r["Match"] == "✗"]
@@ -38,7 +34,7 @@ def run_decision_comparison(case_id: int, appeal_number: int):
         else:
             log_and_print(f"⚠️ Found {len(mismatches)} mismatches", "warning")
     else:
-        log_and_print("⚠️ No matching mojIds found between Menora and JSON.", "warning")
+        log_and_print("⚠️ No matching keys found between Menora and JSON.", "warning")
 
     # Compare counts
     count_comparison = compare_decision_counts(json_df, menora_df)
@@ -52,5 +48,6 @@ if __name__ == "__main__":
 
     case_id = 2004759
     appeal_number = 139124
+    tab_name = "החלטות"  # You can switch this to "מסמכים" tomorrow
 
-    run_decision_comparison(case_id, appeal_number)
+    run_comparison(case_id, appeal_number, tab_name)
