@@ -3,3 +3,4 @@ pyodbc
 requests
 python-dotenv
 colorama
+tabulate

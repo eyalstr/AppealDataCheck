@@ -4,13 +4,36 @@ from sql_client import fetch_menora_decision_data
 from json_parser import extract_decision_data_from_json
 from decision_comparator import compare_decision_data
 from logging_utils import log_and_print
+from tabulate import tabulate  # Add at the top (install if needed)
+
+
+
+def display_flat_fields(menora_df, json_df, field_map):
+    rows = []
+
+    # Menora side
+    for _, row in menora_df.iterrows():
+        rows.append({
+            "Source": "Menora",
+            **{k: row.get(k, "⛔") for k in field_map.keys()}
+        })
+
+    # JSON side
+    for _, row in json_df.iterrows():
+        rows.append({
+            "Source": "JSON",
+            **{k: row.get(v, "⛔") for k, v in field_map.items()}
+        })
+
+    print("\n🔍 Side-by-Side Field Display:")
+    print(tabulate(rows, headers="keys", tablefmt="grid", showindex=True))
 
 if __name__ == "__main__":
     load_configuration()
 
     case_id = 2004759
     appeal_number = 139124  # From Menora
-    menora_df = fetch_menora_decision_data(appeal_number)
+    #menora_df = fetch_menora_decision_data(appeal_number)
 
     json_data = fetch_case_details(case_id)
     if not json_data:
@@ -27,11 +50,17 @@ if __name__ == "__main__":
         "Create_User": "decisionJudge"
     }
 
-    mismatches = compare_decision_data(json_df, menora_df, field_map)
+    comparison_results = compare_decision_data(json_df, menora_df, field_map)
 
-    if not mismatches:
-        log_and_print("✅ All compared fields match between JSON and Menora.", "success")
+    if comparison_results:
+        print("\n🔍 Detailed Field Comparison (Matched by mojId):")
+        print(tabulate(comparison_results, headers="keys", tablefmt="grid", showindex=False))
+
+        mismatches = [r for r in comparison_results if r["Match"] == "✗"]
+        if not mismatches:
+            log_and_print("✅ All matched fields are identical.", "success")
+        else:
+            log_and_print(f"⚠️ Found {len(mismatches)} mismatches", "warning")
     else:
-        log_and_print(f"⚠️ Found {len(mismatches)} mismatches:", "warning", is_hebrew=True)
-        for m in mismatches:
-            log_and_print(f"🔎 mojId {m['mojId']}: {m['field']} → Menora='{m['menora']}' | JSON='{m['json']}'", "warning", is_hebrew=True)
+        log_and_print("⚠️ No matching mojIds found between Menora and JSON.", "warning")
+
