@@ -1,4 +1,27 @@
 from tabulate import tabulate
+from dateutil.parser import parse
+from dateutil.parser import parse
+
+def values_match(field, menora_value, json_value):
+    menora_str = str(menora_value).strip()
+    json_str = str(json_value).strip()
+
+    if field == "Create_User":
+        return menora_str.lower() == json_str.lower()
+
+    if field == "Decision_Date":
+        try:
+            # Parse and remove timezone info for fair comparison
+            menora_dt = parse(menora_str).replace(tzinfo=None)
+            json_dt = parse(json_str).replace(tzinfo=None)
+            return menora_dt == json_dt
+        except Exception:
+            return False
+
+    return menora_str == json_str
+
+
+
 
 def compare_decision_data(json_df, menora_df, field_map):
     import pandas as pd
@@ -37,7 +60,7 @@ def compare_decision_data(json_df, menora_df, field_map):
                 "Field": menora_field,
                 "Menora Value": left_val,
                 "JSON Value": right_val,
-                "Match": "✓" if str(left_val).strip() == str(right_val).strip() else "✗"
+                "Match": "✓" if values_match(menora_field, left_val, right_val) else "✗"
             })
 
     return results
