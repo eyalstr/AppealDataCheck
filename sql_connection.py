@@ -1,30 +1,32 @@
-import pyodbc
-import os
-from logging_utils import log_and_print
-from dotenv import load_dotenv
+# sql_connection.py
 
-load_dotenv()  # Ensure environment variables are loaded
+import os
+import pyodbc
+from dotenv import load_dotenv
+from logging_utils import log_and_print
+
+load_dotenv()
 
 def get_sql_connection():
     try:
         server = os.getenv("SQL_SERVER")
-        database = os.getenv("SQL_DATABASE")
-        username = os.getenv("SQL_USERNAME")
+        db = os.getenv("SQL_DATABASE")
+        user = os.getenv("SQL_USER")
         password = os.getenv("SQL_PASSWORD")
 
-        if not all([server, database, username, password]):
+        if not all([server, db, user, password]):
             raise ValueError("Missing one or more SQL connection environment variables.")
 
         conn_str = (
             f"DRIVER={{ODBC Driver 17 for SQL Server}};"
             f"SERVER={server};"
-            f"DATABASE={database};"
-            f"UID={username};"
-            f"PWD={password}"
+            f"DATABASE={db};"
+            f"UID={user};"
+            f"PWD={password};"
+            f"Trusted_Connection=yes;"
         )
 
-        connection = pyodbc.connect(conn_str)
-        return connection
+        return pyodbc.connect(conn_str)
 
     except Exception as e:
         log_and_print(f"❌ SQL connection error: {e}", "error")
