@@ -1,6 +1,6 @@
 from tabulate import tabulate
 from dateutil.parser import parse
-from dateutil.parser import parse
+
 
 def values_match(field, menora_value, json_value):
     menora_str = str(menora_value).strip()
@@ -21,13 +21,10 @@ def values_match(field, menora_value, json_value):
     return menora_str == json_str
 
 
-
-
 def compare_decision_data(json_df, menora_df, field_map):
     import pandas as pd
 
     # Normalize column names
-    #menora_df = menora_df.rename(columns={"Moj_ID": "mojId"})
     menora_df = menora_df.rename(columns={"Moj_ID": "mojId"})
     for k in field_map.keys():
         if k in menora_df.columns:
@@ -39,7 +36,7 @@ def compare_decision_data(json_df, menora_df, field_map):
 
     print("📋 Menora columns:", menora_df.columns.tolist())
     print("📋 JSON columns:", json_df.columns.tolist())
-      
+
     # Merge on mojId
     merged = pd.merge(
         menora_df,
@@ -65,6 +62,7 @@ def compare_decision_data(json_df, menora_df, field_map):
 
     return results
 
+
 def compare_decision_counts(json_df, menora_df):
     # Normalize column names just like in compare_decision_data
     if "Moj_ID" in menora_df.columns:
@@ -82,14 +80,15 @@ def compare_decision_counts(json_df, menora_df):
         results.append({
             "Type": "Missing in JSON",
             "Count": len(menora_only),
-            "mojIds": ", ".join(sorted(menora_only))
+            "mojIds": ", ".join(sorted(str(i) for i in menora_only if i is not None))
         })
 
     if json_only:
         results.append({
             "Type": "Missing in Menora",
             "Count": len(json_only),
-            "mojIds": ", ".join(sorted(json_only))
+            "mojIds": ", ".join(sorted(str(i) for i in json_only if i is not None)) or "(no mojIds)"
+
         })
 
     if not results:
