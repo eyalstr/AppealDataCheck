@@ -3,8 +3,40 @@
 import pyodbc
 import pandas as pd
 from logging_utils import log_and_print
+from sql_connection import get_sql_connection  # Or however you're managing connections
 import os
 
+
+def fetch_appeal_number_by_case_id(case_id):
+    query = """
+        SELECT a.Appeal_Number_Display
+        FROM Menora_Conversion.dbo.Appeal a 
+        JOIN External_Courts.cnvrt.Case_Status_To_Case_Status_BO cn 
+            ON a.Appeal_Status = cn.Case_Status_BO
+        JOIN cases_bo.dbo.CT_Case_Status_Types c 
+            ON c.Case_Status_Type_Id = cn.Case_Status_Type_Id
+        JOIN cases_bo.dbo.CT_Request_Status_Types r 
+            ON r.Request_Status_Type_Id = c.Request_Status_Type_Id
+        WHERE cn.Court_Id = 11 AND a.Case_id = ?
+    """
+
+    try:
+        conn = get_sql_connection()
+        df = pd.read_sql(query, conn, params=[case_id])
+        conn.close()
+
+        if df.empty:
+            log_and_print(f"⚠️ No appeal number found for case_id {case_id}", "warning")
+            return None
+
+        appeal_number = df.iloc[0]["Appeal_Number_Display"]
+        log_and_print(f"✅ Retrieved appeal number {appeal_number} for case_id {case_id}", "success")
+        return appeal_number
+
+    except Exception as e:
+        log_and_print(f"❌ Error fetching appeal number: {e}", "error")
+        return None
+    
 def fetch_menora_decision_data(appeal_number):
     """
     Fetch decision data from Menora using a parameterized SQL query.
