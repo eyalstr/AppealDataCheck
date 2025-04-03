@@ -5,6 +5,7 @@ from json_parser import extract_decision_data_from_json
 from decision_comparator import compare_decision_data, compare_decision_counts
 from config_loader import load_tab_config
 from logging_utils import log_and_print
+from sql_client import fetch_appeal_number_by_case_id
 from tabulate import tabulate
 
 
@@ -47,7 +48,12 @@ if __name__ == "__main__":
     load_configuration()
 
     case_id = 2004759
-    appeal_number = 139124
-    tab_name = "החלטות"  # You can switch this to "מסמכים" tomorrow
 
+    appeal_number = fetch_appeal_number_by_case_id(case_id)
+    if not appeal_number:
+        log_and_print(f"❌ Could not find appeal number for case ID {case_id}. Exiting.", "error")
+        exit(1)
+
+    tab_name = "החלטות"  # ✅ define this before using it
     run_comparison(case_id, appeal_number, tab_name)
+

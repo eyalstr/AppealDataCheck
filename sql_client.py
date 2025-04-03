@@ -6,7 +6,6 @@ from logging_utils import log_and_print
 from sql_connection import get_sql_connection  # Or however you're managing connections
 import os
 
-
 def fetch_appeal_number_by_case_id(case_id):
     query = """
         SELECT a.Appeal_Number_Display
@@ -21,7 +20,25 @@ def fetch_appeal_number_by_case_id(case_id):
     """
 
     try:
-        conn = get_sql_connection()
+        server = os.getenv("SQL_SERVER")
+        db = os.getenv("SQL_DATABASE")
+        user = os.getenv("SQL_USER")
+        password = os.getenv("SQL_PASSWORD")
+
+        if not all([server, db, user, password]):
+            log_and_print("❌ Missing SQL connection environment variables.", "error")
+            return None
+
+        conn_str = (
+            f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+            f"SERVER={server};"
+            f"DATABASE={db};"
+            f"UID={user};"
+            f"PWD={password};"
+            f"Trusted_Connection=yes;"
+        )
+
+        conn = pyodbc.connect(conn_str)
         df = pd.read_sql(query, conn, params=[case_id])
         conn.close()
 
@@ -36,6 +53,7 @@ def fetch_appeal_number_by_case_id(case_id):
     except Exception as e:
         log_and_print(f"❌ Error fetching appeal number: {e}", "error")
         return None
+
     
 def fetch_menora_decision_data(appeal_number):
     """
