@@ -64,3 +64,39 @@ def compare_decision_data(json_df, menora_df, field_map):
             })
 
     return results
+
+def compare_decision_counts(json_df, menora_df):
+    # Normalize column names just like in compare_decision_data
+    if "Moj_ID" in menora_df.columns:
+        menora_df = menora_df.rename(columns={"Moj_ID": "mojId"})
+
+    json_ids = set(json_df["mojId"])
+    menora_ids = set(menora_df["mojId"])
+
+    menora_only = menora_ids - json_ids
+    json_only = json_ids - menora_ids
+
+    results = []
+
+    if menora_only:
+        results.append({
+            "Type": "Missing in JSON",
+            "Count": len(menora_only),
+            "mojIds": ", ".join(sorted(menora_only))
+        })
+
+    if json_only:
+        results.append({
+            "Type": "Missing in Menora",
+            "Count": len(json_only),
+            "mojIds": ", ".join(sorted(json_only))
+        })
+
+    if not results:
+        results.append({
+            "Type": "✅ Count Match",
+            "Count": len(json_ids),
+            "mojIds": "-"
+        })
+
+    return results
