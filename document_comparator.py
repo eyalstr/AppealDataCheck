@@ -28,8 +28,8 @@ def compare_document_data(json_df, menora_df, field_map):
     import pandas as pd
     from collections import defaultdict
 
-    menora_df = menora_df.rename(columns={k: f"{k}_menora" for k in field_map.keys() if k in menora_df.columns})
-    json_df = json_df.rename(columns={v: f"{v}_json" for v in field_map.values() if v in json_df.columns})
+    json_df = json_df.rename(columns={"moj_id": "mojId"})
+    menora_df = menora_df.rename(columns={"moj_id": "mojId"})
 
     merged = pd.merge(menora_df, json_df, on="mojId", how="inner", suffixes=("_menora", "_json"))
 
@@ -94,9 +94,14 @@ def extract_document_data_from_json(case_json):
 
 
 def compare_document_counts(json_df, menora_df):
+    # Normalize column names to match 'mojId'
+    if "moj_id" in menora_df.columns:
+        menora_df = menora_df.rename(columns={"moj_id": "mojId"})
+    if "moj_id" in json_df.columns:
+        json_df = json_df.rename(columns={"moj_id": "mojId"})
+
     json_ids = set(json_df["mojId"].dropna())
     menora_ids = set(menora_df["mojId"].dropna())
-
 
     menora_only = menora_ids - json_ids
     json_only = json_ids - menora_ids
