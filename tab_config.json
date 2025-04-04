@@ -37,6 +37,36 @@
       "field_map": {
         "document_Type_Id": "subType"
       }
+    },
+    "דיונים": {
+      "url": "https://bo-discussions-int.prod.k8s.justice.gov.il/api/DiscussionsBo/All",
+      "table": "Discussions.sql",
+      "matchingKeys": [
+        {
+          "key": "Moj_ID",
+          "jsonPath": "$.[*].protocolDocMojId",
+          "columns": {
+            "Strat_Time": "startTime",
+            "End_Time": "endTime",
+            "Discussion_Conference_Type_ID": "conferenceTypeId",
+            "discussionLink": "link",
+            "Discussion_Status_Id": "discussionStatusId",
+            "Discussion_Change_Reason_Id": "cancelReasonId",
+            "m_tik": "discussionRequests.caseDisplayId",
+            "PlatphormType": "discussionPlatphormTypeId"
+          }
+        }
+      ],
+      "field_map": {
+        "Strat_Time": "startTime",
+        "End_Time": "endTime",
+        "Discussion_Conference_Type_ID": "conferenceTypeId",
+        "discussionLink": "link",
+        "Discussion_Status_Id": "discussionStatusId",
+        "Discussion_Change_Reason_Id": "cancelReasonId",
+        "m_tik": "discussionRequests.caseDisplayId",
+        "PlatphormType": "discussionPlatphormTypeId"
+      }
     }
   }
   

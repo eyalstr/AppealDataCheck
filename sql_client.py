@@ -135,3 +135,38 @@ def fetch_menora_document_data(appeal_number):
         return pd.DataFrame()
 
 
+def fetch_menora_discussion_data(appeal_number):
+    query = """
+    SELECT 
+        FORMAT(Discussion_Date, 'dd/MM/yyyy') + ' ' + CONVERT(VARCHAR, d.Discussion_Strat_Time, 8) AS Strat_Time,
+        FORMAT(Discussion_Date, 'dd/MM/yyyy') + ' ' + CONVERT(VARCHAR, d.Discussion_End_Time, 8) AS End_Time, 
+        d.Discussion_Id,
+        d.Discussion_Strat_Time,
+        CASE WHEN d.discussionLink IS NOT NULL THEN 2 ELSE NULL END AS PlatphormType,
+        ec_ds.Discussion_Status_Id,
+        dc.Discussion_Conference_Type_ID,
+        d.discussionLink, 
+        a.Appeal_Number_Display AS m_tik,
+        d.Discussion_Room,
+        ec_cr.Discussion_Change_Reason_Id,
+        cr.Name AS CancelReason,
+        d.Moj_ID
+    FROM Menora_Conversion.dbo.Discussion d
+    JOIN Menora_Conversion.dbo.Link_Request_Discussion lr ON lr.Discussion_Id = d.Discussion_Id
+    JOIN External_Courts.cnvrt.Discussion_Status_To_BO ec_ds ON ec_ds.Discussion_Status_BO = d.Status
+    LEFT JOIN Menora_Conversion.dbo.CT_DiscussionCancelationReason cr ON cr.Code = d.CancelationReason
+    LEFT JOIN External_Courts.cnvrt.Discussion_Change_Reason_To_BO ec_cr ON cr.Code = ec_cr.Discussion_Change_Reason_BO
+    JOIN Menora_Conversion.dbo.Appeal a ON lr.appeal_id = a.Appeal_ID
+    JOIN Discussions.code.CT_Discussion_Conference_Types dc ON dc.Discussion_Conference_Type_ID = d.virtualDiscussion
+    WHERE a.Appeal_Number_Display = ?
+    """
+
+    try:
+        conn = get_sql_connection()
+        df = pd.read_sql(query, conn, params=[appeal_number])
+        conn.close()
+        log_and_print(f"✅ Retrieved {len(df)} discussions from Menora for appeal {appeal_number}", "success")
+        return df
+    except Exception as e:
+        log_and_print(f"❌ Error while fetching Menora discussion data: {e}", "error")
+        return pd.DataFrame()

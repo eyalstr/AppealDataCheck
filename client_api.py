@@ -1,5 +1,4 @@
-# api_client.py
-
+# client_api.py
 import os
 import requests
 import urllib3
@@ -19,7 +18,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def fetch_case_details(case_id):
     url = f"{BASE_URL}/api/Case/GetCase?CaseId={case_id}"
-    
+
     if not BEARER_TOKEN:
         log_and_print("❌ Error: BEARER_TOKEN is missing from .env", "error")
         return None
@@ -51,14 +50,13 @@ def fetch_case_details(case_id):
 
     return None
 
-
 def fetch_case_documents(case_id: int) -> dict:
     url = "https://ecourtsdocumentsint.justice.gov.il/api/Documents"
 
     headers = {
-        "Authorization": f"Bearer {os.getenv('BEARER_TOKEN')}",
+        "Authorization": f"Bearer {BEARER_TOKEN}",
         "Content-Type": "application/json",
-        "Moj-Application-Id": "8Aj5UqGBUtKGh7hxPrfbSQ=="
+        "Moj-Application-Id": MOJ_APP_ID
     }
 
     payload = {
@@ -117,4 +115,27 @@ def fetch_case_documents(case_id: int) -> dict:
 
     except Exception as e:
         log_and_print(f"❌ Exception occurred while fetching documents: {e}", "error")
+        return {}
+
+def fetch_case_discussions(case_id: int) -> dict:
+    url = f"https://bo-discussions-int.prod.k8s.justice.gov.il/api/DiscussionsBo/All/{case_id}"
+
+    headers = {
+        "Authorization": f"Bearer {BEARER_TOKEN}",
+        "Accept": "application/json",
+        "Moj-Application-Id": MOJ_APP_ID
+    }
+
+    try:
+        response = requests.get(url, headers=headers, verify=False)
+        log_and_print(f"🔎 Discussion API response status: {response.status_code}", "info")
+
+        if response.status_code != 200:
+            log_and_print(f"❌ Failed to fetch discussions for case {case_id}. Status: {response.status_code}", "error")
+            return {}
+
+        return response.json()
+
+    except Exception as e:
+        log_and_print(f"❌ Exception occurred while fetching discussions: {e}", "error")
         return {}
