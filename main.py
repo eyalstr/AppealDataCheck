@@ -35,13 +35,13 @@ def main():
             all_summaries["document"].append(document_summary)
 
     # Final summaries per tab
-    if all_summaries["decision"]:
-        log_and_print("\n📋 Final Summary for Decision Tab:", "info")
-        print(tabulate(all_summaries["decision"], headers="keys", tablefmt="grid", showindex=True))
+    # if all_summaries["decision"]:
+    #     log_and_print("\n📋 Final Summary for Decision Tab:", "info")
+    #     print(tabulate(all_summaries["decision"], headers="keys", tablefmt="grid", showindex=True))
 
-    if all_summaries["document"]:
-        log_and_print("\n📋 Final Summary for Document Tab:", "info")
-        print(tabulate(all_summaries["document"], headers="keys", tablefmt="grid", showindex=True))
+    # if all_summaries["document"]:
+    #     log_and_print("\n📋 Final Summary for Document Tab:", "info")
+    #     print(tabulate(all_summaries["document"], headers="keys", tablefmt="grid", showindex=True))
 
 
 if __name__ == "__main__":

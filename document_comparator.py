@@ -38,9 +38,16 @@ def compare_document_data(json_df, menora_df, field_map):
 
     for _, row in merged.iterrows():
         for menora_field, json_field in field_map.items():
-            left = row.get(f"{menora_field}_menora", "⛔")
-            right = row.get(f"{json_field}_json", "⛔")
+            left = row.get(f"{menora_field}_menora")
+            right = row.get(f"{json_field}_json")
+
+            if pd.isna(left):
+                left = "⛔"
+            if pd.isna(right):
+                right = "⛔"
+
             match = values_match(menora_field, left, right)
+
             results.append({
                 "mojId": row["mojId"],
                 "Field": menora_field,
@@ -48,8 +55,10 @@ def compare_document_data(json_df, menora_df, field_map):
                 "JSON Value": right,
                 "Match": "✓" if match else "✗"
             })
+
             if not match:
                 mismatches[row["mojId"]].append(menora_field)
+
 
     if not results:
         log_and_print("⚠️ No document comparison results found.", "warning")
