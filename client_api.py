@@ -32,7 +32,7 @@ def fetch_case_details(case_id):
     try:
         response = requests.get(url, headers=headers, verify=False)
         print(f"🔎 Raw response status: {response.status_code}")
-        print(f"🔎 Response text: {response.text[:300]}...")
+        print(f"🔎 Response text: {response.text[:50]}...")
 
         if response.status_code == 204:
             log_and_print(f"⚠️ No data found for CaseId {case_id} (204 No Content)", "warning")

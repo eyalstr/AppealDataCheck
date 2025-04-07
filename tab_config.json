@@ -1,72 +1,87 @@
 {
-    "החלטות": {
-      "url": "https://bo-casemanagement-int.prod.k8s.justice.gov.il/api/Case/GetCase?CaseId={case_id}",
-      "matchingKeys": [
-        {
-          "key": "mojId",
-          "jsonPath": "$.businessCaseDetails.decisionList[*].mojId",
-          "columns": {
-            "Decision_Date": "decisionDate_json",
-            "Decision_Status": "decisionStatusTypeId_json",
-            "Is_For_Advertisement": "isForPublication_json",
-            "Create_User": "decisionJudge_json",
-            "Decision_Type_Id": "decisionTypeToCourtId_json"
-          }
+  "החלטות": {
+    "url": "https://bo-casemanagement-int.prod.k8s.justice.gov.il/api/Case/GetCase?CaseId={case_id}",
+    "matchingKeys": [
+      {
+        "key": "mojId",
+        "jsonPath": "$.businessCaseDetails.decisionList[*].mojId",
+        "columns": {
+          "Decision_Date": "decisionDate_json",
+          "Decision_Status": "decisionStatusTypeId_json",
+          "Is_For_Advertisement": "isForPublication_json",
+          "Create_User": "decisionJudge_json",
+          "Decision_Type_Id": "decisionTypeToCourtId_json"
         }
-      ],
-      "field_map": {
-        "Decision_Date": "decisionDate_json",
-        "Decision_Status": "decisionStatusTypeId_json",
-        "Is_For_Advertisement": "isForPublication_json",
-        "Create_User": "decisionJudge_json",
-        "Decision_Type_Id": "decisionTypeToCourtId_json"
       }
-    },
-    "מסמכים": {
-      "url": "https://ecourtsdocumentsint.justice.gov.il/api/Documents",
-      "table": "Documents.sql",
-      "matchingKeys": [
-        {
-          "key": "moj_id",
-          "jsonPath": "$.documentList[*].mojId",
-          "columns": {
-            "document_Type_Id": "subType"
-          }
-        }
-      ],
-      "field_map": {
-        "document_Type_Id": "subType"
-      }
-    },
-    "דיונים": {
-      "url": "https://bo-discussions-int.prod.k8s.justice.gov.il/api/DiscussionsBo/All",
-      "table": "Discussions.sql",
-      "matchingKeys": [
-        {
-          "key": "Moj_ID",
-          "jsonPath": "$.[*].protocolDocMojId",
-          "columns": {
-            "Strat_Time": "startTime",
-            "End_Time": "endTime",
-            "Discussion_Conference_Type_ID": "conferenceTypeId",
-            "discussionLink": "link",
-            "Discussion_Status_Id": "discussionStatusId",
-            "Discussion_Change_Reason_Id": "cancelReasonId",
-            "m_tik": "discussionRequests.caseDisplayId",
-            "PlatphormType": "discussionPlatphormTypeId"
-          }
-        }
-      ],
-      "field_map": {
-        "Strat_Time": "startTime",
-        "End_Time": "endTime",
-        "Discussion_Conference_Type_ID": "conferenceTypeId",
-        "discussionLink": "link",
-        "Discussion_Status_Id": "discussionStatusId",
-        "Discussion_Change_Reason_Id": "cancelReasonId",
-        "m_tik": "discussionRequests.caseDisplayId",
-        "PlatphormType": "discussionPlatphormTypeId"
-      }
+    ],
+    "field_map": {
+      "Decision_Date": "decisionDate_json",
+      "Decision_Status": "decisionStatusTypeId_json",
+      "Is_For_Advertisement": "isForPublication_json",
+      "Create_User": "decisionJudge_json",
+      "Decision_Type_Id": "decisionTypeToCourtId_json"
     }
+  },
+  "מסמכים": {
+    "url": "https://ecourtsdocumentsint.justice.gov.il/api/Documents",
+    "table": "Documents.sql",
+    "matchingKeys": [
+      {
+        "key": "moj_id",
+        "jsonPath": "$.documentList[*].mojId",
+        "columns": {
+          "document_Type_Id": "subType"
+        }
+      }
+    ],
+    "field_map": {
+      "document_Type_Id": "subType"
+    }
+  },
+  "דיונים": {
+    "url": "https://bo-discussions-int.prod.k8s.justice.gov.il/api/DiscussionsBo/All/{case_id}",
+    "table": "Discussions.sql",
+    "matchingKeys": [
+      {
+        "key": "mojId",
+        "jsonPath": "$.[*].protocolDocMojId",
+        "columns": {
+          "Strat_Time": "startTime",
+          "End_Time": "endTime",
+          "Discussion_Conference_Type_ID": "conferenceTypeId",
+          "discussionLink": "link",
+          "Discussion_Status_Id": "discussionStatusId",
+          "Discussion_Change_Reason_Id": "cancelReasonId",
+          "m_tik": "discussionRequests.caseDisplayId",
+          "PlatphormType": "discussionPlatphormTypeId"
+        }
+      }
+    ]
+  },
+  "מעורבים בתיק": {
+    "url": "https://bo-casemanagement-int.prod.k8s.justice.gov.il/api/Case/GetCase?CaseId={case_id}",
+    "table": "RequestCase.sql",
+    "columns": {
+      "CompanyName": "caseInvolveds.caseInvolvedName",
+      "PrivateCompanyNumber": "caseInvolveds.caseInvolvedIdentifyId",
+      "CompanyType": "caseInvolveds.caseInvolvedIdentifyType"
+    },
+    "matchingKeys": [
+      {
+        "key": "Main_Id_Number",
+        "jsonPath": "$.caseInvolveds[0].representors[*].caseInvolvedIdentifyId",
+        "columns": {
+          "orer": "caseInvolvedName",
+          "Representor_Type_Id": "representorTypeId"
+        }
+      },
+      {
+        "key": "meshivaID",
+        "jsonPath": "$.caseInvolveds[1].representors[*].caseInvolvedIdentifyId",
+        "columns": {
+          "meshiva": "caseInvolvedName"
+        }
+      }
+    ]
   }
-  
+}
