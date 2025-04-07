@@ -27,17 +27,17 @@ def main():
             log_and_print(f"❌ Could not find appeal number for case ID {case_id}. Skipping.", "error")
             continue
 
-        # decision_summary = run_decision_comparison(case_id, appeal_number)
-        # if decision_summary:
-        #     all_summaries["decision"].append(decision_summary)
+        decision_summary = run_decision_comparison(case_id, appeal_number)
+        if decision_summary:
+            all_summaries["decision"].append(decision_summary)
 
-        # document_summary = run_document_comparison(case_id, appeal_number)
-        # if document_summary:
-        #     all_summaries["document"].append(document_summary)
+        document_summary = run_document_comparison(case_id, appeal_number)
+        if document_summary:
+            all_summaries["document"].append(document_summary)
 
-        # discussion_summary = run_discussion_comparison(case_id, appeal_number)
-        # if discussion_summary:
-        #     all_summaries["discussion"].append(discussion_summary)
+        discussion_summary = run_discussion_comparison(case_id, appeal_number)
+        if discussion_summary:
+            all_summaries["discussion"].append(discussion_summary)
 
         case_involved_summary = run_case_involved_comparison(case_id, appeal_number)
         if case_involved_summary:
