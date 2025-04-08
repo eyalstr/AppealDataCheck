@@ -6,20 +6,18 @@
         "key": "mojId",
         "jsonPath": "$.businessCaseDetails.decisionList[*].mojId",
         "columns": {
-          "Decision_Date": "decisionDate_json",
-          "Decision_Status": "decisionStatusTypeId_json",
-          "Is_For_Advertisement": "isForPublication_json",
-          "Create_User": "decisionJudge_json",
-          "Decision_Type_Id": "decisionTypeToCourtId_json"
+          "Decision_Date": "decisionDate",
+          "Decision_Status": "decisionStatusTypeId",
+          "Is_For_Advertisement": "isForPublication",          
+          "Decision_Type_Id": "decisionTypeToCourtId"
         }
       }
     ],
     "field_map": {
-      "Decision_Date": "decisionDate_json",
-      "Decision_Status": "decisionStatusTypeId_json",
-      "Is_For_Advertisement": "isForPublication_json",
-      "Create_User": "decisionJudge_json",
-      "Decision_Type_Id": "decisionTypeToCourtId_json"
+      "Decision_Date": "decisionDate",
+      "Decision_Status": "decisionStatusTypeId",
+      "Is_For_Advertisement": "isForPublication",     
+      "Decision_Type_Id": "decisionTypeToCourtId"
     }
   },
   "מסמכים": {

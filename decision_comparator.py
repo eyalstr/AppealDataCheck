@@ -20,45 +20,62 @@ def values_match(field, menora_value, json_value):
     return menora_str.lower() == json_str.lower()
 
 
-
 def compare_decision_data(json_df, menora_df, field_map):
     import pandas as pd
+    from collections import defaultdict
+    from tabulate import tabulate
 
-    # Normalize column names
+    # Normalize 'mojId' for merge
     menora_df = menora_df.rename(columns={"Moj_ID": "mojId"})
-    for k in field_map.keys():
-        if k in menora_df.columns:
-            menora_df = menora_df.rename(columns={k: f"{k}_menora"})
+    json_df = json_df.rename(columns={"moj_id": "mojId"})  # Just in case
 
-    for v in field_map.values():
-        if v in json_df.columns:
-            json_df = json_df.rename(columns={v: f"{v}_json"})
+    # Apply suffixes manually to comparison fields
+    menora_df = menora_df.rename(columns={k: f"{k}_menora" for k in field_map.keys()})
+    json_df = json_df.rename(columns={v: f"{v}_json" for v in field_map.values()})
 
     print("📋 Menora columns:", menora_df.columns.tolist())
     print("📋 JSON columns:", json_df.columns.tolist())
 
-    # Merge on mojId
-    merged = pd.merge(
-        menora_df,
-        json_df,
-        on="mojId",
-        how="inner",
-        suffixes=("_menora", "_json")
-    )
+    # Merge both datasets on 'mojId'
+    merged = pd.merge(menora_df, json_df, on="mojId", how="inner")
 
     results = []
 
+    # Compare fields row by row
     for _, row in merged.iterrows():
         for menora_field, json_field in field_map.items():
-            left_val = row.get(f"{menora_field}_menora", "⛔")
-            right_val = row.get(f"{json_field}_json", "⛔")
+            left = row.get(f"{menora_field}_menora", "⛔")
+            right = row.get(f"{json_field}_json", "⛔")
+
+            match = values_match(menora_field, left, right)
+
             results.append({
                 "mojId": row["mojId"],
                 "Field": menora_field,
-                "Menora Value": left_val,
-                "JSON Value": right_val,
-                "Match": "✓" if values_match(menora_field, left_val, right_val) else "✗"
+                "Menora Value": left,
+                "JSON Value": right,
+                "Match": "✓" if match else "✗"
             })
+
+    # Group mismatches for table output
+    mismatches = defaultdict(list)
+    for row in results:
+        if row["Match"] == "✗":
+            mismatches[row["mojId"]].append({
+                "Field": row["Field"],
+                "Menora Value": row["Menora Value"],
+                "JSON Value": row["JSON Value"]
+            })
+
+    if not results:
+        print("⚠️ No decision comparison results found.")
+    elif mismatches:
+        print(f"❌ Found mismatches in {len(mismatches)} decisions.")
+        for moj_id, rows in mismatches.items():
+            print(f"\n🔎 Mismatched Fields for mojId {moj_id}:")
+            print(tabulate(rows, headers="keys", tablefmt="grid", showindex=False))
+    else:
+        print("✅ All matched decision fields are identical.")
 
     return results
 
