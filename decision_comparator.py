@@ -1,24 +1,24 @@
 from tabulate import tabulate
 from dateutil.parser import parse
 
-
 def values_match(field, menora_value, json_value):
     menora_str = str(menora_value).strip()
     json_str = str(json_value).strip()
 
-    if field == "Create_User":
-        return menora_str.lower() == json_str.lower()
-
-    if field == "Decision_Date":
+    if field in ["document_Type_Id", "Source_Type"]:
         try:
-            # Parse and remove timezone info for fair comparison
-            menora_dt = parse(menora_str).replace(tzinfo=None)
-            json_dt = parse(json_str).replace(tzinfo=None)
-            return menora_dt == json_dt
+            return int(menora_value) == int(json_value)
+        except (TypeError, ValueError):
+            return False
+
+    if field.lower().endswith("date"):
+        try:
+            return parse(menora_str).replace(tzinfo=None) == parse(json_str).replace(tzinfo=None)
         except Exception:
             return False
 
-    return menora_str == json_str
+    return menora_str.lower() == json_str.lower()
+
 
 
 def compare_decision_data(json_df, menora_df, field_map):

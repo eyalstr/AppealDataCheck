@@ -37,8 +37,8 @@
     ],
     "field_map": {
       "document_Type_Id": "subType",
-      "Source_Type": "docType"
-    }
+      "Source_Type": "doc_type"
+      }
 
   },
   "דיונים": {

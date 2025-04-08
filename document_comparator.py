@@ -28,8 +28,27 @@ def compare_document_data(json_df, menora_df, field_map):
     import pandas as pd
     from collections import defaultdict
 
-    json_df = json_df.rename(columns={"moj_id": "mojId"})
+    # Unify the merge key
+    # print("Before renaming JSON:")
+    # print(json_df[["mojId", "doc_type"]].head(10))
+
+
     menora_df = menora_df.rename(columns={"moj_id": "mojId"})
+    json_df = json_df.rename(columns={"moj_id": "mojId"})  # Just in case, even though yours looks good
+
+    # Apply suffixes manually for fields being compared
+    menora_df = menora_df.rename(columns={k: f"{k}_menora" for k in field_map.keys()})
+    json_df = json_df.rename(columns={v: f"{v}_json" for v in field_map.values()})
+
+    # print("After renaming JSON:")
+    # print(json_df[["mojId", "doc_type_json"]].head(10))
+
+
+    log_and_print(f"Menora columns: {menora_df.columns.tolist()}", is_hebrew=True)
+    log_and_print(f"JSON columns: {json_df.columns.tolist()}", is_hebrew=True)
+
+    merged = pd.merge(menora_df, json_df, on="mojId", how="inner")
+
 
     merged = pd.merge(menora_df, json_df, on="mojId", how="inner", suffixes=("_menora", "_json"))
 
