@@ -30,13 +30,16 @@
         "key": "moj_id",
         "jsonPath": "$.documentList[*].mojId",
         "columns": {
-          "document_Type_Id": "subType"
+          "document_Type_Id": "subType",
+          "Source_Type": "docType"
         }
       }
     ],
     "field_map": {
-      "document_Type_Id": "subType"
+      "document_Type_Id": "subType",
+      "Source_Type": "docType"
     }
+
   },
   "דיונים": {
     "url": "https://bo-discussions-int.prod.k8s.justice.gov.il/api/DiscussionsBo/All/{case_id}",

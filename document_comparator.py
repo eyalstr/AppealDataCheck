@@ -84,14 +84,22 @@ def extract_document_data_from_json(case_json):
     for doc in documents:
         moj_id = doc.get("mojId")
         sub_type = doc.get("subType")
+        doc_type = doc.get("docType")
 
         if moj_id is None:
             log_and_print("⚠️ Skipping document without mojId.", "warning")
             continue
+        
+        if doc_type is None:
+            log_and_print(f"⚠️ Document {moj_id} is missing 'docType'.", "warning")
+        #elif doc_type not in DOCUMENT_TYPE_MAPPING:
+        #    log_and_print(f"❓ Unknown 'docType' ID {doc_type} in document {moj_id}.", "warning")
+
 
         extracted.append({
             "mojId": moj_id,
-            "subType": sub_type
+            "subType": sub_type,
+            "docType": doc_type
         })
 
     df = pd.DataFrame(extracted)
