@@ -39,8 +39,8 @@ def run_case_contacts_comparison(case_id, appeal_number):
 
         # Step 2b: Fetch contact data from contacts API
         contact_data = fetch_role_contacts(role_ids)
-        log_and_print("🔎 Contact API response:", "info")
-        log_and_print(json.dumps(contact_data, indent=2, ensure_ascii=False), "info")
+        # log_and_print("🔎 Contact API response:", "info")
+        # log_and_print(json.dumps(contact_data, indent=2, ensure_ascii=False), "info")
 
         # Step 2c: Parse response into DataFrame
         contact_records = []

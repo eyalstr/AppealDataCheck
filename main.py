@@ -5,7 +5,7 @@ from sql_client import fetch_appeal_number_by_case_id
 from decision_runner import run_decision_comparison
 from document_runner import run_document_comparison
 from discussion_runner import run_discussion_comparison
-from case_involved_runner import run_case_involved_comparison
+from case_representator_runner import run_case_involved_comparison
 from case_contact_runner import run_case_contacts_comparison
 from requestlog_runner import run_request_log_comparison
 from logging_utils import log_and_print
@@ -31,22 +31,22 @@ def main():
             log_and_print(f"❌ Could not find appeal number for case ID {case_id}. Skipping.", "error")
             continue
 
-        # decision_summary = run_decision_comparison(case_id, appeal_number)
-        # if decision_summary:
-        #     all_summaries["decision"].append(decision_summary)
+        decision_summary = run_decision_comparison(case_id, appeal_number)
+        if decision_summary:
+            all_summaries["decision"].append(decision_summary)
 
-        # document_summary = run_document_comparison(case_id, appeal_number)
-        # if document_summary:
-        #     all_summaries["document"].append(document_summary)
+        document_summary = run_document_comparison(case_id, appeal_number)
+        if document_summary:
+            all_summaries["document"].append(document_summary)
 
-        # discussion_summary = run_discussion_comparison(case_id, appeal_number)
-        # if discussion_summary:
-        #     all_summaries["discussion"].append(discussion_summary)
+        discussion_summary = run_discussion_comparison(case_id, appeal_number)
+        if discussion_summary:
+            all_summaries["discussion"].append(discussion_summary)
 
-        # # ב"כ צדדים - עורר ומשיבה
-        # case_involved_summary = run_case_involved_comparison(case_id, appeal_number)
-        # if case_involved_summary:
-        #     all_summaries["case_involved"].append(case_involved_summary)
+        # ב"כ צדדים - עורר ומשיבה
+        case_involved_summary = run_case_involved_comparison(case_id, appeal_number)
+        if case_involved_summary:
+            all_summaries["case_involved"].append(case_involved_summary)
 
         # פרטי עורר
         case_contacts_summary = run_case_contacts_comparison(case_id, appeal_number)
@@ -55,9 +55,9 @@ def main():
 
 
         # Run request log comparison
-        # request_log_summary = run_request_log_comparison(case_id, appeal_number)
-        # if request_log_summary:
-        #     all_summaries["request_log"].append(request_log_summary)
+        request_log_summary = run_request_log_comparison(case_id, appeal_number)
+        if request_log_summary:
+            all_summaries["request_log"].append(request_log_summary)
 
 
     # if all_summaries["decision"]:
