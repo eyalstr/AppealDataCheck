@@ -6,7 +6,7 @@ from decision_runner import run_decision_comparison
 from document_runner import run_document_comparison
 from discussion_runner import run_discussion_comparison
 from case_representator_runner import run_case_involved_comparison
-from case_contact_runner import run_case_contacts_comparison
+from case_involved_runner import run_case_contacts_comparison
 from requestlog_runner import run_request_log_comparison
 from logging_utils import log_and_print
 from tabulate import tabulate
