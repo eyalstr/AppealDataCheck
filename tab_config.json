@@ -98,5 +98,22 @@
         }
       }
     ]
-  }
+  },
+  "עורר פרטי קשר": {
+  "url": "https://bo-contacts-int.prod.k8s.justice.gov.il/api/RoleInCorporation",
+  "table": "RequestCase.sql",
+  "matchingKeys": [
+    {
+      "key": "Main_Id_Number",
+      "parent": true,
+      "jsonPath": "$.roleInCorporationDetails[*].corporationDetails.corporationIDNumber",
+      "columns": {
+        "orerEmail": "connectDetails.mail",
+        "Phone1": "connectDetails.primaryPhone",
+        "Phone2": "connectDetails.secondaryPhone"
+      }
+    }
+  ]
+}
+
 }

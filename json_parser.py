@@ -86,3 +86,33 @@ def extract_document_data_from_json(documents):
     log_and_print(f"📋 Extracted document DataFrame preview:\n{df.head(3)}", "info")
 
     return df
+
+def extract_request_logs_from_json(case_json):
+    import pandas as pd
+
+    if not isinstance(case_json, dict):
+        log_and_print("❌ extract_request_logs_from_json expected a single case JSON object (dict).", "error")
+        return pd.DataFrame()
+
+    logs = []
+
+    requests = case_json.get("requests", [])
+    for req in requests:
+        for log_entry in req.get("requestLogs", []):
+            logs.append({
+                "Status_Date": log_entry.get("createLogDate"),
+                "Action_Description": log_entry.get("remark"),
+                "Request_Status_Id": log_entry.get("requestStatusId"),
+                "Action_Log_Type_Id": log_entry.get("actionLogTypeId"),
+                "Create_Action_User": log_entry.get("createActionUser"),
+            })
+
+    df = pd.DataFrame(logs)
+
+    if df.empty:
+        log_and_print("⚠️ No request logs found in JSON response.", "warning")
+    else:
+        log_and_print(f"📋 Extracted {len(df)} request logs from JSON.", "success")
+        log_and_print(f"📋 Extracted request log DataFrame preview:\n{df.head(3)}", "info", is_hebrew=True)
+
+    return df
