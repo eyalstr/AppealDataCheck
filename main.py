@@ -6,6 +6,7 @@ from decision_runner import run_decision_comparison
 from document_runner import run_document_comparison
 from discussion_runner import run_discussion_comparison
 from case_involved_runner import run_case_involved_comparison  # ✅ NEW
+from requestlog_runner import run_request_log_comparison
 from logging_utils import log_and_print
 from tabulate import tabulate
 
@@ -17,7 +18,8 @@ def main():
         "decision": [],
         "document": [],
         "discussion": [],
-        "case_involved": []  # ✅ NEW
+        "case_involved": [],
+        "request_log": []
     }
 
     for case_id in case_ids:
@@ -27,21 +29,27 @@ def main():
             log_and_print(f"❌ Could not find appeal number for case ID {case_id}. Skipping.", "error")
             continue
 
-        decision_summary = run_decision_comparison(case_id, appeal_number)
-        if decision_summary:
-            all_summaries["decision"].append(decision_summary)
+        # decision_summary = run_decision_comparison(case_id, appeal_number)
+        # if decision_summary:
+        #     all_summaries["decision"].append(decision_summary)
 
-        document_summary = run_document_comparison(case_id, appeal_number)
-        if document_summary:
-            all_summaries["document"].append(document_summary)
+        # document_summary = run_document_comparison(case_id, appeal_number)
+        # if document_summary:
+        #     all_summaries["document"].append(document_summary)
 
-        discussion_summary = run_discussion_comparison(case_id, appeal_number)
-        if discussion_summary:
-            all_summaries["discussion"].append(discussion_summary)
+        # discussion_summary = run_discussion_comparison(case_id, appeal_number)
+        # if discussion_summary:
+        #     all_summaries["discussion"].append(discussion_summary)
 
-        case_involved_summary = run_case_involved_comparison(case_id, appeal_number)
-        if case_involved_summary:
-            all_summaries["case_involved"].append(case_involved_summary)
+        # case_involved_summary = run_case_involved_comparison(case_id, appeal_number)
+        # if case_involved_summary:
+        #     all_summaries["case_involved"].append(case_involved_summary)
+
+        # Run request log comparison
+        request_log_summary = run_request_log_comparison(case_id, appeal_number)
+        if request_log_summary:
+            all_summaries["request_log"].append(request_log_summary)
+
 
     # if all_summaries["decision"]:
     #     log_and_print("\n📋 Final Summary for Decision Tab:", "info")

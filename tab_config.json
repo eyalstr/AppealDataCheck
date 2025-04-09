@@ -84,5 +84,19 @@
         }
       }
     ]
+  },
+    "יומן תיק": {
+    "url": "https://bo-casemanagement-int.prod.k8s.justice.gov.il/api/Case/GetCase",
+    "table": "RequestLogs.sql",
+    "matchingKeys": [
+      {
+        "key": "Status_Date",
+        "jsonPath": "$.requests[*].requestLogs[*].createActionDate",
+        "columns": {
+          "Status_Date": "createLogDate",
+          "Action_Description": "remark"
+        }
+      }
+    ]
   }
 }

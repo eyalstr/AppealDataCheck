@@ -230,3 +230,37 @@ GROUP BY p.Main_Id_Number;
     except Exception as e:
         log_and_print(f"❌ Error while fetching case involved data: {e}", "error")
         return pd.DataFrame()
+def fetch_menora_log_requests(appeal_number):
+    query = """
+        SELECT 
+            la.Status_Date,
+            CASE 
+                WHEN la.Action_Description = 'Case Create' THEN N'הגשת תיק ערר'
+                ELSE la.Action_Description
+            END AS Action_Description,
+            la.Status_Reason,
+            la.Action_Type,
+            la.Create_User
+        FROM [Menora_Conversion].[dbo].[Log_Appeal_Status] la
+        JOIN Menora_Conversion.dbo.Appeal a 
+            ON la.Appeal_ID = a.Appeal_ID
+        WHERE a.Appeal_Number_Display = ?
+        ORDER BY la.Log_Code DESC;
+    """
+    try:
+        conn = get_sql_connection()
+        df = pd.read_sql(query, conn, params=[appeal_number])
+        conn.close()
+
+        required_columns = ["Status_Date", "Action_Description", "Status_Reason", "Action_Type", "Create_User"]
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            log_and_print(f"❌ Missing expected columns in Menora response: {missing_columns}", "error")
+            return pd.DataFrame()
+
+        log_and_print(f"✅ Retrieved {len(df)} request log entries from Menora for appeal number {appeal_number}", "success")
+        return df
+
+    except Exception as e:
+        log_and_print(f"❌ Error while fetching request log data for appeal number {appeal_number}: {e}", "error")
+        return pd.DataFrame()
