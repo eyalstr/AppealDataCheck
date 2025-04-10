@@ -172,7 +172,8 @@ def fetch_role_contacts(role_ids: list) -> dict:
         log_and_print(f"❌ Exception occurred while fetching contact data: {e}", "error")
         return {}
     
-    
+  
+
 def fetch_distribution_data(case_id):
     url = f"https://bo-distribution-int.prod.k8s.justice.gov.il/api/Distribution/GetDistributionsByCaseOrRequest?CaseId={case_id}"
 
@@ -198,7 +199,6 @@ def fetch_distribution_data(case_id):
         response.raise_for_status()
         data = response.json()
 
-        # Normalize datetime format to "YYYY-MM-DD HH:MM:SS" format in-place
         for item in data:
             if "createDate" in item and item["createDate"]:
                 try:

@@ -99,6 +99,21 @@
       }
     ]
   },
+  "הפצות": {
+    "url": "https://bo-distribution-int.prod.k8s.justice.gov.il/api/Distribution/GetDistributionsByCaseOrRequest",
+    "table": "Distributions.sql",
+    "matchingKeys": [
+      {
+        "key": "SendKey",
+        "jsonKey": "SendKey"
+      }
+    ],
+    "field_map": {
+      "SendDate": "createDate",
+      "SendTo": "sendTo",
+      "SendSubject": "subject"
+    }
+  },
   "עורר פרטי קשר": {
   "url": "https://bo-contacts-int.prod.k8s.justice.gov.il/api/RoleInCorporation",
   "table": "RequestCase.sql",

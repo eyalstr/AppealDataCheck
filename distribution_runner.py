@@ -10,6 +10,9 @@ from collections import defaultdict
 def run_distribution_comparison(case_id, appeal_number):
     log_and_print("\n📂 Running distribution comparison...", "info")
 
+    # tab_config = load_tab_config("הפצות")
+    # field_map = tab_config.get("field_map", {})
+
     # Step 1: Fetch Menora SQL data
     try:
         menora_df = fetch_menora_distributions(appeal_number)
@@ -43,7 +46,7 @@ def run_distribution_comparison(case_id, appeal_number):
         log_and_print(f"❌ Failed to fetch or parse distribution data: {e}", "error")
         return {}
 
-    # Step 3: Compare based on (SendDate + SendTo) tuple
+    # Step 3: Compare using compound key from config
     try:
         menora_df["SendKey"] = menora_df["SendDate"].astype(str) + "|" + menora_df["SendTo"].astype(str).str.strip()
         json_df["SendKey"] = json_df["SendDate"].astype(str) + "|" + json_df["sendTo"].astype(str).str.strip()
@@ -77,5 +80,4 @@ def run_distribution_comparison(case_id, appeal_number):
     except Exception as e:
         log_and_print(f"❌ Error during distribution comparison logic: {e}", "error")
         return {}
-
 
