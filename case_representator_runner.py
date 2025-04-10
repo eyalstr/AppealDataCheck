@@ -3,9 +3,14 @@ import pandas as pd
 from sql_client import fetch_menora_case_involved_data
 from client_api import fetch_case_details
 from logging_utils import log_and_print
+from config_loader import load_tab_config
 import json
 
 def run_case_involved_comparison(case_id, appeal_number):
+    tab_config = load_tab_config("מעורבים בתיק")
+    matching_keys = tab_config.get("matchingKeys", [])
+    field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
+
     log_and_print("\n📂 Running case involved comparison...", "info")
 
     # Step 1: Fetch Menora SQL data
@@ -14,6 +19,7 @@ def run_case_involved_comparison(case_id, appeal_number):
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df["PrivateCompanyNumber"] = menora_df["PrivateCompanyNumber"].astype(str)
         menora_df["Main_Id_Number"] = menora_df["Main_Id_Number"].astype(str)
+        menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         log_and_print(f"✅ Retrieved {len(menora_df)} case involved entries from Menora for appeal {appeal_number}", "success")
     except Exception as e:
         log_and_print(f"❌ SQL query execution failed: {e}", "error")
@@ -22,10 +28,6 @@ def run_case_involved_comparison(case_id, appeal_number):
     # Step 2: Fetch JSON API data
     json_data = fetch_case_details(case_id)
     json_df = pd.DataFrame()
-
-    # Log full JSON response
-    # log_and_print("🔎 Full JSON response from API:", "info")
-    # log_and_print(json.dumps(json_data, indent=2, ensure_ascii=False), "info")
 
     try:
         case_involveds = json_data.get("caseInvolveds", [])
@@ -49,22 +51,24 @@ def run_case_involved_comparison(case_id, appeal_number):
                     expanded_records.append(record)
 
         json_df = pd.DataFrame(expanded_records)
-
         for col in ["PrivateCompanyNumber", "Main_Id_Number"]:
             if col in json_df.columns:
                 json_df[col] = json_df[col].astype(str)
 
-        log_and_print(f"📋 Extracted case involved DataFrame preview:\n{json_df.head(3)}", "info",is_hebrew=True)
+        for ui_field, _ in field_map.items():
+            if ui_field in json_df.columns and not ui_field.endswith("_json"):
+                json_df.rename(columns={ui_field: f"{ui_field}_json"}, inplace=True)
+
+        json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
+        log_and_print(f"📋 Extracted case involved DataFrame preview:\n{json_df.head(3)}", "info", is_hebrew=True)
         log_and_print(f"✅ Extracted {len(json_df)} case involved entries from API for case {case_id}", "success")
 
     except Exception as e:
         log_and_print(f"❌ Failed to parse JSON case involved data: {e}", "error")
         json_df = pd.DataFrame()
 
-    # Step 3: Count comparisons
     menora_count = len(menora_df)
     json_count = len(json_df)
-
     missing_in_json = 0
     missing_in_menora = 0
     mismatched_fields = 0
