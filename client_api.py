@@ -7,6 +7,7 @@ import config
 from dotenv import load_dotenv
 from logging_utils import log_and_print
 from urllib.parse import urlencode
+import datetime
 
 # Load environment variables from .env file
 load_dotenv()
@@ -170,3 +171,49 @@ def fetch_role_contacts(role_ids: list) -> dict:
     except Exception as e:
         log_and_print(f"❌ Exception occurred while fetching contact data: {e}", "error")
         return {}
+    
+    
+def fetch_distribution_data(case_id):
+    url = f"https://bo-distribution-int.prod.k8s.justice.gov.il/api/Distribution/GetDistributionsByCaseOrRequest?CaseId={case_id}"
+
+    if not BEARER_TOKEN:
+        log_and_print("❌ Error: BEARER_TOKEN is missing from .env", "error")
+        return None
+
+    headers = {
+        "Authorization": f"Bearer {BEARER_TOKEN}",
+        "Accept": "application/json",
+        "Moj-Application-Id": MOJ_APP_ID
+    }
+
+    try:
+        response = requests.get(url, headers=headers, verify=False)
+        print(f"🔎 Raw response status: {response.status_code}")
+        print(f"🔎 Response text: {response.text[:50]}...")
+
+        if response.status_code == 204:
+            log_and_print(f"⚠️ No data found for CaseId {case_id} (204 No Content)", "warning")
+            return None
+
+        response.raise_for_status()
+        data = response.json()
+
+        # Normalize datetime format to "YYYY-MM-DD HH:MM:SS" format in-place
+        for item in data:
+            if "createDate" in item and item["createDate"]:
+                try:
+                    dt = datetime.fromisoformat(item["createDate"].split("+")[0])
+                    item["createDate"] = dt.strftime("%Y-%m-%d %H:%M:%S")
+                except Exception:
+                    pass
+
+        return data
+
+    except requests.exceptions.HTTPError as http_err:
+        log_and_print(f"❌ HTTP error occurred: {http_err}", "error")
+    except requests.exceptions.RequestException as req_err:
+        log_and_print(f"❌ Request error occurred: {req_err}", "error")
+    except Exception as e:
+        log_and_print(f"❌ Unexpected error: {e}", "error")
+
+    return None

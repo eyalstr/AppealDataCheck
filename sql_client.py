@@ -311,6 +311,28 @@ GROUP BY p.Main_Id_Number;
         return pd.DataFrame()
     
 
+def fetch_menora_distributions(appeal_number):
+    query = """
+    SELECT d.SendDate,d.SendUser,d.SendFrom,d.SendTo,d.SendSubject,d.SendBody,
+           d.AttachmentsDocMojID,d.Discussion_Id,d.SendErrorCode,d.SendErrorDesc,
+           d.Distribution_Status,d.Distribution_Status_Desc,d.Distribution_type, 
+           dt.Name AS 'סוג הפצה'
+    FROM Menora.dbo.Log_DistributionService d
+    JOIN Menora.dbo.CT_Distribution_Type dt ON d.Distribution_type = dt.Code
+    JOIN Menora.dbo.Appeal a ON d.appeal_id = a.Appeal_ID
+    WHERE a.Appeal_Number_Display = ?
+    """
+    try:
+        conn = get_sql_connection()
+        df = pd.read_sql(query, conn, params=[appeal_number])
+        conn.close()
+        log_and_print(f"✅ Retrieved {len(df)} distribution entries from Menora for appeal {appeal_number}", "success")
+        return df
+    except Exception as e:
+        log_and_print(f"❌ Error while fetching distribution data: {e}", "error")
+        return pd.DataFrame()
+    
+
 def fetch_menora_log_requests(appeal_number):
     query = """
         SELECT 

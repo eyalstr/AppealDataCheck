@@ -81,11 +81,6 @@ def run_document_comparison(case_id, appeal_number):
         "field_mismatch_details": dict(mismatch_by_mojid)
     }
 
-from tabulate import tabulate
-import pandas as pd
-from logging_utils import log_and_print
-
-
 from dateutil.parser import parse
 from tabulate import tabulate
 from logging_utils import log_and_print

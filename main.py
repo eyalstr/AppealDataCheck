@@ -8,6 +8,7 @@ from discussion_runner import run_discussion_comparison
 from case_representator_runner import run_case_involved_comparison
 from case_involved_runner import run_case_contacts_comparison
 from requestlog_runner import run_request_log_comparison
+from distribution_runner import run_distribution_comparison
 from logging_utils import log_and_print
 from tabulate import tabulate
 
@@ -21,7 +22,8 @@ def main():
         "discussion": [],
         "case_involved": [],
         "case_contacted": [],
-        "request_log": []
+        "request_log": [],
+        "distribution":[]
     }
 
     for case_id in case_ids:
@@ -31,33 +33,38 @@ def main():
             log_and_print(f"❌ Could not find appeal number for case ID {case_id}. Skipping.", "error")
             continue
 
-        decision_summary = run_decision_comparison(case_id, appeal_number)
-        if decision_summary:
-            all_summaries["decision"].append(decision_summary)
+        # decision_summary = run_decision_comparison(case_id, appeal_number)
+        # if decision_summary:
+        #     all_summaries["decision"].append(decision_summary)
 
-        document_summary = run_document_comparison(case_id, appeal_number)
-        if document_summary:
-            all_summaries["document"].append(document_summary)
+        # document_summary = run_document_comparison(case_id, appeal_number)
+        # if document_summary:
+        #     all_summaries["document"].append(document_summary)
 
-        discussion_summary = run_discussion_comparison(case_id, appeal_number)
-        if discussion_summary:
-            all_summaries["discussion"].append(discussion_summary)
+        # discussion_summary = run_discussion_comparison(case_id, appeal_number)
+        # if discussion_summary:
+        #     all_summaries["discussion"].append(discussion_summary)
 
-        # ב"כ צדדים - עורר ומשיבה
-        case_involved_summary = run_case_involved_comparison(case_id, appeal_number)
-        if case_involved_summary:
-            all_summaries["case_involved"].append(case_involved_summary)
+        # # ב"כ צדדים - עורר ומשיבה
+        # case_involved_summary = run_case_involved_comparison(case_id, appeal_number)
+        # if case_involved_summary:
+        #     all_summaries["case_involved"].append(case_involved_summary)
 
-        # פרטי עורר
-        case_contacts_summary = run_case_contacts_comparison(case_id, appeal_number)
-        if case_contacts_summary:
-            all_summaries["case_contacted"].append(case_contacts_summary)
+        # # פרטי עורר
+        # case_contacts_summary = run_case_contacts_comparison(case_id, appeal_number)
+        # if case_contacts_summary:
+        #     all_summaries["case_contacted"].append(case_contacts_summary)
 
 
-        # Run request log comparison
-        request_log_summary = run_request_log_comparison(case_id, appeal_number)
-        if request_log_summary:
-            all_summaries["request_log"].append(request_log_summary)
+        # # Run request log comparison
+        # request_log_summary = run_request_log_comparison(case_id, appeal_number)
+        # if request_log_summary:
+        #     all_summaries["request_log"].append(request_log_summary)
+        
+        # # Run distribution comparison
+        distribution_summary = run_distribution_comparison(case_id, appeal_number)
+        if distribution_summary:
+            all_summaries["distribution"].append(distribution_summary)
 
 
     # if all_summaries["decision"]:
