@@ -5,10 +5,13 @@ from logging_utils import log_and_print
 import json
 import os
 from dotenv import load_dotenv
-
-#load_dotenv()
+from config_loader import load_tab_config
 
 def run_case_contacts_comparison(case_id, appeal_number):
+    tab_config = load_tab_config("עורר פרטי קשר")
+    matching_keys = tab_config.get("matchingKeys", [])
+    field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
+
     log_and_print("\n📂 Running case contact comparison...", "info")
 
     # Step 1: Fetch Menora SQL data
@@ -16,6 +19,7 @@ def run_case_contacts_comparison(case_id, appeal_number):
         menora_df = fetch_menora_case_contacts(appeal_number)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df["Main_Id_Number"] = menora_df["Main_Id_Number"].astype(str)
+        menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         log_and_print(f"✅ Retrieved {len(menora_df)} case contact entries from Menora for appeal {appeal_number}", "success")
     except Exception as e:
         log_and_print(f"❌ SQL query execution failed: {e}", "error")
@@ -26,23 +30,17 @@ def run_case_contacts_comparison(case_id, appeal_number):
     json_df = pd.DataFrame()
 
     try:
-        # Extract roleInCorporationIds from the main JSON
         role_ids = []
         for involved in json_data.get("caseInvolveds", []):
             for rep in involved.get("representors", []):
-                if rep.get("appointmentEndDate") is None:
-                    if rep.get("roleInCorporationId"):
-                        role_ids.append(rep.get("roleInCorporationId"))
+                if rep.get("appointmentEndDate") is None and rep.get("roleInCorporationId"):
+                    role_ids.append(rep.get("roleInCorporationId"))
 
         if not role_ids:
             raise ValueError("No roleInCorporationIds found in caseInvolveds")
 
-        # Step 2b: Fetch contact data from contacts API
         contact_data = fetch_role_contacts(role_ids)
-        # log_and_print("🔎 Contact API response:", "info")
-        # log_and_print(json.dumps(contact_data, indent=2, ensure_ascii=False), "info")
 
-        # Step 2c: Parse response into DataFrame
         contact_records = []
         for role in contact_data.get("roleInCorporationDetails", []):
             corp_id = role.get("corporationDetails", {}).get("corporationIDNumber")
@@ -62,6 +60,11 @@ def run_case_contacts_comparison(case_id, appeal_number):
         if "Main_Id_Number" in json_df.columns:
             json_df["Main_Id_Number"] = json_df["Main_Id_Number"].astype(str)
 
+        for ui_field, _ in field_map.items():
+            if ui_field in json_df.columns and not ui_field.endswith("_json"):
+                json_df.rename(columns={ui_field: f"{ui_field}_json"}, inplace=True)
+
+        json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
         log_and_print(f"📋 Extracted case contact DataFrame preview:\n{json_df.head(3)}", "info", is_hebrew=True)
         log_and_print(f"✅ Extracted {len(json_df)} case contact entries from API for case {case_id}", "success")
 
@@ -69,10 +72,8 @@ def run_case_contacts_comparison(case_id, appeal_number):
         log_and_print(f"❌ Failed to fetch or parse case contact data: {e}", "error")
         json_df = pd.DataFrame()
 
-    # Step 3: Count comparisons
     menora_count = len(menora_df)
     json_count = len(json_df)
-
     missing_in_json = 0
     missing_in_menora = 0
     mismatched_fields = 0
