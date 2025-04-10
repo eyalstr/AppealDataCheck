@@ -5,21 +5,52 @@ from logging_utils import log_and_print
 from config_loader import load_tab_config
 from tabulate import tabulate
 from dateutil.parser import parse
-
-
+import pandas as pd
 from collections import defaultdict
 
 def run_decision_comparison(case_id: int, appeal_number: int):
     tab_config = load_tab_config("החלטות")
+    matching_keys = tab_config.get("matchingKeys", [])
+    field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
+
+    log_and_print("\n📂 Running decision comparison...", "info")
+
+    # Step 1: Fetch Menora SQL data
+    try:
+        menora_df = fetch_menora_decision_data(appeal_number)
+        menora_df = menora_df.rename(columns=lambda x: x.strip())
+        menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
+        log_and_print(f"✅ Retrieved {len(menora_df)} decisions from Menora for appeal {appeal_number}", "success")
+    except Exception as e:
+        log_and_print(f"❌ SQL query execution failed: {e}", "error")
+        menora_df = pd.DataFrame()
+
+    # Step 2: Fetch JSON API data
     json_data = fetch_case_details(case_id)
-    if not json_data:
-        log_and_print(f"❌ Failed to fetch JSON data for case_id {case_id}.", "error")
-        return
+    json_df = pd.DataFrame()
 
-    json_df = extract_decision_data_from_json(json_data)
-    menora_df = fetch_menora_decision_data(appeal_number)
-    field_map = tab_config["field_map"]
+    if json_data:
+        try:
+            json_df = extract_decision_data_from_json(json_data)
 
+            for ui_field, _ in field_map.items():
+                if ui_field in json_df.columns and not ui_field.endswith("_json"):
+                    json_df.rename(columns={ui_field: f"{ui_field}_json"}, inplace=True)
+
+            json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
+
+            if not json_df.empty:
+                preview_cols = [col for col in ['mojId', 'decisionDate_json', 'createUser_json'] if col in json_df.columns]
+                log_and_print(f"📋 Extracted decision DataFrame preview:\n{json_df[preview_cols].head(3)}", "info")
+            log_and_print(f"✅ Extracted {len(json_df)} decisions from API for case {case_id}", "success")
+
+        except Exception as e:
+            log_and_print(f"❌ Failed to parse JSON decision data: {e}", "error")
+            json_df = pd.DataFrame()
+    else:
+        log_and_print(f"⚠️ No decision JSON data found for case_id {case_id}", "warning")
+
+    # Step 3: Field Comparison
     comparison_results = compare_decision_data(json_df, menora_df, field_map)
     mismatch_by_mojid = defaultdict(list)
     all_mojids_in_compare = set()
@@ -41,6 +72,7 @@ def run_decision_comparison(case_id: int, appeal_number: int):
                 mismatch_by_mojid[moj].append(row["Field"])
         test_status["fully_matched_mojIds"] = all_mojids_in_compare - mismatch_by_mojid.keys()
 
+    # Step 4: Count Comparison
     count_comparison = compare_decision_counts(json_df, menora_df)
     if count_comparison:
         for row in count_comparison:
@@ -49,6 +81,7 @@ def run_decision_comparison(case_id: int, appeal_number: int):
             elif row["Type"] == "Missing in Menora":
                 test_status["missing_in_menora"] = [moj.strip() for moj in row["mojIds"].split(",") if moj.strip()]
 
+    # Step 5: Summary
     log_and_print(f"\n🧪 Test Result Summary for Case ID {case_id} [Decisions]:", "info")
     log_and_print(f"{'✅' if not test_status['missing_in_menora'] else '❌'} {len(test_status['missing_in_menora'])} decision(s) missing in Menora.", "info")
     log_and_print(f"{'✅' if not test_status['missing_in_json'] else '❌'} {len(test_status['missing_in_json'])} decision(s) missing in JSON.", "info")
@@ -62,8 +95,6 @@ def run_decision_comparison(case_id: int, appeal_number: int):
         "field_mismatches": len(mismatch_by_mojid),
         "fully_matched": len(test_status["fully_matched_mojIds"]),
     }
-
-
 
 def values_match(field, menora_value, json_value):
     menora_str = str(menora_value).strip()
