@@ -5,8 +5,8 @@ from sql_client import fetch_appeal_number_by_case_id
 from decision_runner import run_decision_comparison
 from document_runner import run_document_comparison
 from discussion_runner import run_discussion_comparison
-from case_representator_runner import run_case_involved_comparison
-from case_involved_runner import run_case_contacts_comparison
+from case_representator_runner import run_representator_comparison
+from case_involved_runner import run_case_involved_comparison
 from requestlog_runner import run_request_log_comparison
 from distribution_runner import run_distribution_comparison
 from logging_utils import log_and_print
@@ -46,12 +46,12 @@ def main():
             all_summaries["discussion"].append(discussion_summary)
 
         # ב"כ צדדים - עורר ומשיבה
-        case_involved_summary = run_case_involved_comparison(case_id, appeal_number)
+        case_involved_summary = run_representator_comparison(case_id, appeal_number)
         if case_involved_summary:
             all_summaries["case_involved"].append(case_involved_summary)
 
         # פרטי עורר
-        case_contacts_summary = run_case_contacts_comparison(case_id, appeal_number)
+        case_contacts_summary = run_case_involved_comparison(case_id, appeal_number)
         if case_contacts_summary:
             all_summaries["case_contacted"].append(case_contacts_summary)
 

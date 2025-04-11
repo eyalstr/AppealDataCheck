@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 from config_loader import load_tab_config
 
-def run_case_contacts_comparison(case_id, appeal_number):
+def run_case_involved_comparison(case_id, appeal_number):
     tab_config = load_tab_config("עורר פרטי קשר")
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
