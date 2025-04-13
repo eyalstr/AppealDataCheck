@@ -7,13 +7,11 @@ from tabulate import tabulate
 from dateutil.parser import parse
 import pandas as pd
 from collections import defaultdict
-
 def run_decision_comparison(case_id: int, appeal_number: int):
+    log_and_print("\n📂 Running decision comparison...", "info")
     tab_config = load_tab_config("החלטות")
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
-
-    log_and_print("\n📂 Running decision comparison...", "info")
 
     # Step 1: Fetch Menora SQL data
     try:
@@ -33,22 +31,44 @@ def run_decision_comparison(case_id: int, appeal_number: int):
         try:
             json_df = extract_decision_data_from_json(json_data)
 
-            for ui_field, _ in field_map.items():
+            for ui_field in field_map:
                 if ui_field in json_df.columns and not ui_field.endswith("_json"):
                     json_df.rename(columns={ui_field: f"{ui_field}_json"}, inplace=True)
 
             json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
 
-            if not json_df.empty:
+            if not json_df.empty and "mojId" in json_df.columns:
                 preview_cols = [col for col in ['mojId', 'decisionDate_json', 'createUser_json'] if col in json_df.columns]
                 log_and_print(f"📋 Extracted decision DataFrame preview:\n{json_df[preview_cols].head(3)}", "info")
-            log_and_print(f"✅ Extracted {len(json_df)} decisions from API for case {case_id}", "success")
+                log_and_print(f"✅ Extracted {len(json_df)} decisions from API for case {case_id}", "success")
+            else:
+                log_and_print(f"⚠️ Skipping decision comparison — JSON data is empty or missing 'mojId' column.", "warning")
+                return {
+                    "case_id": case_id,
+                    "missing_in_menora": len(menora_df),
+                    "missing_in_json": 0,
+                    "field_mismatches": 0,
+                    "fully_matched": 0
+                }
 
         except Exception as e:
             log_and_print(f"❌ Failed to parse JSON decision data: {e}", "error")
-            json_df = pd.DataFrame()
+            return {
+                "case_id": case_id,
+                "missing_in_menora": len(menora_df),
+                "missing_in_json": 0,
+                "field_mismatches": 0,
+                "fully_matched": 0
+            }
     else:
         log_and_print(f"⚠️ No decision JSON data found for case_id {case_id}", "warning")
+        return {
+            "case_id": case_id,
+            "missing_in_menora": len(menora_df),
+            "missing_in_json": 0,
+            "field_mismatches": 0,
+            "fully_matched": 0
+        }
 
     # Step 3: Field Comparison
     comparison_results = compare_decision_data(json_df, menora_df, field_map)
@@ -92,7 +112,7 @@ def run_decision_comparison(case_id: int, appeal_number: int):
         "case_id": case_id,
         "missing_in_menora": len(test_status["missing_in_menora"]),
         "missing_in_json": len(test_status["missing_in_json"]),
-        "field_mismatches": len(mismatch_by_mojid),
+        "field_mismatches": len(test_status["field_mismatches"]),
         "fully_matched": len(test_status["fully_matched_mojIds"]),
     }
 
