@@ -4,42 +4,69 @@ from client_api import fetch_case_discussions, fetch_case_details
 from logging_utils import log_and_print
 from jsonpath_ng import parse
 from json_parser import extract_request_logs_from_json
+from config_loader import load_tab_config
+from tabulate import tabulate
+from dateutil.parser import parse
 
 def run_request_log_comparison(case_id, appeal_number):
-    log_and_print("\n📂 Running request log comparison...", "info")
+    log_and_print("\n\U0001F4C2 Running request log comparison...", "info")
 
-    # Step 1: Fetch Menora SQL data
+    # Step 1: Load config and field map
+    tab_config = load_tab_config("יומן תיק")
+    matching_keys = tab_config.get("matchingKeys", [])
+    field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
+
+    # Step 2: Fetch Menora SQL data
     try:
         menora_df = fetch_menora_log_requests(appeal_number)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
+        menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         log_and_print(f"✅ Retrieved {len(menora_df)} request log entries from Menora for appeal {appeal_number}", "success")
         log_and_print(f"📋 Menora data preview:\n{menora_df.head(5)}", "info")
     except Exception as e:
         log_and_print(f"❌ SQL query execution failed: {e}", "error")
         menora_df = pd.DataFrame()
 
-    # Step 2: Fetch JSON API data
+    # Step 3: Fetch JSON API data
     full_json = fetch_case_details(case_id)
     json_df = extract_request_logs_from_json(full_json)
 
-    # Step 3: Normalize datetime columns and ensure consistent types
-    for df, label in [(menora_df, "Menora"), (json_df, "JSON")]:
-        if "Status_Date" in df.columns:
-            df["Status_Date"] = (
-                pd.to_datetime(df["Status_Date"], errors="coerce")
-                .dt.round("s")
-                .dt.tz_localize(None)
-            )
-            df["Status_Date"] = df["Status_Date"].astype(str)
-            log_and_print(f"🕒 Normalized 'Status_Date' in {label} to string timestamps.", "debug")
+    if "createActionDate" in json_df.columns:
+        json_df.rename(columns={"createActionDate": "Status_Date"}, inplace=True)
 
-    # Step 4: Compare by Status_Date key and Action_Description
+    for ui_field, _ in field_map.items():
+        if ui_field in json_df.columns and not ui_field.endswith("_json"):
+            json_df.rename(columns={ui_field: f"{ui_field}_json"}, inplace=True)
+
+    if "Status_Date" in json_df.columns:
+        json_df.rename(columns={"Status_Date": "Status_Date_json"}, inplace=True)
+
+    json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
+
+    # Step 4: Normalize datetime columns to MM-DD HH:MM:SS using dateutil for robustness
+    def safe_parse_datetime(value):
+        try:
+            return parse(value).strftime("%m-%d %H:%M:%S")
+        except Exception:
+            return None
+
+    for df, label in [(menora_df, "Menora"), (json_df, "JSON")]:
+        col_name = "Status_Date" if label == "Menora" else "Status_Date_json"
+        if col_name in df.columns:
+            try:
+                df[col_name] = df[col_name].astype(str).apply(safe_parse_datetime)
+                log_and_print(f"🕒 Normalized '{col_name}' in {label} to MM-DD HH:MM:SS.", "debug")
+            except Exception as e:
+                log_and_print(f"❌ Failed to normalize '{col_name}' in {label}: {e}", "error")
+
+    # Step 5: Compare by Status_Date and Action_Description
     field_mismatches = 0
     try:
         merged = pd.merge(
             menora_df[["Status_Date", "Action_Description"]],
-            json_df[["Status_Date", "Action_Description"]],
-            on="Status_Date",
+            json_df[["Status_Date_json", "Action_Description_json"]],
+            left_on="Status_Date",
+            right_on="Status_Date_json",
             how="outer",
             suffixes=("_menora", "_json"),
             indicator=True
@@ -47,7 +74,7 @@ def run_request_log_comparison(case_id, appeal_number):
 
         for _, row in merged.iterrows():
             if row['_merge'] == 'both':
-                menora_desc = str(row.get('Action_Description_menora') or '').strip()
+                menora_desc = str(row.get('Action_Description') or '').strip()
                 json_desc = str(row.get('Action_Description_json') or '').strip()
                 if menora_desc != json_desc:
                     log_and_print(f"🔍 Status_Date {row['Status_Date']} mismatched Action_Description:", "warning")
@@ -57,24 +84,24 @@ def run_request_log_comparison(case_id, appeal_number):
     except Exception as e:
         log_and_print(f"❌ Comparison failed: {e}", "error")
 
-    json_keys = json_df["Status_Date"].dropna().unique()
-    menora_keys = menora_df["Status_Date"].dropna().unique()
+    json_keys = json_df["Status_Date_json"].dropna().unique() if "Status_Date_json" in json_df.columns else []
+    menora_keys = menora_df["Status_Date"].dropna().unique() if "Status_Date" in menora_df.columns else []
     missing_in_json = len([ts for ts in menora_keys if ts not in json_keys])
     missing_in_menora = len([ts for ts in json_keys if ts not in menora_keys])
-    matched = len(json_keys) - missing_in_menora
+    matched = len(set(json_keys) & set(menora_keys)) - field_mismatches
 
     # Final debug print for structure validation
     log_and_print(f"📋 Menora columns: {menora_df.columns.tolist()}", "info")
     log_and_print(f"📋 JSON columns: {json_df.columns.tolist()}", "info")
 
     summary = {
-        "Case ID": case_id,
+        "case_id": case_id,
         "Menora Request Logs": len(menora_df),
         "JSON Request Logs": len(json_df),
         "Missing in JSON": missing_in_json,
         "Missing in Menora": missing_in_menora,
         "Field Mismatches": field_mismatches,
-        "Fully Matched": matched - field_mismatches
+        "Fully Matched": matched
     }
 
     log_and_print(f"\n💚 Test Result Summary for Case ID {case_id} [Request Log]", "info")
@@ -85,10 +112,6 @@ def run_request_log_comparison(case_id, appeal_number):
 
     return summary
 
-from tabulate import tabulate
-from dateutil.parser import parse
-import pandas as pd
-from logging_utils import log_and_print
 
 def requestlog_values_match(field, val1, val2):
     # Normalize both values
