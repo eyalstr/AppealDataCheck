@@ -1,0 +1,80 @@
+{
+  "2004759": {
+    "request_log": {
+      "Request Log": {
+        "case_id": 2004759,
+        "Menora Request Logs": 37,
+        "JSON Request Logs": 37,
+        "Missing in JSON": 0,
+        "Missing in Menora": 0,
+        "Field Mismatches": 0,
+        "Fully Matched": 37
+      }
+    }
+  },
+  "2005285": {
+    "request_log": {
+      "Request Log": {
+        "case_id": 2005285,
+        "Menora Request Logs": 4,
+        "JSON Request Logs": 8,
+        "Missing in JSON": 0,
+        "Missing in Menora": 4,
+        "Field Mismatches": 0,
+        "Fully Matched": 4
+      }
+    }
+  },
+  "2005281": {
+    "request_log": {
+      "Request Log": {
+        "case_id": 2005281,
+        "Menora Request Logs": 7,
+        "JSON Request Logs": 8,
+        "Missing in JSON": 0,
+        "Missing in Menora": 1,
+        "Field Mismatches": 0,
+        "Fully Matched": 7
+      }
+    }
+  },
+  "2005287": {
+    "request_log": {
+      "Request Log": {
+        "case_id": 2005287,
+        "Menora Request Logs": 4,
+        "JSON Request Logs": 4,
+        "Missing in JSON": 0,
+        "Missing in Menora": 0,
+        "Field Mismatches": 0,
+        "Fully Matched": 4
+      }
+    }
+  },
+  "2004338": {
+    "request_log": {
+      "Request Log": {
+        "case_id": 2004338,
+        "Menora Request Logs": 148,
+        "JSON Request Logs": 148,
+        "Missing in JSON": 0,
+        "Missing in Menora": 0,
+        "Field Mismatches": 0,
+        "Fully Matched": 142
+      }
+    }
+  },
+  "2004339": {
+    "request_log": {
+      "Request Log": {
+        "case_id": 2004339,
+        "Menora Request Logs": 194,
+        "JSON Request Logs": 194,
+        "Missing in JSON": 0,
+        "Missing in Menora": 0,
+        "Field Mismatches": 0,
+        "Fully Matched": 176
+      }
+    }
+  }
+}

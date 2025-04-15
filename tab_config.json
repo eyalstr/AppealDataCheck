@@ -28,14 +28,13 @@
         "key": "moj_id",
         "jsonPath": "$.documentList[*].mojId",
         "columns": {
-          "document_Type_Id": "subType",
-          "Source_Type": "docType"
+          "document_Type_Id": "subType"
+          
         }
       }
     ],
     "field_map": {
-      "document_Type_Id": "subType",
-      "Source_Type": "doc_type"
+      "document_Type_Id": "subType"
       }
 
   },
@@ -93,7 +92,6 @@
         "key": "Status_Date",
         "jsonPath": "$.requests[*].requestLogs[*].createActionDate",
         "columns": {
-          "Status_Date": "createLogDate",
           "Action_Description": "remark"
         }
       }

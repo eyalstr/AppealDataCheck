@@ -1,30 +1,15 @@
 # main.py
 from config import load_configuration
-from client_api import fetch_case_details, fetch_case_documents, fetch_case_discussions
+from client_api import fetch_case_details
 from sql_client import fetch_appeal_number_by_case_id
-from decision_runner import run_decision_comparison
-from document_runner import run_document_comparison
-from discussion_runner import run_discussion_comparison
-from case_representator_runner import run_representator_comparison
-from case_involved_runner import run_case_involved_comparison
 from requestlog_runner import run_request_log_comparison
-from distribution_runner import run_distribution_comparison
 from logging_utils import log_and_print
-from tabulate import tabulate
+import json
 
 def main():
     load_configuration()
-    case_ids = [2004759]
-
-    all_summaries = {
-        "decision": [],
-        "document": [],
-        "discussion": [],
-        "case_involved": [],
-        "case_contacted": [],
-        "request_log": [],
-        "distribution":[]
-    }
+    case_ids = [2004759, 2005285, 2005281, 2005287, 2004338, 2004339]
+    dashboard_results = {}
 
     for case_id in case_ids:
         log_and_print(f"\n\n🔁 Processing case_id {case_id}...", "info")
@@ -33,55 +18,26 @@ def main():
             log_and_print(f"❌ Could not find appeal number for case ID {case_id}. Skipping.", "error")
             continue
 
-        decision_summary = run_decision_comparison(case_id, appeal_number)
-        if decision_summary:
-            all_summaries["decision"].append(decision_summary)
+        case_results = {}
 
-        document_summary = run_document_comparison(case_id, appeal_number)
-        if document_summary:
-            all_summaries["document"].append(document_summary)
+        # ---- Active comparisons ----
+        request_log_result = run_request_log_comparison(case_id, appeal_number)
+        if request_log_result:
+            case_results["request_log"] = request_log_result  # key is aligned with dashboard key_map
 
-        discussion_summary = run_discussion_comparison(case_id, appeal_number)
-        if discussion_summary:
-            all_summaries["discussion"].append(discussion_summary)
+        # ---- Add other modules as needed ----
+        # case_results["document"] = run_document_comparison(...)
+        # case_results["decision"] = run_decision_comparison(...)
+        # case_results["distribution"] = run_distribution_comparison(...)
 
-        # ב"כ צדדים - עורר ומשיבה
-        case_involved_summary = run_representator_comparison(case_id, appeal_number)
-        if case_involved_summary:
-            all_summaries["case_involved"].append(case_involved_summary)
+        if case_results:
+            dashboard_results[str(case_id)] = case_results
 
-        # פרטי עורר
-        case_contacts_summary = run_case_involved_comparison(case_id, appeal_number)
-        if case_contacts_summary:
-            all_summaries["case_contacted"].append(case_contacts_summary)
+    # Save the comparison summary for dashboard
+    with open("comparison_summary.json", "w", encoding="utf-8") as f:
+        json.dump(dashboard_results, f, indent=2, ensure_ascii=False)
 
-
-        # Run request log comparison
-        request_log_summary = run_request_log_comparison(case_id, appeal_number)
-        if request_log_summary:
-            all_summaries["request_log"].append(request_log_summary)
-        
-        # # Run distribution comparison
-        distribution_summary = run_distribution_comparison(case_id, appeal_number)
-        if distribution_summary:
-            all_summaries["distribution"].append(distribution_summary)
-
-
-    # if all_summaries["decision"]:
-    #     log_and_print("\n📋 Final Summary for Decision Tab:", "info")
-    #     print(tabulate(all_summaries["decision"], headers="keys", tablefmt="grid", showindex=True))
-
-    # if all_summaries["document"]:
-    #     log_and_print("\n📋 Final Summary for Document Tab:", "info")
-    #     print(tabulate(all_summaries["document"], headers="keys", tablefmt="grid", showindex=True))
-
-    # if all_summaries["discussion"]:
-    #     log_and_print("\n📋 Final Summary for Discussion Tab:", "info")
-    #     print(tabulate(all_summaries["discussion"], headers="keys", tablefmt="grid", showindex=True))
-
-    # if all_summaries["case_involved"]:
-    #     log_and_print("\n📋 Final Summary for Case Involved Tab:", "info")
-    #     print(tabulate(all_summaries["case_involved"], headers="keys", tablefmt="grid", showindex=True))
+    log_and_print("✅ All comparisons completed. Use `streamlit run dashboard_app.py` to view results.", "success")
 
 if __name__ == "__main__":
     main()
