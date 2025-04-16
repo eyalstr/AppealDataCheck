@@ -9,9 +9,7 @@ import json
 
 def main():
     load_configuration()
-    case_ids = [2004759]
-
-    #        , 2005285, 2005281, 2005287, 2004338, 2004339]
+    case_ids = [2004759, 2005285, 2005281, 2005287, 2004338, 2004339]
     dashboard_results = {}
 
     for case_id in case_ids:
