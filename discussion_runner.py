@@ -1,79 +1,75 @@
-# discussion_runner.py
 import pandas as pd
 from sql_client import fetch_menora_discussion_data
 from client_api import fetch_case_discussions
 from logging_utils import log_and_print
 from jsonpath_ng import parse
+from config_loader import load_tab_config
+from dateutil.parser import parse
 
 
 def run_discussion_comparison(case_id, appeal_number):
-    log_and_print("\n📂 Running discussion comparison...", "info")
+    tab_key = "discussion"
+    tab_label = "דיונים"
+    log_and_print(f"\n📂 Running {tab_label} comparison...", "info")
 
-    # Step 1: Fetch Menora SQL data
+    tab_config = load_tab_config(tab_label)
+    matching_keys = tab_config.get("matchingKeys", [])
+    field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
+
     try:
         menora_df = fetch_menora_discussion_data(appeal_number)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
+        menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         log_and_print(f"✅ Retrieved {len(menora_df)} discussions from Menora for appeal {appeal_number}", "success")
+        log_and_print(f"📋 Menora columns: {list(menora_df.columns)}", "debug")
     except Exception as e:
         log_and_print(f"❌ SQL query execution failed: {e}", "error")
         menora_df = pd.DataFrame()
 
-    # Step 2: Fetch JSON API data
     json_data = fetch_case_discussions(case_id)
     json_df = pd.DataFrame()
     if json_data:
         try:
-            json_path_expr = parse("$.[*]")
-            matches = [match.value for match in json_path_expr.find(json_data)]
+            if isinstance(json_data, list):
+                matches = json_data
+            else:
+                json_path_expr = parse("$[*]")
+                matches = [match.value for match in json_path_expr.find(json_data)]
+
             json_df = pd.json_normalize(matches)
             if not json_df.empty:
                 log_and_print(f"📋 Extracted discussion DataFrame preview:\n{json_df[['protocolDocMojId', 'startTime', 'endTime']].head(3)}", "info")
+                log_and_print(f"🗞 protocolDocMojId from JSON:\n{json_df['protocolDocMojId'].dropna().tolist()}", "debug")
             log_and_print(f"✅ Extracted {len(json_df)} discussions from API for case {case_id}", "success")
         except Exception as e:
             log_and_print(f"❌ Failed to parse JSON discussion data: {e}", "error")
     else:
         log_and_print(f"⚠️ No discussion JSON data found for case_id {case_id}", "warning")
 
-    # Step 3: Count comparisons
-    menora_count = len(menora_df)
-    json_count = len(json_df)
+    json_df = json_df.rename(columns=lambda x: x.strip())
+    json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
 
-    missing_in_json = 0
-    missing_in_menora = 0
-    mismatched_fields = 0
-    fully_matched = 0
+    menora_ids = set(menora_df["Moj_ID"].dropna().astype(str).str.strip()) if "Moj_ID" in menora_df.columns else set()
+    json_ids = set(json_df["protocolDocMojId"].dropna().astype(str).str.strip()) if "protocolDocMojId" in json_df.columns else set()
 
-    if not json_df.empty and not menora_df.empty and 'protocolDocMojId' in json_df.columns and 'mojId' in menora_df.columns:
-        merged = json_df.merge(menora_df, left_on="protocolDocMojId", right_on="mojId", how="outer", indicator=True)
-        missing_in_json = merged[merged['_merge'] == 'right_only'].shape[0]
-        missing_in_menora = merged[merged['_merge'] == 'left_only'].shape[0]
+    log_and_print(f"🗟 mojId from Menora:\n{sorted(menora_ids)}", "debug")
+    log_and_print(f"🗟 protocolDocMojId from JSON:\n{sorted(json_ids)}", "debug")
 
-        # Determine full matches based on mojId/protocolDocMojId only for now
-        fully_matched = merged[merged['_merge'] == 'both'].shape[0]
+    missing_json_dates = sorted(list(menora_ids - json_ids))
+    missing_menora_dates = sorted(list(json_ids - menora_ids))
+    mismatched_fields = []
+
+    status_tab = "pass" if not missing_json_dates and not missing_menora_dates and not mismatched_fields else "fail"
+    if status_tab == "pass":
+        log_and_print(f"🟡 {tab_label} - PASS", "info")
     else:
-        if json_df.empty:
-            missing_in_json = menora_count
-        if menora_df.empty:
-            missing_in_menora = json_count
+        log_and_print(f"❌ {tab_label} - FAIL", "warning")
 
-    # Adjust fully matched if it should be the overlap minus mismatches (future field comparison)
-    fully_matched = menora_count - missing_in_json if missing_in_json == 0 else 0
-
-    # Step 4: Summary
-    summary = {
-        "Case ID": case_id,
-        "Menora Discussions": menora_count,
-        "JSON Discussions": json_count,
-        "Missing in JSON": max(missing_in_json, 0),
-        "Missing in Menora": max(missing_in_menora, 0),
-        "Field Mismatches": mismatched_fields,
-        "Fully Matched": max(fully_matched, 0)
+    return {
+        tab_key: {
+            "status_tab": status_tab,
+            "missing_json_dates": missing_json_dates,
+            "missing_menora_dates": missing_menora_dates,
+            "mismatched_fields": mismatched_fields
+        }
     }
-
-    log_and_print(f"\n🧪 Test Result Summary for Case ID {case_id} [Discussion]", "info")
-    log_and_print(f"✅ {summary['Missing in Menora']} discussion(s) missing in Menora.", "success")
-    log_and_print(f"✅ {summary['Missing in JSON']} discussion(s) missing in JSON.", "success")
-    log_and_print(f"✅ {summary['Field Mismatches']} discussion(s) with field mismatch(es).", "success")
-    log_and_print(f"✅ {summary['Fully Matched']} discussion(s) fully matched.", "success")
-
-    return summary

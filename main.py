@@ -3,12 +3,15 @@ from config import load_configuration
 from client_api import fetch_case_details
 from sql_client import fetch_appeal_number_by_case_id
 from requestlog_runner import run_request_log_comparison
+from discussion_runner import run_discussion_comparison  # ✅ Add this import
 from logging_utils import log_and_print
 import json
 
 def main():
     load_configuration()
-    case_ids = [2004759, 2005285, 2005281, 2005287, 2004338, 2004339]
+    case_ids = [2004759]
+
+    #        , 2005285, 2005281, 2005287, 2004338, 2004339]
     dashboard_results = {}
 
     for case_id in case_ids:
@@ -23,7 +26,11 @@ def main():
         # ---- Active comparisons ----
         request_log_result = run_request_log_comparison(case_id, appeal_number)
         if request_log_result:
-            case_results["request_log"] = request_log_result  # key is aligned with dashboard key_map
+            case_results["request_log"] = request_log_result["request_log"]  # Flatten one level
+
+        discussion_result = run_discussion_comparison(case_id, appeal_number)
+        if discussion_result:
+            case_results["discussion"] = discussion_result["discussion"]  # Flatten one level
 
         # ---- Add other modules as needed ----
         # case_results["document"] = run_document_comparison(...)
