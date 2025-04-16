@@ -3,13 +3,15 @@ from config import load_configuration
 from client_api import fetch_case_details
 from sql_client import fetch_appeal_number_by_case_id
 from requestlog_runner import run_request_log_comparison
-from discussion_runner import run_discussion_comparison  # ✅ Add this import
+from discussion_runner import run_discussion_comparison
+from decision_runner import run_decision_comparison  # ✅ Add this import
 from logging_utils import log_and_print
 import json
 
 def main():
     load_configuration()
-    case_ids = [2004759, 2005285, 2005281, 2005287, 2004338, 2004339]
+    case_ids = [2004759]
+    #, 2005285, 2005281, 2005287, 2004338, 2004339]
     dashboard_results = {}
 
     for case_id in case_ids:
@@ -30,9 +32,12 @@ def main():
         if discussion_result:
             case_results["discussion"] = discussion_result["discussion"]  # Flatten one level
 
+        decision_result = run_decision_comparison(case_id, appeal_number)
+        if decision_result:
+            case_results["decision"] = decision_result["decision"]  # Flatten one level
+
         # ---- Add other modules as needed ----
         # case_results["document"] = run_document_comparison(...)
-        # case_results["decision"] = run_decision_comparison(...)
         # case_results["distribution"] = run_distribution_comparison(...)
 
         if case_results:

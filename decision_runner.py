@@ -8,22 +8,27 @@ from dateutil.parser import parse
 import pandas as pd
 from collections import defaultdict
 def run_decision_comparison(case_id: int, appeal_number: int):
-    log_and_print("\n📂 Running decision comparison...", "info")
+    log_and_print("\n\U0001F4C2 Running decision comparison...", "info")
     tab_config = load_tab_config("החלטות")
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 
-    # Step 1: Fetch Menora SQL data
     try:
         menora_df = fetch_menora_decision_data(appeal_number)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
+
+        #🔧 Normalize Moj_ID to mojId
+        if "Moj_ID" in menora_df.columns:
+            menora_df.rename(columns={"Moj_ID": "mojId"}, inplace=True)
+            
         log_and_print(f"✅ Retrieved {len(menora_df)} decisions from Menora for appeal {appeal_number}", "success")
+        print("📋 Menora PREVIEW:")
+        print(menora_df.head(3))
     except Exception as e:
         log_and_print(f"❌ SQL query execution failed: {e}", "error")
         menora_df = pd.DataFrame()
 
-    # Step 2: Fetch JSON API data
     json_data = fetch_case_details(case_id)
     json_df = pd.DataFrame()
 
@@ -37,83 +42,55 @@ def run_decision_comparison(case_id: int, appeal_number: int):
 
             json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
 
+            # log_and_print(f"📋 Menora columns: {menora_df.columns.tolist()}", "debug")
+            # log_and_print(f"📋 JSON columns: {json_df.columns.tolist()}", "debug")
+
             if not json_df.empty and "mojId" in json_df.columns:
                 preview_cols = [col for col in ['mojId', 'decisionDate_json', 'createUser_json'] if col in json_df.columns]
                 log_and_print(f"📋 Extracted decision DataFrame preview:\n{json_df[preview_cols].head(3)}", "info")
                 log_and_print(f"✅ Extracted {len(json_df)} decisions from API for case {case_id}", "success")
             else:
-                log_and_print(f"⚠️ Skipping decision comparison — JSON data is empty or missing 'mojId' column.", "warning")
-                return {
-                    "case_id": case_id,
-                    "missing_in_menora": len(menora_df),
-                    "missing_in_json": 0,
-                    "field_mismatches": 0,
-                    "fully_matched": 0
-                }
-
+                log_and_print(f"⚠️ JSON missing 'mojId' column or is empty.", "warning")
         except Exception as e:
             log_and_print(f"❌ Failed to parse JSON decision data: {e}", "error")
-            return {
-                "case_id": case_id,
-                "missing_in_menora": len(menora_df),
-                "missing_in_json": 0,
-                "field_mismatches": 0,
-                "fully_matched": 0
-            }
-    else:
-        log_and_print(f"⚠️ No decision JSON data found for case_id {case_id}", "warning")
-        return {
-            "case_id": case_id,
-            "missing_in_menora": len(menora_df),
-            "missing_in_json": 0,
-            "field_mismatches": 0,
-            "fully_matched": 0
-        }
 
-    # Step 3: Field Comparison
-    comparison_results = compare_decision_data(json_df, menora_df, field_map)
-    mismatch_by_mojid = defaultdict(list)
-    all_mojids_in_compare = set()
+    # print("🔎 DEBUG -- Menora mojIds column:", menora_df.get("mojId").dropna().astype(str).tolist() if "mojId" in menora_df.columns else "❌ 'mojId' missing")
+    # print("🔎 DEBUG -- JSON mojIds column:", json_df.get("mojId").dropna().astype(str).tolist() if "mojId" in json_df.columns else "❌ 'mojId' missing")
 
-    test_status = {
-        "missing_in_json": [],
-        "missing_in_menora": [],
-        "field_mismatches": [],
-        "fully_matched_mojIds": set(),
-        "mojId_matched": bool(comparison_results),
-    }
+    menora_keys = set(menora_df["mojId"].dropna().astype(str)) if "mojId" in menora_df.columns else set()
+    json_keys = set(json_df["mojId"].dropna().astype(str)) if "mojId" in json_df.columns else set()
 
-    if comparison_results:
+    missing_json_dates = sorted(list(menora_keys - json_keys))
+    missing_menora_dates = sorted(list(json_keys - menora_keys))
+
+    log_and_print(f"🔎 mojIds in Menora: {sorted(menora_keys)}", "debug")
+    log_and_print(f"🔎 mojIds in JSON: {sorted(json_keys)}", "debug")
+
+    mismatched_fields = []
+    if not json_df.empty and not menora_df.empty:
+        comparison_results = compare_decision_data(json_df, menora_df, field_map)
         for row in comparison_results:
-            moj = row["mojId"]
-            all_mojids_in_compare.add(moj)
-            if row["Match"] == "✗":
-                test_status["field_mismatches"].append(row)
-                mismatch_by_mojid[moj].append(row["Field"])
-        test_status["fully_matched_mojIds"] = all_mojids_in_compare - mismatch_by_mojid.keys()
+            if row.get("Match") == "✗":
+                mismatched_fields.append({
+                    "Status_Date": row.get("mojId"),
+                    "Field": row.get("Field"),
+                    "Menora": row.get("Menora Value"),
+                    "JSON": row.get("JSON Value")
+                })
 
-    # Step 4: Count Comparison
-    count_comparison = compare_decision_counts(json_df, menora_df)
-    if count_comparison:
-        for row in count_comparison:
-            if row["Type"] == "Missing in JSON":
-                test_status["missing_in_json"] = [moj.strip() for moj in row["mojIds"].split(",") if moj.strip()]
-            elif row["Type"] == "Missing in Menora":
-                test_status["missing_in_menora"] = [moj.strip() for moj in row["mojIds"].split(",") if moj.strip()]
-
-    # Step 5: Summary
-    log_and_print(f"\n🧪 Test Result Summary for Case ID {case_id} [Decisions]:", "info")
-    log_and_print(f"{'✅' if not test_status['missing_in_menora'] else '❌'} {len(test_status['missing_in_menora'])} decision(s) missing in Menora.", "info")
-    log_and_print(f"{'✅' if not test_status['missing_in_json'] else '❌'} {len(test_status['missing_in_json'])} decision(s) missing in JSON.", "info")
-    log_and_print(f"{'✅' if not test_status['field_mismatches'] else '❌'} {len(mismatch_by_mojid)} decision(s) with field mismatch(es).", "info")
-    log_and_print(f"✅ {len(test_status['fully_matched_mojIds'])} decision(s) fully matched.", "info")
+    status_tab = "pass" if not missing_json_dates and not missing_menora_dates and not mismatched_fields else "fail"
+    if status_tab == "pass":
+        log_and_print("🟡 החלטות - PASS", "info")
+    else:
+        log_and_print("❌ החלטות - FAIL", "warning")
 
     return {
-        "case_id": case_id,
-        "missing_in_menora": len(test_status["missing_in_menora"]),
-        "missing_in_json": len(test_status["missing_in_json"]),
-        "field_mismatches": len(test_status["field_mismatches"]),
-        "fully_matched": len(test_status["fully_matched_mojIds"]),
+        "decision": {
+            "status_tab": status_tab,
+            "missing_json_dates": missing_json_dates,
+            "missing_menora_dates": missing_menora_dates,
+            "mismatched_fields": mismatched_fields
+        }
     }
 
 def values_match(field, menora_value, json_value):
@@ -134,36 +111,24 @@ def values_match(field, menora_value, json_value):
 
     return menora_str.lower() == json_str.lower()
 
-
 def compare_decision_data(json_df, menora_df, field_map):
-    import pandas as pd
-    from collections import defaultdict
-    from tabulate import tabulate
-
-    # Normalize 'mojId' for merge
     menora_df = menora_df.rename(columns={"Moj_ID": "mojId"})
-    json_df = json_df.rename(columns={"moj_id": "mojId"})  # Just in case
+    json_df = json_df.rename(columns={"moj_id": "mojId"})
 
-    # Apply suffixes manually to comparison fields
     menora_df = menora_df.rename(columns={k: f"{k}_menora" for k in field_map.keys()})
     json_df = json_df.rename(columns={v: f"{v}_json" for v in field_map.values()})
 
     print("📋 Menora columns:", menora_df.columns.tolist())
     print("📋 JSON columns:", json_df.columns.tolist())
 
-    # Merge both datasets on 'mojId'
     merged = pd.merge(menora_df, json_df, on="mojId", how="inner")
 
     results = []
-
-    # Compare fields row by row
     for _, row in merged.iterrows():
         for menora_field, json_field in field_map.items():
             left = row.get(f"{menora_field}_menora", "⛔")
             right = row.get(f"{json_field}_json", "⛔")
-
             match = values_match(menora_field, left, right)
-
             results.append({
                 "mojId": row["mojId"],
                 "Field": menora_field,
@@ -172,7 +137,6 @@ def compare_decision_data(json_df, menora_df, field_map):
                 "Match": "✓" if match else "✗"
             })
 
-    # Group mismatches for table output
     mismatches = defaultdict(list)
     for row in results:
         if row["Match"] == "✗":
@@ -194,9 +158,7 @@ def compare_decision_data(json_df, menora_df, field_map):
 
     return results
 
-
 def compare_decision_counts(json_df, menora_df):
-    # Normalize column names just like in compare_decision_data
     if "Moj_ID" in menora_df.columns:
         menora_df = menora_df.rename(columns={"Moj_ID": "mojId"})
 
@@ -220,7 +182,6 @@ def compare_decision_counts(json_df, menora_df):
             "Type": "Missing in Menora",
             "Count": len(json_only),
             "mojIds": ", ".join(sorted(str(i) for i in json_only if i is not None)) or "(no mojIds)"
-
         })
 
     if not results:
