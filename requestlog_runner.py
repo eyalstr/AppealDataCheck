@@ -5,6 +5,7 @@ from logging_utils import log_and_print
 from json_parser import extract_request_logs_from_json
 from config_loader import load_tab_config
 from dateutil.parser import parse
+
 def run_request_log_comparison(case_id, appeal_number):
     from config_loader import load_tab_config
     from client_api import fetch_case_details
@@ -70,31 +71,34 @@ def run_request_log_comparison(case_id, appeal_number):
         missing = set(expected_json_fields) - set(valid_json_fields)
         log_and_print(f"⚠️ Warning: Missing expected JSON columns: {missing}", "warning")
 
-    merged = pd.merge(
-        menora_df[["Status_Date", *field_map.keys()]],
-        json_df[["Status_Date_json", *valid_json_fields]],
-        left_on="Status_Date",
-        right_on="Status_Date_json",
-        how="inner"
-    )
-
     mismatched_fields = []
 
-    for _, row in merged.iterrows():
-        status_date = row["Status_Date"]
-        for menora_col, json_col_base in field_map.items():
-            json_col = f"{json_col_base}_json"
-            if json_col not in row:
-                continue
-            menora_val = str(row.get(menora_col, "")).strip()
-            json_val = str(row.get(json_col, "")).strip()
-            if menora_val != json_val:
-                mismatched_fields.append({
-                    "Status_Date": status_date,
-                    "Field": menora_col,
-                    "Menora": menora_val,
-                    "JSON": json_val
-                })
+    if menora_df.empty or json_df.empty:
+        log_and_print("⚠️ Empty DataFrame detected, skipping detailed comparison.", "warning")
+    else:
+        merged = pd.merge(
+            menora_df[["Status_Date", *field_map.keys()]],
+            json_df[["Status_Date_json", *valid_json_fields]],
+            left_on="Status_Date",
+            right_on="Status_Date_json",
+            how="inner"
+        )
+
+        for _, row in merged.iterrows():
+            status_date = row["Status_Date"]
+            for menora_col, json_col_base in field_map.items():
+                json_col = f"{json_col_base}_json"
+                if json_col not in row:
+                    continue
+                menora_val = str(row.get(menora_col, "")).strip()
+                json_val = str(row.get(json_col, "")).strip()
+                if menora_val != json_val:
+                    mismatched_fields.append({
+                        "Status_Date": status_date,
+                        "Field": menora_col,
+                        "Menora": menora_val,
+                        "JSON": json_val
+                    })
 
     if not missing_json_dates and not missing_menora_dates and not mismatched_fields:
         status_tab = "pass"
