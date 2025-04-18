@@ -5,6 +5,7 @@ from sql_client import fetch_menora_document_data
 from logging_utils import log_and_print
 from tabulate import tabulate
 from collections import defaultdict
+import pandas as pd
 
 def run_document_comparison(case_id, appeal_number):
     tab_config = load_tab_config("מסמכים")
@@ -15,46 +16,57 @@ def run_document_comparison(case_id, appeal_number):
         log_and_print(f"❌ Failed to fetch JSON documents for case_id {case_id}.", "error")
         return
 
-    # Fix for correct extraction path
+    # Extract documents from JSON response
     documents = json_data.get("documentList")
     if not documents:
         log_and_print("⚠️ No 'documentList' found in JSON.", "warning")
         return
 
+    # Extract dataframes from sources
     json_df = extract_document_data_from_json(documents)
     menora_df = fetch_menora_document_data(appeal_number)
 
+    # Field map config
     field_map = tab_config["field_map"]
+
+    # Compare field values
     comparison_results = compare_document_data(json_df, menora_df, field_map)
 
+    # Prepare tracking
     mismatch_by_mojid = defaultdict(list)
-    all_mojids_in_compare = set()
+    mojid_match_counts = defaultdict(lambda: {"total": 0, "matched": 0})
 
     test_status = {
         "missing_in_json": [],
         "missing_in_menora": [],
         "field_mismatches": [],
         "fully_matched_mojIds": set(),
-        "mojId_matched": bool(comparison_results),
     }
 
-    if comparison_results:
-        for row in comparison_results:
-            moj = row["mojId"]
-            all_mojids_in_compare.add(moj)
-            if row["Match"] == "✗":
-                field_info = {
-                    "Field": row["Field"],
-                    "Menora Value": row["Menora Value"],
-                    "JSON Value": row["JSON Value"]
-                }
-                test_status["field_mismatches"].append(row)
-                mismatch_by_mojid[moj].append(field_info)
+    # Process comparison results
+    for row in comparison_results:
+        moj = row["mojId"]
+        mojid_match_counts[moj]["total"] += 1
 
-        test_status["fully_matched_mojIds"] = all_mojids_in_compare - mismatch_by_mojid.keys()
+        if row["Match"] == "✓":
+            mojid_match_counts[moj]["matched"] += 1
+        else:
+            field_info = {
+                "Field": row["Field"],
+                "Menora Value": row["Menora Value"],
+                "JSON Value": row["JSON Value"]
+            }
+            test_status["field_mismatches"].append(row)
+            mismatch_by_mojid[moj].append(field_info)
 
+    # Identify fully matched mojIds
+    test_status["fully_matched_mojIds"] = {
+        moj for moj, counts in mojid_match_counts.items()
+        if counts["total"] == counts["matched"]
+    }
+
+    # Compare document counts
     count_comparison = compare_document_counts(json_df, menora_df)
-
     if count_comparison:
         for row in count_comparison:
             if row["Type"] == "Missing in JSON":
@@ -62,6 +74,7 @@ def run_document_comparison(case_id, appeal_number):
             elif row["Type"] == "Missing in Menora":
                 test_status["missing_in_menora"] = [moj.strip() for moj in row["mojIds"].split(",") if moj.strip()]
 
+    # Logging results
     log_and_print(f"\n🧪 Test Result Summary for Case ID {case_id} [Documents]:", "info")
     log_and_print(f"{'✅' if not test_status['missing_in_menora'] else '❌'} {len(test_status['missing_in_menora'])} document(s) missing in Menora.", "info")
     log_and_print(f"{'✅' if not test_status['missing_in_json'] else '❌'} {len(test_status['missing_in_json'])} document(s) missing in JSON.", "info")
@@ -72,13 +85,23 @@ def run_document_comparison(case_id, appeal_number):
         log_and_print(f"🔎 Mismatched Fields for mojId {moj_id}:", "warning")
         print(tabulate(mismatches, headers="keys", tablefmt="grid"))
 
+    status_tab = "pass" if not test_status["missing_in_menora"] and not test_status["missing_in_json"] and not test_status["field_mismatches"] else "fail"
+
     return {
-        "case_id": case_id,
-        "missing_in_menora": len(test_status["missing_in_menora"]),
-        "missing_in_json": len(test_status["missing_in_json"]),
-        "field_mismatches": len(test_status["field_mismatches"]),
-        "fully_matched": len(test_status["fully_matched_mojIds"]),
-        "field_mismatch_details": dict(mismatch_by_mojid)
+        "document": {
+            "status_tab": status_tab,
+            "missing_json_dates": test_status["missing_in_json"],
+            "missing_menora_dates": test_status["missing_in_menora"],
+            "mismatched_fields": [
+                {
+                    "Status_Date": row["mojId"],
+                    "Field": row["Field"],
+                    "Menora": row["Menora Value"],
+                    "JSON": row["JSON Value"]
+                }
+                for row in test_status["field_mismatches"]
+            ]
+        }
     }
 
 from dateutil.parser import parse

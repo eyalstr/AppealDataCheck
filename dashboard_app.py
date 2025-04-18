@@ -16,21 +16,30 @@ for case_id, tabs in summary_data.items():
     st.markdown(f"### 📁 Case ID: {case_id}")
 
     tab_keys = list(tabs.keys())[::-1]  # Reverse to ensure RTL display
-    tab_names = ["החלטות" if key == "decision" else "דיונים" if key == "discussion" else "יומן תיק" for key in tab_keys]
-    tab_status = [tabs[key]["status_tab"] if isinstance(tabs[key], dict) else "fail" for key in tab_keys]
+    tab_labels = {
+        "decision": "החלטות",
+        "discussion": "דיונים",
+        "request_log": "יומן תיק",
+        "document": "מסמכים"
+    }
 
-    # First row: RTL tab names
-    st.markdown("<div style='text-align: right; font-size: 16px; direction: rtl;'>" + " | ".join(tab_names) + "</div>", unsafe_allow_html=True)
+    tab_names = [tab_labels.get(key, key) for key in tab_keys]
+    tab_status = [tabs[key].get("status_tab", "fail") if isinstance(tabs[key], dict) else "fail" for key in tab_keys]
 
-    # Second row: RTL status values in same order
     status_symbols = ["🟡 PASS" if status == "pass" else "🔴 FAIL" for status in tab_status]
-    st.markdown("<div style='text-align: right; font-size: 16px; direction: rtl;'>" + " | ".join(status_symbols) + "</div>", unsafe_allow_html=True)
 
-    # Detailed section for failed tabs
+    # RTL table alignment for headers and statuses
+    table_rows = zip(tab_names, status_symbols)
+    tab_row = " | ".join([name for name, _ in table_rows])
+    status_row = " | ".join([status for _, status in zip(tab_names, status_symbols)])
+
+    st.markdown(f"<div style='text-align: right; font-size: 16px;'>{tab_row}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: right; font-size: 16px;'>{status_row}</div>", unsafe_allow_html=True)
+
     for key in tab_keys:
         tab_data = tabs.get(key, {})
         if isinstance(tab_data, dict) and tab_data.get("status_tab") == "fail":
-            tab_name = "החלטות" if key == "decision" else "דיונים" if key == "discussion" else "יומן תיק"
+            tab_name = tab_labels.get(key, key)
             with st.expander(f"🔍 {tab_name} - Show Details"):
                 if tab_data.get("missing_json_dates"):
                     st.markdown("**❌ Missing in JSON:**")
