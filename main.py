@@ -5,13 +5,14 @@ from requestlog_runner import run_request_log_comparison
 from discussion_runner import run_discussion_comparison
 from decision_runner import run_decision_comparison
 from document_runner import run_document_comparison  # ✅ Add this import
+from case_representator_runner import run_representator_comparison
 from logging_utils import log_and_print
 import json
 
 def main():
     load_configuration()
-    #case_ids = [2004759, 2005285, 2005281, 2005287, 2004338, 2004339]
-    case_ids = [2004339]
+    case_ids = [2004759, 2005285, 2005281, 2005287, 2004338, 2004339]
+    #case_ids = [2004339]
     dashboard_results = {}
 
     for case_id in case_ids:
@@ -39,6 +40,12 @@ def main():
         document_result = run_document_comparison(case_id, appeal_number)
         if document_result:
             case_results["document"] = document_result["document"]  # Flatten one level
+
+        representator_result = run_representator_comparison(case_id, appeal_number)  # ✅ New
+        representator_section = representator_result.get(str(case_id), {})
+        if "representator_log" in representator_section:
+            case_results["representator_log"] = representator_section["representator_log"]
+
 
         if case_results:
             dashboard_results[str(case_id)] = case_results
