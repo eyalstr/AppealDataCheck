@@ -3,9 +3,10 @@ from bidi.algorithm import get_display
 import unicodedata
 import os
 
+from dotenv import load_dotenv
+load_dotenv()
 
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
-
 
 # ANSI escape codes for bold and colored formatting
 BOLD_YELLOW = '\033[1;33m'
@@ -27,33 +28,34 @@ def setup_logging(log_file='application.log'):
 logger = setup_logging()
 
 
+
 def log_and_print(message, level="info", ansi_format=None, is_hebrew=False, indent=0):
     """
     Log a message and print it with optional ANSI formatting and indentation.
     Skips logging/printing unless DEBUG is enabled.
     """
     if not DEBUG:
-        return  # 🚫 Skip printing and logging if debug is off
+        return
 
     # Normalize Hebrew text for console, but keep original for log
     if is_hebrew:
         console_message = normalize_hebrew(message)
-        log_message = message  # Original logical order for logging
+        log_message = message
     else:
         console_message = message
         log_message = message
 
-    # Apply ANSI formatting to the console output
+    # Apply ANSI formatting
     if ansi_format:
         console_message = f"{ansi_format}{console_message}{RESET}"
 
-    # Apply indentation
+    # Indent
     console_message = f"{' ' * indent}{console_message}"
 
-    # Print to the console
+    # Console print
     print(console_message)
 
-    # Log to the file without ANSI formatting or indentation
+    # File log (no ANSI or indent)
     if level.lower() == "info":
         logger.info(log_message)
     elif level.lower() == "warning":
@@ -62,7 +64,6 @@ def log_and_print(message, level="info", ansi_format=None, is_hebrew=False, inde
         logger.error(log_message)
     elif level.lower() == "debug":
         logger.debug(log_message)
-
 
 def normalize_hebrew(text):
     """Normalize and format Hebrew text for proper RTL display."""
