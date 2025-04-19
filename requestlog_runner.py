@@ -6,7 +6,7 @@ from json_parser import extract_request_logs_from_json
 from config_loader import load_tab_config
 from dateutil.parser import parse
 
-def run_request_log_comparison(case_id, appeal_number, tab_config=None):
+def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
     
     from config_loader import load_tab_config
     from client_api import fetch_case_details
@@ -23,7 +23,7 @@ def run_request_log_comparison(case_id, appeal_number, tab_config=None):
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 
     try:
-        menora_df = fetch_menora_log_requests(appeal_number)
+        menora_df = fetch_menora_log_requests(appeal_number,conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
     except Exception as e:
@@ -105,10 +105,10 @@ def run_request_log_comparison(case_id, appeal_number, tab_config=None):
 
     if not missing_json_dates and not missing_menora_dates and not mismatched_fields:
         status_tab = "pass"
-        log_and_print(f"🟡 יומן תיק - PASS", "info")
+        log_and_print(f"🟡 יומן תיק - PASS", "info",is_hebrew=True)
     else:
         status_tab = "fail"
-        log_and_print(f"❌ יומן תיק - FAIL with mismatches or missing entries.", "warning")
+        log_and_print(f"❌ יומן תיק - FAIL with mismatches or missing entries.", "warning",is_hebrew=True)
 
     return {
         "request_log": {

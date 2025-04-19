@@ -18,7 +18,7 @@ from dateutil.parser import parse
 import pandas as pd
 from collections import defaultdict
 
-def run_decision_comparison(case_id: int, appeal_number: int, tab_config=None):
+def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=None):
     log_and_print("\n📂 Running decision comparison...", "info")
     if tab_config is None:
         tab_config = load_tab_config("החלטות")
@@ -26,7 +26,7 @@ def run_decision_comparison(case_id: int, appeal_number: int, tab_config=None):
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 
     try:
-        menora_df = fetch_menora_decision_data(appeal_number)
+        menora_df = fetch_menora_decision_data(appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
 

@@ -6,7 +6,7 @@ from logging_utils import log_and_print
 from sql_connection import get_sql_connection
 import os
 
-def fetch_appeal_number_by_case_id(case_id):
+def fetch_appeal_number_by_case_id(case_id,conn):
     query = """
     SELECT a.Appeal_Number_Display
     FROM Menora_Conversion.dbo.Appeal a 
@@ -19,9 +19,9 @@ def fetch_appeal_number_by_case_id(case_id):
     WHERE cn.Court_Id = 11 AND a.Case_id = ?
     """
     try:
-        conn = get_sql_connection()
+        #conn = get_sql_connection()
         df = pd.read_sql(query, conn, params=[case_id])
-        conn.close()
+        #conn.close()
 
         if df.empty:
             log_and_print(f"⚠️ No appeal number found for case_id {case_id}", "warning")
@@ -35,7 +35,7 @@ def fetch_appeal_number_by_case_id(case_id):
         log_and_print(f"❌ Error fetching appeal number: {e}", "error")
         return None
 
-def fetch_menora_decision_data(appeal_number):
+def fetch_menora_decision_data(appeal_number, conn):
     query = """
         SELECT DISTINCT 
             d.Decision_Date,
@@ -59,16 +59,16 @@ def fetch_menora_decision_data(appeal_number):
         WHERE a.Appeal_Number_Display = ? AND ec_dt.Court_ID = 11
     """
     try:
-        conn = get_sql_connection()
+        #conn = get_sql_connection()
         df = pd.read_sql(query, conn, params=[appeal_number])
-        conn.close()
+        #conn.close()
         log_and_print(f"✅ Retrieved {len(df)} decisions from Menora for appeal {appeal_number}", "success")
         return df
     except Exception as e:
         log_and_print(f"❌ Error while fetching Menora decision data: {e}", "error")
         return pd.DataFrame()
 
-def fetch_menora_document_data(appeal_number):
+def fetch_menora_document_data(appeal_number, conn):
     query = """
     SELECT 
         a.Appeal_Number_Display AS m_tik,
@@ -110,16 +110,16 @@ def fetch_menora_document_data(appeal_number):
     WHERE e_dt.Court_Id = 11
     """
     try:
-        conn = get_sql_connection()
+        #conn = get_sql_connection()
         df = pd.read_sql(query, conn, params=[appeal_number, appeal_number])
-        conn.close()
+        #conn.close()
         log_and_print(f"✅ Retrieved {len(df)} documents from Menora for appeal {appeal_number}", "success")
         return df
     except Exception as e:
         log_and_print(f"❌ Error while fetching Menora document data: {e}", "error")
         return pd.DataFrame()
 
-def fetch_menora_discussion_data(appeal_number):
+def fetch_menora_discussion_data(appeal_number, conn):
     query = """
     SELECT 
         FORMAT(Discussion_Date, 'dd/MM/yyyy') + ' ' + CONVERT(VARCHAR, d.Discussion_Strat_Time, 8) AS Strat_Time,
@@ -145,16 +145,16 @@ def fetch_menora_discussion_data(appeal_number):
     WHERE a.Appeal_Number_Display = ?
     """
     try:
-        conn = get_sql_connection()
+        #conn = get_sql_connection()
         df = pd.read_sql(query, conn, params=[appeal_number])
-        conn.close()
+        #conn.close()
         log_and_print(f"✅ Retrieved {len(df)} discussions from Menora for appeal {appeal_number}", "success")
         return df
     except Exception as e:
         log_and_print(f"❌ Error while fetching Menora discussion data: {e}", "error")
         return pd.DataFrame()
 
-def fetch_menora_case_involved_data(appeal_number):
+def fetch_menora_case_involved_data(appeal_number, conn):
     query = """
     SELECT
     MAX(a.CompanyName) AS CompanyName,
@@ -222,9 +222,9 @@ WHERE a.Appeal_Number_Display = ?
 GROUP BY p.Main_Id_Number;
     """
     try:
-        conn = get_sql_connection()
+        #conn = get_sql_connection()
         df = pd.read_sql(query, conn, params=[appeal_number])
-        conn.close()
+        #conn.close()
         log_and_print(f"✅ Retrieved {len(df)} case involved entries from Menora for appeal {appeal_number}", "success")
         return df
     except Exception as e:
@@ -233,7 +233,7 @@ GROUP BY p.Main_Id_Number;
     
 
 
-def fetch_menora_case_contacts(appeal_number):
+def fetch_menora_case_contacts(appeal_number, conn):
     query = """
     SELECT
     MAX(a.CompanyName) AS CompanyName,
@@ -301,9 +301,9 @@ WHERE a.Appeal_Number_Display = ?
 GROUP BY p.Main_Id_Number;
     """
     try:
-        conn = get_sql_connection()
+        #conn = get_sql_connection()
         df = pd.read_sql(query, conn, params=[appeal_number])
-        conn.close()
+        #conn.close()
         log_and_print(f"✅ Retrieved {len(df)} case involved entries from Menora for appeal {appeal_number}", "success")
         return df
     except Exception as e:
@@ -311,7 +311,7 @@ GROUP BY p.Main_Id_Number;
         return pd.DataFrame()
     
 
-def fetch_menora_distributions(appeal_number):
+def fetch_menora_distributions(appeal_number, conn):
     query = """
     SELECT d.SendDate,d.SendUser,d.SendFrom,d.SendTo,d.SendSubject,d.SendBody,
            d.AttachmentsDocMojID,d.Discussion_Id,d.SendErrorCode,d.SendErrorDesc,
@@ -323,9 +323,9 @@ def fetch_menora_distributions(appeal_number):
     WHERE a.Appeal_Number_Display = ?
     """
     try:
-        conn = get_sql_connection()
+        #conn = get_sql_connection()
         df = pd.read_sql(query, conn, params=[appeal_number])
-        conn.close()
+        #conn.close()
         log_and_print(f"✅ Retrieved {len(df)} distribution entries from Menora for appeal {appeal_number}", "success")
         return df
     except Exception as e:
@@ -333,7 +333,7 @@ def fetch_menora_distributions(appeal_number):
         return pd.DataFrame()
     
 
-def fetch_menora_log_requests(appeal_number):
+def fetch_menora_log_requests(appeal_number, conn):
     query = """
         SELECT 
             la.Status_Date,
@@ -351,9 +351,9 @@ def fetch_menora_log_requests(appeal_number):
         ORDER BY la.Log_Code DESC;
     """
     try:
-        conn = get_sql_connection()
+        #conn = get_sql_connection()
         df = pd.read_sql(query, conn, params=[appeal_number])
-        conn.close()
+        #conn.close()
 
         required_columns = ["Status_Date", "Action_Description", "Status_Reason", "Action_Type", "Create_User"]
         missing_columns = [col for col in required_columns if col not in df.columns]

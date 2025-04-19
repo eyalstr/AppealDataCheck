@@ -9,6 +9,7 @@ from case_representator_runner import run_representator_comparison
 from case_involved_runner import run_case_involved_comparison  # ✅ NEW
 from logging_utils import log_and_print
 from config_loader import load_tab_config
+from sql_connection import get_sql_connection
 import json
 
 def main():
@@ -36,10 +37,13 @@ def main():
     request_log_tab_config = load_tab_config("יומן תיק")
     representator_tab_config = load_tab_config("מעורבים בתיק")
     case_contact_tab_config = load_tab_config("עורר פרטי קשר")
+
+    conn = get_sql_connection()
+
     
     for case_id in case_ids:
         log_and_print(f"\n\n🔁 Processing case_id {case_id}...", "info")
-        appeal_number = fetch_appeal_number_by_case_id(case_id)
+        appeal_number = fetch_appeal_number_by_case_id(case_id, conn)
         if not appeal_number:
             log_and_print(f"❌ Could not find appeal number for case ID {case_id}. Skipping.", "error")
             continue
@@ -47,34 +51,36 @@ def main():
         case_results = {}
 
         # ---- Active comparisons ----
-        request_log_result = run_request_log_comparison(case_id, appeal_number,tab_config=request_log_tab_config)
+        request_log_result = run_request_log_comparison(case_id, appeal_number, conn,tab_config=request_log_tab_config)
         if request_log_result:
             case_results["request_log"] = request_log_result["request_log"]
 
-        discussion_result = run_discussion_comparison(case_id, appeal_number,tab_config=discussion_tab_config)
+        discussion_result = run_discussion_comparison(case_id, appeal_number, conn,tab_config=discussion_tab_config)
         if discussion_result:
             case_results["discussion"] = discussion_result["discussion"]
 
-        decision_result = run_decision_comparison(case_id, appeal_number,tab_config=decision_tab_config)
+        decision_result = run_decision_comparison(case_id, appeal_number, conn,tab_config=decision_tab_config)
         if decision_result:
             case_results["decision"] = decision_result["decision"]
 
-        document_result = run_document_comparison(case_id, appeal_number,tab_config=document_tab_config)
+        document_result = run_document_comparison(case_id, appeal_number, conn,tab_config=document_tab_config)
         if document_result:
             case_results["document"] = document_result["document"]
 
-        representator_result = run_representator_comparison(case_id, appeal_number,tab_config=representator_tab_config)
+        representator_result = run_representator_comparison(case_id, appeal_number, conn,tab_config=representator_tab_config)
         representator_section = representator_result.get(str(case_id), {})
         if "representator_log" in representator_section:
             case_results["representator_log"] = representator_section["representator_log"]
 
-        case_contact_result = run_case_involved_comparison(case_id, appeal_number,tab_config=case_contact_tab_config)  # ✅ NEW
+        case_contact_result = run_case_involved_comparison(case_id, appeal_number, conn,tab_config=case_contact_tab_config)  # ✅ NEW
         case_contact_section = case_contact_result.get(str(case_id), {})
         if "case_contact" in case_contact_section:
             case_results["case_contact"] = case_contact_section["case_contact"]
 
         if case_results:
             dashboard_results[str(case_id)] = case_results
+
+    conn.close()
 
     # Save the comparison summary for dashboard
     with open("comparison_summary.json", "w", encoding="utf-8") as f:

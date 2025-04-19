@@ -7,7 +7,7 @@ from config_loader import load_tab_config
 from dateutil.parser import parse
 
 
-def run_discussion_comparison(case_id, appeal_number, tab_config=None):
+def run_discussion_comparison(case_id, appeal_number, conn, tab_config=None):
     tab_key = "discussion"
     tab_label = "דיונים"
     log_and_print(f"\n📂 Running {tab_label} comparison...", "info")
@@ -17,7 +17,7 @@ def run_discussion_comparison(case_id, appeal_number, tab_config=None):
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 
     try:
-        menora_df = fetch_menora_discussion_data(appeal_number)
+        menora_df = fetch_menora_discussion_data(appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         log_and_print(f"✅ Retrieved {len(menora_df)} discussions from Menora for appeal {appeal_number}", "success")
@@ -61,9 +61,9 @@ def run_discussion_comparison(case_id, appeal_number, tab_config=None):
 
     status_tab = "pass" if not missing_json_dates and not missing_menora_dates and not mismatched_fields else "fail"
     if status_tab == "pass":
-        log_and_print(f"🟡 {tab_label} - PASS", "info")
+        log_and_print(f"🟡 {tab_label} - PASS", "info",is_hebrew=True)
     else:
-        log_and_print(f"❌ {tab_label} - FAIL", "warning")
+        log_and_print(f"❌ {tab_label} - FAIL", "warning",is_hebrew=True)
 
     return {
         tab_key: {

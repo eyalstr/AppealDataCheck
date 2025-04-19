@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 from config_loader import load_tab_config
 
-def run_case_involved_comparison(case_id, appeal_number, tab_config=None):
+def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
     if tab_config is None:
         tab_config = load_tab_config("עורר פרטי קשר")
     matching_keys = tab_config.get("matchingKeys", [])
@@ -17,7 +17,7 @@ def run_case_involved_comparison(case_id, appeal_number, tab_config=None):
 
     # Step 1: Fetch Menora SQL data
     try:
-        menora_df = fetch_menora_case_contacts(appeal_number)
+        menora_df = fetch_menora_case_contacts(appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df["Main_Id_Number"] = menora_df["Main_Id_Number"].astype(str)
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()

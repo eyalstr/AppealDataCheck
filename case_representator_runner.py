@@ -6,7 +6,7 @@ from logging_utils import log_and_print
 from config_loader import load_tab_config
 import json
 
-def run_representator_comparison(case_id, appeal_number, tab_config=None):
+def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
     tab_config = load_tab_config("מעורבים בתיק")
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
@@ -15,7 +15,7 @@ def run_representator_comparison(case_id, appeal_number, tab_config=None):
 
     # Step 1: Fetch Menora SQL data
     try:
-        menora_df = fetch_menora_case_involved_data(appeal_number)
+        menora_df = fetch_menora_case_involved_data(appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df["PrivateCompanyNumber"] = menora_df["PrivateCompanyNumber"].astype(str)
         menora_df["Main_Id_Number"] = menora_df["Main_Id_Number"].astype(str)

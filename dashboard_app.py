@@ -24,7 +24,8 @@ tab_labels = {
     "document": "מסמכים",
     "decision": "החלטות",
     "discussion": "דיונים",
-    "request_log": "יומן תיק"
+    "request_log": "יומן תיק",
+    "case_contact": "פרטי עורר"  # ✅ NEW
 }
 
 # Process each case

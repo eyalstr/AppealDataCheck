@@ -1,6 +1,11 @@
 import logging
 from bidi.algorithm import get_display
 import unicodedata
+import os
+
+
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+
 
 # ANSI escape codes for bold and colored formatting
 BOLD_YELLOW = '\033[1;33m'
@@ -20,11 +25,16 @@ def setup_logging(log_file='application.log'):
     return logging.getLogger()
 
 logger = setup_logging()
+
+
 def log_and_print(message, level="info", ansi_format=None, is_hebrew=False, indent=0):
     """
     Log a message and print it with optional ANSI formatting and indentation.
-    If the message contains Hebrew, apply RTL normalization for console output only.
+    Skips logging/printing unless DEBUG is enabled.
     """
+    if not DEBUG:
+        return  # 🚫 Skip printing and logging if debug is off
+
     # Normalize Hebrew text for console, but keep original for log
     if is_hebrew:
         console_message = normalize_hebrew(message)

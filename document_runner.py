@@ -7,7 +7,7 @@ from tabulate import tabulate
 from collections import defaultdict
 import pandas as pd
 
-def run_document_comparison(case_id, appeal_number, tab_config=None):
+def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
     if tab_config is None:
         tab_config = load_tab_config("מסמכים")
     log_and_print(f"📁 Available tabs in config: {list(tab_config.keys())}", is_hebrew=True)
@@ -25,7 +25,7 @@ def run_document_comparison(case_id, appeal_number, tab_config=None):
 
     # Extract dataframes from sources
     json_df = extract_document_data_from_json(documents)
-    menora_df = fetch_menora_document_data(appeal_number)
+    menora_df = fetch_menora_document_data(appeal_number, conn)
 
     # Field map config
     field_map = tab_config["field_map"]
