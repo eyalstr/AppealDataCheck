@@ -8,10 +8,11 @@ from collections import defaultdict
 from config_loader import load_tab_config
 
 
-def run_distribution_comparison(case_id, appeal_number):
+def run_distribution_comparison(case_id, appeal_number, tab_config=None):
     log_and_print("\n📂 Running distribution comparison...", "info")
 
-    tab_config = load_tab_config("הפצות")
+    if tab_config is None:
+        tab_config = load_tab_config("הפצות")
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 

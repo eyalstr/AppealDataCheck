@@ -18,9 +18,10 @@ from dateutil.parser import parse
 import pandas as pd
 from collections import defaultdict
 
-def run_decision_comparison(case_id: int, appeal_number: int):
+def run_decision_comparison(case_id: int, appeal_number: int, tab_config=None):
     log_and_print("\n📂 Running decision comparison...", "info")
-    tab_config = load_tab_config("החלטות")
+    if tab_config is None:
+        tab_config = load_tab_config("החלטות")
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 

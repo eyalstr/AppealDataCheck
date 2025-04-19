@@ -7,12 +7,12 @@ from config_loader import load_tab_config
 from dateutil.parser import parse
 
 
-def run_discussion_comparison(case_id, appeal_number):
+def run_discussion_comparison(case_id, appeal_number, tab_config=None):
     tab_key = "discussion"
     tab_label = "דיונים"
     log_and_print(f"\n📂 Running {tab_label} comparison...", "info")
-
-    tab_config = load_tab_config(tab_label)
+    if tab_config is None:
+        tab_config = load_tab_config(tab_label)
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 

@@ -7,8 +7,9 @@ from tabulate import tabulate
 from collections import defaultdict
 import pandas as pd
 
-def run_document_comparison(case_id, appeal_number):
-    tab_config = load_tab_config("מסמכים")
+def run_document_comparison(case_id, appeal_number, tab_config=None):
+    if tab_config is None:
+        tab_config = load_tab_config("מסמכים")
     log_and_print(f"📁 Available tabs in config: {list(tab_config.keys())}", is_hebrew=True)
 
     json_data = fetch_case_documents(case_id)

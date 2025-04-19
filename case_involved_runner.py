@@ -7,8 +7,9 @@ import os
 from dotenv import load_dotenv
 from config_loader import load_tab_config
 
-def run_case_involved_comparison(case_id, appeal_number):
-    tab_config = load_tab_config("עורר פרטי קשר")
+def run_case_involved_comparison(case_id, appeal_number, tab_config=None):
+    if tab_config is None:
+        tab_config = load_tab_config("עורר פרטי קשר")
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 
@@ -72,43 +73,42 @@ def run_case_involved_comparison(case_id, appeal_number):
         log_and_print(f"❌ Failed to fetch or parse case contact data: {e}", "error")
         json_df = pd.DataFrame()
 
-    menora_count = len(menora_df)
-    json_count = len(json_df)
-    missing_in_json = 0
-    missing_in_menora = 0
-    mismatched_fields = 0
-    fully_matched = 0
+    # Step 3: Compare
+    missing_json_list = []
+    missing_menora_list = []
+    mismatched_fields = []
 
     if not json_df.empty and not menora_df.empty:
         try:
-            merged = pd.merge(json_df, menora_df, how="outer", indicator=True)
-            missing_in_json = merged[merged['_merge'] == 'right_only'].shape[0]
-            missing_in_menora = merged[merged['_merge'] == 'left_only'].shape[0]
-            fully_matched = merged[merged['_merge'] == 'both'].shape[0]
+            json_df["_source"] = "json"
+            menora_df["_source"] = "menora"
+
+            merged = pd.merge(json_df, menora_df, how="outer", on="Main_Id_Number", indicator=True)
+
+            missing_json_list = merged[merged["_merge"] == "right_only"]["Main_Id_Number"].dropna().unique().tolist()
+            missing_menora_list = merged[merged["_merge"] == "left_only"]["Main_Id_Number"].dropna().unique().tolist()
+
+            fully_matched = merged[merged["_merge"] == "both"].shape[0]
         except Exception as e:
             log_and_print(f"❌ Merge failed: {e}", "error")
-            missing_in_json = menora_count
-            missing_in_menora = json_count
+            missing_json_list = menora_df["Main_Id_Number"].dropna().unique().tolist()
+            missing_menora_list = json_df["Main_Id_Number"].dropna().unique().tolist()
     else:
         if json_df.empty:
-            missing_in_json = menora_count
+            missing_json_list = menora_df["Main_Id_Number"].dropna().unique().tolist()
         if menora_df.empty:
-            missing_in_menora = json_count
+            missing_menora_list = json_df["Main_Id_Number"].dropna().unique().tolist()
 
-    summary = {
-        "Case ID": case_id,
-        "Menora Case Contacts": menora_count,
-        "JSON Case Contacts": json_count,
-        "Missing in JSON": max(missing_in_json, 0),
-        "Missing in Menora": max(missing_in_menora, 0),
-        "Field Mismatches": mismatched_fields,
-        "Fully Matched": max(fully_matched, 0)
+    status_tab = "pass" if not missing_json_list and not missing_menora_list and not mismatched_fields else "fail"
+
+    # Return in dashboard-compatible format
+    return {
+        str(case_id): {
+            "case_contact": {
+                "status_tab": status_tab,
+                "missing_json_dates": missing_json_list,
+                "missing_menora_dates": missing_menora_list,
+                "mismatched_fields": mismatched_fields
+            }
+        }
     }
-
-    log_and_print(f"\n📊 Test Result Summary for Case ID {case_id} [Case Contact]", "info")
-    log_and_print(f"✅ {summary['Missing in Menora']} entry(ies) missing in Menora.", "success")
-    log_and_print(f"✅ {summary['Missing in JSON']} entry(ies) missing in JSON.", "success")
-    log_and_print(f"✅ {summary['Field Mismatches']} entry(ies) with field mismatch(es).", "success")
-    log_and_print(f"✅ {summary['Fully Matched']} entry(ies) fully matched.", "success")
-
-    return summary

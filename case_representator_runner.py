@@ -6,7 +6,7 @@ from logging_utils import log_and_print
 from config_loader import load_tab_config
 import json
 
-def run_representator_comparison(case_id, appeal_number):
+def run_representator_comparison(case_id, appeal_number, tab_config=None):
     tab_config = load_tab_config("מעורבים בתיק")
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}

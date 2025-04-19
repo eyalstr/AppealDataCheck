@@ -6,7 +6,8 @@ from json_parser import extract_request_logs_from_json
 from config_loader import load_tab_config
 from dateutil.parser import parse
 
-def run_request_log_comparison(case_id, appeal_number):
+def run_request_log_comparison(case_id, appeal_number, tab_config=None):
+    
     from config_loader import load_tab_config
     from client_api import fetch_case_details
     from sql_client import fetch_menora_log_requests
@@ -15,7 +16,9 @@ def run_request_log_comparison(case_id, appeal_number):
     from dateutil.parser import parse
     import pandas as pd
 
-    tab_config = load_tab_config("יומן תיק")
+    if tab_config is None:
+        tab_config = load_tab_config("יומן תיק")  # fallback to default if not passed
+    
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 
