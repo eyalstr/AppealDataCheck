@@ -156,70 +156,27 @@ def fetch_menora_discussion_data(appeal_number, conn):
 
 def fetch_menora_case_involved_data(appeal_number, conn):
     query = """
-    SELECT
-    MAX(a.CompanyName) AS CompanyName,
-    MAX(a.Open_Date) AS Open_Date, 
-    MAX(TRIM(ud.shem_prati) + ' ' + TRIM(ud.shem_mishpacha)) AS 'your vaada',
-    MAX(up.C_ShemMale) AS 'chaver vaada',
-    MAX(p.Ful_Name) AS 'orer',
-    p.Main_Id_Number,
-    MAX(e.Email) AS 'orerEmail',
-    MAX(CASE WHEN cp.Phone_Type = 1 THEN cp.Phone ELSE NULL END) AS Phone1,
-    MAX(CASE WHEN cp.Phone_Type = 2 THEN cp.Phone ELSE NULL END) AS Phone2,
-    MAX(r.First_Name + ' ' + r.Last_Name) AS 'meshiva',
-    MAX(r.ID_Num) AS 'meshivaID',
-    MAX(r.Email) AS 'meshivaEmail',
-    MAX(ec_pt.[Entitlement_Periods_Type_Id]) AS Entitlement_Periods,
-    MAX(a.Case_Id) AS Case_Id,
-    MAX(a.Appeal_Number_Display) AS 'מספר תיק',
-    MAX(a.Tax_RequestNumber) AS Tax_RequestNumber,
-    MAX(a.Tax_ObjectionDate) AS Tax_ObjectionDate,
-    MAX(ec_st.Case_Type_Id) AS Case_Type_Id,
-    MAX(a.PublicDelegateCode) AS PublicDelegateCode,
-    MAX(a.Appeal_Status) AS Appeal_Status,
-    MAX(a.PrivateCompanyNumber) AS PrivateCompanyNumber,
-    MAX(a.CompanyCity) AS 'עיר עסק',
-    MAX(CASE 
-        WHEN a.CompanyType BETWEEN 1 AND 5 THEN 3
-        WHEN a.CompanyType = 6 THEN 10
-        ELSE a.CompanyType
-    END) AS CompanyType,
-    MAX(ap.Presenter_Type) AS Presenter_Type,
-    MAX(apt.Name) AS 'סוג ייצוג',
-    MAX(p.Hebrew_First_Name) AS 'שם פרטי עוסק ב"כ',
-    MAX(p.Hebrew_Last_Name) AS 'שם משפחה עוסק ב"כ',
-    p.Main_Id_Number AS 'ת"ז עוסק ב"כ',
-    MAX(ap.Lawyer_License_number) AS 'מספר רשיון',
-    MAX(e.Email) AS 'EmailOsek',
-    MAX(r.ID_Num) AS 'מספר זיהוי בא כח משיבה',
-    MAX(r.Email) AS 'דוא"ל ב"כ משיבה',
-    MAX(cb_s.Request_Status_Type_Id) AS 'Request_Status',
-    MAX(a.Annual_Turnover) AS Annual_Turnover,
-    MAX(ec_rt.Representor_Type_Id) AS Representor_Type_Id
+SELECT
+    COALESCE(p.Main_Id_Number, r.ID_Num) AS Main_Id_Number,
+    r.ID_Num AS meshivaID,
+    a.PrivateCompanyNumber,
+    a.CompanyName,
+    CASE 
+        WHEN p.Main_Id_Number IS NOT NULL THEN p.Ful_Name 
+        ELSE NULL 
+    END AS orer,
+    CASE 
+        WHEN r.ID_Num IS NOT NULL THEN r.First_Name + ' ' + r.Last_Name 
+        ELSE NULL 
+    END AS meshiva
 FROM Menora_Conversion.dbo.Appeal a
-JOIN Menora_Conversion.dbo.Appeal_Presenter ap ON a.Appeal_ID = ap.Appeal_ID and ap.IsActive = 1
-LEFT JOIN external_Courts.cnvrt.Representing_Types_BO_To_Representing_Types ec_rt 
-    ON ap.Presenter_Type = ec_rt.Representor_Type_Id_BO 
-    AND ec_rt.Court_Id = 11
-LEFT JOIN [Menora_Conversion].[dbo].[Person] p ON ap.[Person_ID] = p.[Person_ID]
-JOIN Menora_Conversion.dbo.CT_Appeal_Presenter_Type apt ON ap.Presenter_Type = apt.Code
-JOIN Menora_Conversion.dbo.Contact_Email e ON p.Person_ID = e.Person_ID 
-LEFT JOIN Menora_Conversion.dbo.Contact_Phone cp ON p.Person_ID = cp.Person_ID
-LEFT JOIN Menora_Conversion.dbo.Respondents r ON a.Respondent_Code = r.RespondentID
-LEFT JOIN Menora_Conversion.dbo.users ud ON a.Dayan_Code = ud.UserId
-LEFT JOIN Menora_Conversion.dbo.users up ON a.PublicDelegateCode = up.UserId
-JOIN [External_Courts].[cnvrt].[Entitlement_Periods_Types_To_BO] ec_pt  
-    ON ec_pt.BO_Entitlement_Periods_Type_Id = a.Eligibility_Period
-LEFT JOIN [External_Courts].[cnvrt].[Case_Status_To_Case_Status_BO] ec_s 
-    ON a.Appeal_Status = ec_s.[Case_Status_BO]
-JOIN [Cases_BO].[dbo].[CT_Case_Status_Types] cb_s 
-    ON cb_s.Case_Status_Type_Id = ec_s.[Case_Status_Type_Id] 
-    AND ec_s.[Court_Id] = 11
-LEFT JOIN [External_Courts].[cnvrt].[Case_Subject_Type_And_Case_Type_To_BO_Case_Type] ec_st 
-    ON ec_st.BO_Case_Type = a.Main_Subject 
-    AND ec_pt.[Entitlement_Periods_Type_Id] = ec_st.Entitlement_Period_Id
+LEFT JOIN Menora_Conversion.dbo.Appeal_Presenter ap 
+    ON a.Appeal_ID = ap.Appeal_ID AND ap.IsActive = 1
+LEFT JOIN Menora_Conversion.dbo.Person p 
+    ON ap.Person_ID = p.Person_ID
+LEFT JOIN Menora_Conversion.dbo.Respondents r 
+    ON a.Respondent_Code = r.RespondentID
 WHERE a.Appeal_Number_Display = ?
-GROUP BY p.Main_Id_Number;
     """
     try:
         #conn = get_sql_connection()
