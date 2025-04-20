@@ -47,13 +47,13 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
 
             json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
 
-            log_and_print(f"🔍 JSON columns available: {json_df.columns.tolist()}", "debug")
-            log_and_print(f"🔍 JSON decisionDate preview:", "debug")
+            # log_and_print(f"🔍 JSON columns available: {json_df.columns.tolist()}", "debug")
+            # log_and_print(f"🔍 JSON decisionDate preview:", "debug")
             log_and_print(str(json_df.get("decisionDate_json", "❌ Not found")), "debug")
 
             if not json_df.empty and "mojId" in json_df.columns:
                 preview_cols = [col for col in ['mojId', 'decisionDate_json', 'createUser_json'] if col in json_df.columns]
-                log_and_print(f"📋 Extracted decision DataFrame preview:\n{json_df[preview_cols].head(3)}", "info")
+                # log_and_print(f"📋 Extracted decision DataFrame preview:\n{json_df[preview_cols].head(3)}", "info")
                 log_and_print(f"✅ Extracted {len(json_df)} decisions from API for case {case_id}", "success")
             else:
                 log_and_print(f"⚠️ JSON missing 'mojId' column or is empty.", "warning")

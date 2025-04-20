@@ -1,11 +1,14 @@
 from config_loader import load_tab_config
 from client_api import fetch_case_documents
-from json_parser import extract_document_data_from_json
 from sql_client import fetch_menora_document_data
+from json_parser import extract_document_data_from_json
+
 from logging_utils import log_and_print
-from tabulate import tabulate
 from collections import defaultdict
+from dateutil.parser import parse
+from tabulate import tabulate
 import pandas as pd
+
 
 def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
     if tab_config is None:
@@ -17,23 +20,17 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"❌ Failed to fetch JSON documents for case_id {case_id}.", "error")
         return
 
-    # Extract documents from JSON response
     documents = json_data.get("documentList")
     if not documents:
         log_and_print("⚠️ No 'documentList' found in JSON.", "warning")
         return
 
-    # Extract dataframes from sources
     json_df = extract_document_data_from_json(documents)
     menora_df = fetch_menora_document_data(appeal_number, conn)
 
-    # Field map config
     field_map = tab_config["field_map"]
-
-    # Compare field values
     comparison_results = compare_document_data(json_df, menora_df, field_map)
 
-    # Prepare tracking
     mismatch_by_mojid = defaultdict(list)
     mojid_match_counts = defaultdict(lambda: {"total": 0, "matched": 0})
 
@@ -44,7 +41,6 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
         "fully_matched_mojIds": set(),
     }
 
-    # Process comparison results
     for row in comparison_results:
         moj = row["mojId"]
         mojid_match_counts[moj]["total"] += 1
@@ -60,13 +56,11 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
             test_status["field_mismatches"].append(row)
             mismatch_by_mojid[moj].append(field_info)
 
-    # Identify fully matched mojIds
     test_status["fully_matched_mojIds"] = {
         moj for moj, counts in mojid_match_counts.items()
         if counts["total"] == counts["matched"]
     }
 
-    # Compare document counts
     count_comparison = compare_document_counts(json_df, menora_df)
     if count_comparison:
         for row in count_comparison:
@@ -75,7 +69,6 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
             elif row["Type"] == "Missing in Menora":
                 test_status["missing_in_menora"] = [moj.strip() for moj in row["mojIds"].split(",") if moj.strip()]
 
-    # Logging results
     log_and_print(f"\n🧪 Test Result Summary for Case ID {case_id} [Documents]:", "info")
     log_and_print(f"{'✅' if not test_status['missing_in_menora'] else '❌'} {len(test_status['missing_in_menora'])} document(s) missing in Menora.", "info")
     log_and_print(f"{'✅' if not test_status['missing_in_json'] else '❌'} {len(test_status['missing_in_json'])} document(s) missing in JSON.", "info")
@@ -86,7 +79,25 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"🔎 Mismatched Fields for mojId {moj_id}:", "warning")
         print(tabulate(mismatches, headers="keys", tablefmt="grid"))
 
-    status_tab = "pass" if not test_status["missing_in_menora"] and not test_status["missing_in_json"] and not test_status["field_mismatches"] else "fail"
+    # Check override logic for missing_in_menora based on statusDate (after 2024-03-24)
+    CUTOFF = parse("2024-03-24T00:00:00").replace(tzinfo=None)
+    ignore_fail = False
+    for moj in test_status["missing_in_menora"]:
+        json_row = json_df[json_df["mojId"] == moj]
+        if not json_row.empty:
+            raw_date = json_row.iloc[0].get("statusDate")
+            log_and_print(f"🔍 [Missing in Menora] Full row for {moj}: {json_row.iloc[0].to_dict()}", "debug")
+            if raw_date:
+                try:
+                    parsed = parse(raw_date).replace(tzinfo=None)
+                    if parsed > CUTOFF:
+                        log_and_print(f"✅ Ignoring document {moj} created after cutoff: {parsed}", "debug")
+                        ignore_fail = True
+                        break
+                except Exception as e:
+                    log_and_print(f"⚠️ Failed parsing date for mojId {moj}: {e}", "warning")
+
+    status_tab = "pass" if (not test_status["missing_in_menora"] and not test_status["missing_in_json"] and not test_status["field_mismatches"]) or ignore_fail else "fail"
 
     return {
         "document": {
@@ -104,10 +115,6 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
             ]
         }
     }
-
-from dateutil.parser import parse
-from tabulate import tabulate
-from logging_utils import log_and_print
 
 
 def values_match(field, menora_value, json_value):

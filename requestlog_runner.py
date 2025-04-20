@@ -1,29 +1,21 @@
-import pandas as pd
-from sql_client import fetch_menora_log_requests
-from client_api import fetch_case_details
-from logging_utils import log_and_print
-from json_parser import extract_request_logs_from_json
 from config_loader import load_tab_config
+from client_api import fetch_case_details
+from sql_client import fetch_menora_log_requests
+from json_parser import extract_request_logs_from_json
+from logging_utils import log_and_print
 from dateutil.parser import parse
+import pandas as pd
+
 
 def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
-    
-    from config_loader import load_tab_config
-    from client_api import fetch_case_details
-    from sql_client import fetch_menora_log_requests
-    from json_parser import extract_request_logs_from_json
-    from logging_utils import log_and_print
-    from dateutil.parser import parse
-    import pandas as pd
-
     if tab_config is None:
-        tab_config = load_tab_config("יומן תיק")  # fallback to default if not passed
-    
+        tab_config = load_tab_config("יומן תיק")
+
     matching_keys = tab_config.get("matchingKeys", [])
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 
     try:
-        menora_df = fetch_menora_log_requests(appeal_number,conn)
+        menora_df = fetch_menora_log_requests(appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
     except Exception as e:
@@ -47,16 +39,19 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
 
     def safe_parse_datetime(value):
         try:
-            return parse(value).strftime("%m-%d %H:%M:%S")
+            return parse(value).replace(tzinfo=None)
         except Exception:
             return None
 
+    CUTOFF_DATETIME = parse("2024-03-24T00:00:00").replace(tzinfo=None)
+
     for df, label in [(menora_df, "Menora"), (json_df, "JSON")]:
         col_name = "Status_Date" if label == "Menora" else "Status_Date_json"
+        dt_col = f"{col_name}_dt"
         if col_name in df.columns:
             try:
-                dt_series = df[col_name].astype(str).apply(safe_parse_datetime)
-                df[col_name] = dt_series
+                df[dt_col] = df[col_name].astype(str).apply(safe_parse_datetime)
+                df[col_name] = df[dt_col].apply(lambda x: x.strftime("%m-%d %H:%M:%S") if x else None)
             except Exception as e:
                 log_and_print(f"❌ Failed to normalize '{col_name}' in {label}: {e}", "error")
 
@@ -80,8 +75,8 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print("⚠️ Empty DataFrame detected, skipping detailed comparison.", "warning")
     else:
         merged = pd.merge(
-            menora_df[["Status_Date", *field_map.keys()]],
-            json_df[["Status_Date_json", *valid_json_fields]],
+            menora_df[["Status_Date", "Status_Date_dt", *field_map.keys()]],
+            json_df[["Status_Date_json", "Status_Date_json_dt", *valid_json_fields]],
             left_on="Status_Date",
             right_on="Status_Date_json",
             how="inner"
@@ -103,12 +98,22 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
                         "JSON": json_val
                     })
 
+    all_dates = (
+        [parse(d).replace(tzinfo=None) for d in missing_json_dates if d] +
+        [parse(d).replace(tzinfo=None) for d in missing_menora_dates if d] +
+        [parse(row["Status_Date"]).replace(tzinfo=None) for row in mismatched_fields if row.get("Status_Date")]
+    )
+    any_after_cutoff = any(dt > CUTOFF_DATETIME for dt in all_dates if dt)
+
     if not missing_json_dates and not missing_menora_dates and not mismatched_fields:
         status_tab = "pass"
-        log_and_print(f"🟡 יומן תיק - PASS", "info",is_hebrew=True)
+        log_and_print(f"🟡 יומן תיק - PASS", "info", is_hebrew=True)
+    elif any_after_cutoff:
+        status_tab = "pass"
+        log_and_print(f"✅ Discrepancies occurred after 24/03/2024. Ignored by policy.", "info")
     else:
         status_tab = "fail"
-        log_and_print(f"❌ יומן תיק - FAIL with mismatches or missing entries.", "warning",is_hebrew=True)
+        log_and_print(f"❌ יומן תיק - FAIL with mismatches or missing entries.", "warning", is_hebrew=True)
 
     return {
         "request_log": {

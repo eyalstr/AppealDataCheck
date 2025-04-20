@@ -52,8 +52,6 @@ def extract_decision_data_from_json(case_json):
 
     return df
 
-
-
 def extract_document_data_from_json(documents):
     if not isinstance(documents, list):
         log_and_print("❌ extract_document_data_from_json expected a list of documents.", "error")
@@ -67,6 +65,7 @@ def extract_document_data_from_json(documents):
         moj_id = doc.get("mojId")
         sub_type = doc.get("subType")
         doc_type = doc.get("docType")
+        status_date = doc.get("rCreationDate") or doc.get("statusDate")
 
         if moj_id is None:
             log_and_print("⚠️ Skipping document without mojId.", "warning")
@@ -75,7 +74,8 @@ def extract_document_data_from_json(documents):
         extracted.append({
             "mojId": moj_id,
             "subType": sub_type,
-            "doc_type": doc_type
+            "doc_type": doc_type,
+            "statusDate": status_date
         })
 
     df = pd.DataFrame(extracted)
