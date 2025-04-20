@@ -29,8 +29,11 @@ tab_labels = {
 }
 
 # Process each case
-for case_id, tabs in summary_data.items():
-    st.markdown(f"### 📁 תיק מספר: {case_id}")
+for index, (case_id, tabs) in enumerate(summary_data.items(), start=1):
+#for case_id, tabs in summary_data.items():
+    #st.markdown(f"### 📁 תיק מספר: {case_id}")
+    st.markdown(f"### {index}. 📁 תיק מספר: {case_id}")
+
 
     # Build tab status line in RTL order
     tab_keys_rtl = list(tab_labels.keys())[::-1]
