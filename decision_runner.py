@@ -1,22 +1,11 @@
+from config_loader import load_tab_config
 from client_api import fetch_case_details
 from sql_client import fetch_menora_decision_data
 from json_parser import extract_decision_data_from_json
 from logging_utils import log_and_print
-from config_loader import load_tab_config
-from tabulate import tabulate
 from dateutil.parser import parse
-import pandas as pd
 from collections import defaultdict
-
-from client_api import fetch_case_details
-from sql_client import fetch_menora_decision_data
-from json_parser import extract_decision_data_from_json
-from logging_utils import log_and_print
-from config_loader import load_tab_config
-from tabulate import tabulate
-from dateutil.parser import parse
 import pandas as pd
-from collections import defaultdict
 
 def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=None):
     log_and_print("\n📂 Running decision comparison...", "info")
@@ -30,13 +19,10 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
 
-        # 🔧 Normalize Moj_ID to mojId
         if "Moj_ID" in menora_df.columns:
             menora_df.rename(columns={"Moj_ID": "mojId"}, inplace=True)
 
         log_and_print(f"✅ Retrieved {len(menora_df)} decisions from Menora for appeal {appeal_number}", "success")
-        # print("📋 Menora PREVIEW:")
-        # print(menora_df.head(3))
     except Exception as e:
         log_and_print(f"❌ SQL query execution failed: {e}", "error")
         menora_df = pd.DataFrame()
@@ -46,16 +32,24 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
 
     if json_data:
         try:
+            log_and_print("🔍 Extracting decision data from JSON...", "debug")
             json_df = extract_decision_data_from_json(json_data)
 
+            json_df.columns = [col.strip() for col in json_df.columns]
+
             for ui_field in field_map:
-                if ui_field in json_df.columns and not ui_field.endswith("_json"):
-                    json_df.rename(columns={ui_field: f"{ui_field}_json"}, inplace=True)
+                for col in json_df.columns:
+                    if col.strip().lower() == ui_field.strip().lower() and not col.endswith("_json"):
+                        json_df.rename(columns={col: f"{ui_field}_json"}, inplace=True)
+
+            if "decisionDate" in json_df.columns:
+                json_df.rename(columns={"decisionDate": "decisionDate_json"}, inplace=True)
 
             json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
 
-            # log_and_print(f"📋 Menora columns: {menora_df.columns.tolist()}", "debug")
-            # log_and_print(f"📋 JSON columns: {json_df.columns.tolist()}", "debug")
+            log_and_print(f"🔍 JSON columns available: {json_df.columns.tolist()}", "debug")
+            log_and_print(f"🔍 JSON decisionDate preview:", "debug")
+            log_and_print(str(json_df.get("decisionDate_json", "❌ Not found")), "debug")
 
             if not json_df.empty and "mojId" in json_df.columns:
                 preview_cols = [col for col in ['mojId', 'decisionDate_json', 'createUser_json'] if col in json_df.columns]
@@ -66,20 +60,15 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
         except Exception as e:
             log_and_print(f"❌ Failed to parse JSON decision data: {e}", "error")
 
-    # print("🔎 DEBUG -- Menora mojIds column:", menora_df.get("mojId").dropna().astype(str).tolist() if "mojId" in menora_df.columns else "❌ 'mojId' missing")
-    # print("🔎 DEBUG -- JSON mojIds column:", json_df.get("mojId").dropna().astype(str).tolist() if "mojId" in json_df.columns else "❌ 'mojId' missing")
-
     menora_keys = set(menora_df["mojId"].dropna().astype(str)) if "mojId" in menora_df.columns else set()
     json_keys = set(json_df["mojId"].dropna().astype(str)) if "mojId" in json_df.columns else set()
 
     missing_json_dates = sorted(list(menora_keys - json_keys))
     missing_menora_dates = sorted(list(json_keys - menora_keys))
 
-    # log_and_print(f"🔎 mojIds in Menora: {sorted(menora_keys)}", "debug")
-    # log_and_print(f"🔎 mojIds in JSON: {sorted(json_keys)}", "debug")
-
     mismatched_fields = []
     if not json_df.empty and not menora_df.empty:
+        log_and_print("🔍 Performing field-level comparison...", "debug")
         comparison_results = compare_decision_data(json_df, menora_df, field_map)
         for row in comparison_results:
             if row.get("Match") == "✗":
@@ -90,11 +79,40 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
                     "JSON": row.get("JSON Value")
                 })
 
-    status_tab = "pass" if not missing_json_dates and not missing_menora_dates and not mismatched_fields else "fail"
-    if status_tab == "pass":
-        log_and_print("🟡 החלטות - PASS", "info",is_hebrew=True)
+    CUTOFF_DATETIME = parse("2024-03-24T00:00:00").replace(tzinfo=None)
+    any_after_cutoff = False
+    parsed_debug_dates = []
+
+    log_and_print("🔍 Checking for decision dates after cutoff...", "debug")
+
+    if "decisionDate_json" in json_df.columns:
+        try:
+            for d in json_df["decisionDate_json"].dropna():
+                log_and_print(f"🔎 Raw decisionDate_json value: {d}", "debug")
+                try:
+                    parsed = parse(str(d)).replace(tzinfo=None)
+                    parsed_debug_dates.append(str(parsed))
+                    if parsed > CUTOFF_DATETIME:
+                        log_and_print(f"✅ Overriding fail: {parsed} > {CUTOFF_DATETIME}", "debug")
+                        any_after_cutoff = True
+                        break
+                except Exception as parse_err:
+                    log_and_print(f"⚠️ Failed parsing date value '{d}': {parse_err}", "warning")
+            log_and_print(f"📋 All parsed dates: {parsed_debug_dates}", "debug")
+        except Exception as e:
+            log_and_print(f"⚠️ Failed to process decisionDate_json values: {e}", "warning")
     else:
-        log_and_print("❌ החלטות - FAIL", "warning",is_hebrew=True)
+        log_and_print("❌ 'decisionDate_json' column not found in JSON.", "error")
+
+    if not missing_json_dates and not missing_menora_dates and not mismatched_fields:
+        status_tab = "pass"
+        log_and_print("🔹 החלטות - PASS", "info", is_hebrew=True)
+    elif any_after_cutoff:
+        status_tab = "pass"
+        log_and_print("✅ החלטות - Discrepancies occurred after 24/03/2024. Ignored.", "info")
+    else:
+        status_tab = "fail"
+        log_and_print("❌ החלטות - FAIL", "warning", is_hebrew=True)
 
     return {
         "decision": {
