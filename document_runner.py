@@ -79,8 +79,15 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"🔎 Mismatched Fields for mojId {moj_id}:", "warning")
         print(tabulate(mismatches, headers="keys", tablefmt="grid"))
 
-    # Hardcoded CUTOFF for now
-    CUTOFF = parse("2025-03-26T00:00:00").replace(tzinfo=None)
+    # Load CUTOFF from .env file
+    load_dotenv()
+    raw_cutoff = os.getenv("CUTOFF")
+
+    if not raw_cutoff or len(raw_cutoff) != 6 or not raw_cutoff.isdigit():
+        raise ValueError("❌ Invalid or missing CUTOFF in environment. Expected format: ddmmyy (e.g., 250421)")
+
+    formatted_cutoff = f"20{raw_cutoff[4:6]}-{raw_cutoff[2:4]}-{raw_cutoff[0:2]}T00:00:00"
+    CUTOFF = parse(formatted_cutoff).replace(tzinfo=None)
     log_and_print(f"🔍 CUTOFF datetime: {CUTOFF}", level="debug")
 
     ignore_fail = False
@@ -119,6 +126,7 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
             ]
         }
     }
+
 
 def values_match(field, menora_value, json_value):
     menora_str = str(menora_value).strip()
