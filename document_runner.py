@@ -2,13 +2,13 @@ from config_loader import load_tab_config
 from client_api import fetch_case_documents
 from sql_client import fetch_menora_document_data
 from json_parser import extract_document_data_from_json
-
+from dotenv import load_dotenv
 from logging_utils import log_and_print
 from collections import defaultdict
 from dateutil.parser import parse
 from tabulate import tabulate
 import pandas as pd
-
+import os
 
 def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
     if tab_config is None:
@@ -79,23 +79,27 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"🔎 Mismatched Fields for mojId {moj_id}:", "warning")
         print(tabulate(mismatches, headers="keys", tablefmt="grid"))
 
-    # Check override logic for missing_in_menora based on statusDate (after 2024-03-24)
-    CUTOFF = parse("2024-03-24T00:00:00").replace(tzinfo=None)
+    # Hardcoded CUTOFF for now
+    CUTOFF = parse("2025-03-26T00:00:00").replace(tzinfo=None)
+    log_and_print(f"🔍 CUTOFF datetime: {CUTOFF}", level="debug")
+
     ignore_fail = False
     for moj in test_status["missing_in_menora"]:
         json_row = json_df[json_df["mojId"] == moj]
         if not json_row.empty:
             raw_date = json_row.iloc[0].get("statusDate")
             log_and_print(f"🔍 [Missing in Menora] Full row for {moj}: {json_row.iloc[0].to_dict()}", "debug")
+            log_and_print(f"🔍 Raw statusDate for {moj}: {raw_date}", "debug")
             if raw_date:
                 try:
                     parsed = parse(raw_date).replace(tzinfo=None)
+                    log_and_print(f"🔍 Parsed statusDate for {moj}: {parsed}", "debug")
                     if parsed > CUTOFF:
                         log_and_print(f"✅ Ignoring document {moj} created after cutoff: {parsed}", "debug")
                         ignore_fail = True
                         break
                 except Exception as e:
-                    log_and_print(f"⚠️ Failed parsing date for mojId {moj}: {e}", "warning")
+                    log_and_print(f"⚠️ Failed parsing statusDate for mojId {moj}: {e}", "warning")
 
     status_tab = "pass" if (not test_status["missing_in_menora"] and not test_status["missing_in_json"] and not test_status["field_mismatches"]) or ignore_fail else "fail"
 
@@ -115,7 +119,6 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
             ]
         }
     }
-
 
 def values_match(field, menora_value, json_value):
     menora_str = str(menora_value).strip()
