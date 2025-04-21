@@ -144,6 +144,37 @@ def fetch_case_discussions(case_id: int) -> dict:
         log_and_print(f"❌ Exception occurred while fetching discussions: {e}", "error")
         return {}
 
+
+def fetch_connect_contacts(role_ids: list) -> dict:
+    if not role_ids:
+        return {}
+
+    base_url = "https://bo-contacts-int.prod.k8s.justice.gov.il/api/ConnectDetails"
+    params = "&".join(f"ConnectDetailsIds={rid}" for rid in role_ids)
+    url = f"{base_url}?{params}"  # only 1 "?" here
+
+    headers = {
+        "Authorization": f"Bearer {BEARER_TOKEN}",
+        "Accept": "application/json",
+        "Moj-Application-Id": MOJ_APP_ID
+    }
+
+    try:
+        response = requests.get(url, headers=headers, verify=False)
+        log_and_print(f"🔎 Contact API response status: {response.status_code}", "info")
+
+        if response.status_code != 200:
+            log_and_print(f"❌ Failed to fetch contact data. Status: {response.status_code}", "error")
+            return {}
+
+        return response.json()
+
+    except Exception as e:
+        log_and_print(f"❌ Exception occurred while fetching contact data: {e}", "error")
+        return {}
+
+  
+
 def fetch_role_contacts(role_ids: list) -> dict:
     if not role_ids:
         return {}

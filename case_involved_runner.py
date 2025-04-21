@@ -1,11 +1,12 @@
 import pandas as pd
 from sql_client import fetch_menora_case_contacts
-from client_api import fetch_case_details, fetch_role_contacts
+from client_api import fetch_case_details, fetch_role_contacts,fetch_connect_contacts
 from logging_utils import log_and_print
 import json
 import os
 from dotenv import load_dotenv
 from config_loader import load_tab_config
+
 
 def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
     if tab_config is None:
@@ -31,30 +32,63 @@ def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
     json_df = pd.DataFrame()
 
     try:
-        role_ids = []
-        for involved in json_data.get("caseInvolveds", []):
-            for rep in involved.get("representors", []):
-                if rep.get("appointmentEndDate") is None and rep.get("roleInCorporationId"):
-                    role_ids.append(rep.get("roleInCorporationId"))
+        first_involved = next((ci for ci in json_data.get("caseInvolveds", []) if ci.get("representors")), None)
+        log_and_print(f"🔍 First caseInvolved entry: {first_involved}", "debug")
 
-        if not role_ids:
-            raise ValueError("No roleInCorporationIds found in caseInvolveds")
-
-        contact_data = fetch_role_contacts(role_ids)
+        use_role_based = any(
+            rep.get("appointmentEndDate") is None and rep.get("roleInCorporationId")
+            for rep in first_involved.get("representors", [])
+        ) if first_involved else False
 
         contact_records = []
-        for role in contact_data.get("roleInCorporationDetails", []):
-            corp_id = role.get("corporationDetails", {}).get("corporationIDNumber")
-            mail = role.get("connectDetails", {}).get("mail")
-            phone1 = role.get("connectDetails", {}).get("primaryPhone")
-            phone2 = role.get("connectDetails", {}).get("secondaryPhone")
 
-            contact_records.append({
-                "Main_Id_Number": str(corp_id),
-                "orerEmail": mail,
-                "Phone1": phone1,
-                "Phone2": phone2
-            })
+        if use_role_based:
+            role_ids = [rep.get("roleInCorporationId") for rep in first_involved.get("representors", []) if rep.get("appointmentEndDate") is None and rep.get("roleInCorporationId")]
+            log_and_print(f"🔍 Using RoleInCorporation path with IDs: {role_ids}", "debug")
+
+            contact_data = fetch_role_contacts(role_ids)
+
+            for role in contact_data.get("roleInCorporationDetails", []):
+                corp_id = role.get("corporationDetails", {}).get("corporationIDNumber")
+                mail = role.get("connectDetails", {}).get("mail")
+                phone1 = role.get("connectDetails", {}).get("primaryPhone")
+                phone2 = role.get("connectDetails", {}).get("secondaryPhone")
+
+                contact_records.append({
+                    "Main_Id_Number": str(corp_id),
+                    "orerEmail": mail,
+                    "Phone1": phone1,
+                    "Phone2": phone2
+                })
+        else:
+            connect_map = {}
+            for rep in first_involved.get("representors", []):
+                log_and_print(f"🔍 Inspecting representor: {rep}", "debug")
+                connect_id = rep.get("connectDetailsId")
+                case_ident = rep.get("caseInvolvedIdentifyId")
+                if connect_id and case_ident:
+                    connect_map[connect_id] = case_ident
+
+            log_and_print(f"🔍 Final connect_map: {connect_map}", "debug")
+
+            if not connect_map:
+                raise ValueError("No connectDetailsId found in caseInvolveds")
+
+            contact_data = fetch_connect_contacts(list(connect_map.keys()))
+
+            for role in contact_data.get("connectDetails", []):
+                connect_id = role.get("connectDetailsId")
+                corp_id = connect_map.get(connect_id)
+                mail = role.get("mail")
+                phone1 = role.get("primaryPhone")
+                phone2 = role.get("secondaryPhone")
+
+                contact_records.append({
+                    "Main_Id_Number": str(corp_id),
+                    "orerEmail": mail,
+                    "Phone1": phone1,
+                    "Phone2": phone2
+                })
 
         json_df = pd.DataFrame(contact_records)
 
