@@ -4,8 +4,9 @@ from sql_client import fetch_menora_log_requests
 from json_parser import extract_request_logs_from_json
 from logging_utils import log_and_print
 from dateutil.parser import parse
+from dotenv import load_dotenv
 import pandas as pd
-
+import os
 
 def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
     if tab_config is None:
@@ -43,7 +44,15 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
         except Exception:
             return None
 
-    CUTOFF_DATETIME = parse("2024-03-24T00:00:00").replace(tzinfo=None)
+    # Load cutoff from environment
+    load_dotenv()
+    raw_cutoff = os.getenv("CUTOFF")
+    if not raw_cutoff or len(raw_cutoff) != 6 or not raw_cutoff.isdigit():
+        raise ValueError("❌ Invalid or missing CUTOFF in environment. Expected format: ddmmyy (e.g., 250421)")
+
+    formatted_cutoff = f"20{raw_cutoff[4:6]}-{raw_cutoff[2:4]}-{raw_cutoff[0:2]}T00:00:00"
+    CUTOFF_DATETIME = parse(formatted_cutoff).replace(tzinfo=None)
+    log_and_print(f"🔍 CUTOFF datetime: {CUTOFF_DATETIME}", level="debug")
 
     for df, label in [(menora_df, "Menora"), (json_df, "JSON")]:
         col_name = "Status_Date" if label == "Menora" else "Status_Date_json"
@@ -110,7 +119,7 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"🟡 יומן תיק - PASS", "info", is_hebrew=True)
     elif any_after_cutoff:
         status_tab = "pass"
-        log_and_print(f"✅ Discrepancies occurred after 24/03/2024. Ignored by policy.", "info")
+        log_and_print(f"✅ Discrepancies occurred after cutoff {CUTOFF_DATETIME.strftime('%d/%m/%Y')}. Ignored by policy.", "info")
     else:
         status_tab = "fail"
         log_and_print(f"❌ יומן תיק - FAIL with mismatches or missing entries.", "warning", is_hebrew=True)

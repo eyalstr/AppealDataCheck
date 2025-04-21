@@ -5,7 +5,9 @@ from json_parser import extract_decision_data_from_json
 from logging_utils import log_and_print
 from dateutil.parser import parse
 from collections import defaultdict
+from dotenv import load_dotenv
 import pandas as pd
+import os
 
 def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=None):
     log_and_print("\n📂 Running decision comparison...", "info")
@@ -47,13 +49,9 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
 
             json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
 
-            # log_and_print(f"🔍 JSON columns available: {json_df.columns.tolist()}", "debug")
-            # log_and_print(f"🔍 JSON decisionDate preview:", "debug")
             log_and_print(str(json_df.get("decisionDate_json", "❌ Not found")), "debug")
 
             if not json_df.empty and "mojId" in json_df.columns:
-                preview_cols = [col for col in ['mojId', 'decisionDate_json', 'createUser_json'] if col in json_df.columns]
-                # log_and_print(f"📋 Extracted decision DataFrame preview:\n{json_df[preview_cols].head(3)}", "info")
                 log_and_print(f"✅ Extracted {len(json_df)} decisions from API for case {case_id}", "success")
             else:
                 log_and_print(f"⚠️ JSON missing 'mojId' column or is empty.", "warning")
@@ -79,7 +77,16 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
                     "JSON": row.get("JSON Value")
                 })
 
-    CUTOFF_DATETIME = parse("2024-03-24T00:00:00").replace(tzinfo=None)
+    # Load cutoff from environment
+    load_dotenv()
+    raw_cutoff = os.getenv("CUTOFF")
+    if not raw_cutoff or len(raw_cutoff) != 6 or not raw_cutoff.isdigit():
+        raise ValueError("❌ Invalid or missing CUTOFF in environment. Expected format: ddmmyy (e.g., 250421)")
+
+    formatted_cutoff = f"20{raw_cutoff[4:6]}-{raw_cutoff[2:4]}-{raw_cutoff[0:2]}T00:00:00"
+    CUTOFF_DATETIME = parse(formatted_cutoff).replace(tzinfo=None)
+    log_and_print(f"🔍 CUTOFF datetime: {CUTOFF_DATETIME}", level="debug")
+
     any_after_cutoff = False
     parsed_debug_dates = []
 
@@ -109,7 +116,7 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
         log_and_print("🔹 החלטות - PASS", "info", is_hebrew=True)
     elif any_after_cutoff:
         status_tab = "pass"
-        log_and_print("✅ החלטות - Discrepancies occurred after 24/03/2024. Ignored.", "info")
+        log_and_print("✅ החלטות - Discrepancies occurred after cutoff. Ignored.", "info")
     else:
         status_tab = "fail"
         log_and_print("❌ החלטות - FAIL", "warning", is_hebrew=True)
