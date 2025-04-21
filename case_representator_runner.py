@@ -1,6 +1,6 @@
 from client_api import fetch_case_details
 from config_loader import load_tab_config
-from logging_utils import log_and_print
+from logging_utils import log_and_print,normalize_whitespace
 from sql_client import fetch_menora_case_involved_data
 
 
@@ -54,9 +54,9 @@ def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
 
         if menora_orer_id != json_orer_id:
             mismatched_fields.append({"Field": "orerID", "Menora": safe(menora_orer_id), "JSON": safe(json_orer_id)})
-        if menora_orer_name != json_orer_name:
+        if normalize_whitespace(menora_orer_name) != normalize_whitespace(json_orer_name):
             mismatched_fields.append({"Field": "orer", "Menora": safe(menora_orer_name), "JSON": safe(json_orer_name)})
-        if menora_meshiva_name != json_meshiva_name:
+        if normalize_whitespace(menora_meshiva_name) != normalize_whitespace(json_meshiva_name):
             mismatched_fields.append({"Field": "meshiva", "Menora": safe(menora_meshiva_name), "JSON": safe(json_meshiva_name)})
         if menora_meshiva_id != json_meshiva_id:
             mismatched_fields.append({"Field": "meshivaID", "Menora": safe(menora_meshiva_id), "JSON": safe(json_meshiva_id)})

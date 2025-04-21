@@ -2,6 +2,7 @@ import logging
 from bidi.algorithm import get_display
 import unicodedata
 import os
+import re
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -27,6 +28,10 @@ def setup_logging(log_file='application.log'):
 
 logger = setup_logging()
 
+def normalize_whitespace(text):
+    if not isinstance(text, str):
+        return text
+    return re.sub(r'\s+', ' ', text.strip())
 
 
 def log_and_print(message, level="info", ansi_format=None, is_hebrew=False, indent=0):
