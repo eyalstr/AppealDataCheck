@@ -185,14 +185,14 @@ def compare_decision_data(json_df, menora_df, field_map):
             })
 
     if not results:
-        print("⚠️ No decision comparison results found.")
+        log_and_print("⚠️ No decision comparison results found.")
     elif mismatches:
-        print(f"❌ Found mismatches in {len(mismatches)} decisions.")
+        log_and_print(f"❌ Found mismatches in {len(mismatches)} decisions.")
         for moj_id, rows in mismatches.items():
-            print(f"\n🔎 Mismatched Fields for mojId {moj_id}:")
-            print(tabulate(rows, headers="keys", tablefmt="grid", showindex=False))
+            log_and_print(f"\n🔎 Mismatched Fields for mojId {moj_id}:")
+            log_and_print(tabulate(rows, headers="keys", tablefmt="grid", showindex=False))
     else:
-        print("✅ All matched decision fields are identical.")
+        log_and_print("✅ All matched decision fields are identical.")
 
     return results
 
