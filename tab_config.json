@@ -90,7 +90,7 @@
     "matchingKeys": [
       {
         "key": "Status_Date",
-        "jsonPath": "$.requests[*].requestLogs[*].createActionDate",
+        "jsonPath": "$.requests[*].requestLogs[*].createLogDate",
         "columns": {
           "Action_Description": "remark"
         }

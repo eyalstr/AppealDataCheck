@@ -90,34 +90,29 @@ def extract_document_data_from_json(documents):
     return df
 
 def extract_request_logs_from_json(case_json):
-    import pandas as pd
+    """
+    Extracts request log data from case JSON and returns a DataFrame.
+    Expected structure:
+    - case_json["requests"][*]["requestLogs"][*]
+    """
+    rows = []
 
-    if not isinstance(case_json, dict):
-        log_and_print("❌ extract_request_logs_from_json expected a single case JSON object (dict).", "error")
-        return pd.DataFrame()
+    try:
+        for request in case_json.get("requests", []):
+            for log in request.get("requestLogs", []):
+                row = {
+                    "remark": log.get("remark"),
+                    "createActionDate": log.get("createActionDate"),
+                    "Request_Status_Id": log.get("requestStatusId"),
+                    "Action_Log_Type_Id": log.get("actionLogTypeId"),
+                    "Create_Action_User": log.get("createActionUser")
+                }
+                rows.append(row)
+    except Exception as e:
+        log_and_print(f"❌ Error parsing request logs: {e}", "error")
 
-    logs = []
+    return pd.DataFrame(rows)
 
-    requests = case_json.get("requests", [])
-    for req in requests:
-        for log_entry in req.get("requestLogs", []):
-            logs.append({
-                "Status_Date": log_entry.get("createLogDate"),
-                "Action_Description": log_entry.get("remark"),
-                "Request_Status_Id": log_entry.get("requestStatusId"),
-                "Action_Log_Type_Id": log_entry.get("actionLogTypeId"),
-                "Create_Action_User": log_entry.get("createActionUser"),
-            })
-
-    df = pd.DataFrame(logs)
-
-    if df.empty:
-        log_and_print("⚠️ No request logs found in JSON response.", "warning")
-    else:
-        log_and_print(f"📋 Extracted {len(df)} request logs from JSON.", "success")
-        log_and_print(f"📋 Extracted request log DataFrame preview:\n{df.head(3)}", "info", is_hebrew=True)
-
-    return df
 
 
 def extract_decisions(case_data):

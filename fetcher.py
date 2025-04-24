@@ -90,6 +90,8 @@ def get_case_data(case_id, force_refresh=False):
     path = get_tab_file_path(case_id, "case")
     if not force_refresh:
         cached = read_cached_json(path)
+        #log_and_print(f"cached=={cached}")
         if cached:
+            log_and_print(f"*******cached******")
             return cached
     return fetch_case_details(case_id)

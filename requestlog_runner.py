@@ -4,9 +4,15 @@ from sql_client import fetch_menora_log_requests
 from json_parser import extract_request_logs_from_json
 from logging_utils import log_and_print
 from dateutil.parser import parse
+from datetime import datetime
 from dotenv import load_dotenv
+from fetcher import get_case_data
 import pandas as pd
 import os
+
+
+from datetime import datetime
+from datetime import datetime
 
 def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
     if tab_config is None:
@@ -23,18 +29,26 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"❌ SQL query execution failed: {e}", "error")
         menora_df = pd.DataFrame()
 
-    full_json = fetch_case_details(case_id)
+    full_json = get_case_data(case_id)
+    #full_json =  fetch_case_details(case_id)
+
     json_df = extract_request_logs_from_json(full_json)
 
+    # Safely rename based on what exists
+    # Prefer createActionDate over createLogDate to x`match Menora behavior
     if "createActionDate" in json_df.columns:
         json_df.rename(columns={"createActionDate": "Status_Date"}, inplace=True)
-
-    for ui_field, _ in field_map.items():
-        if ui_field in json_df.columns and not ui_field.endswith("_json"):
-            json_df.rename(columns={ui_field: f"{ui_field}_json"}, inplace=True)
+    elif "createLogDate" in json_df.columns:
+        json_df.rename(columns={"createLogDate": "Status_Date"}, inplace=True)
 
     if "Status_Date" in json_df.columns:
         json_df.rename(columns={"Status_Date": "Status_Date_json"}, inplace=True)
+    else:
+        log_and_print("❌ 'Status_Date' column not found after rename attempt. Check JSON extraction.", "error")
+
+    for _, json_field in field_map.items():
+        if json_field in json_df.columns and not json_field.endswith("_json"):
+            json_df.rename(columns={json_field: f"{json_field}_json"}, inplace=True)
 
     json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
 
@@ -44,7 +58,6 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
         except Exception:
             return None
 
-    # Load cutoff from environment
     load_dotenv()
     raw_cutoff = os.getenv("CUTOFF")
     if not raw_cutoff or len(raw_cutoff) != 6 or not raw_cutoff.isdigit():
@@ -74,6 +87,17 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
     available_json_fields = list(json_df.columns)
     valid_json_fields = [col for col in expected_json_fields if col in available_json_fields]
 
+    if not valid_json_fields:
+        log_and_print("🧪 DEBUG: Field rename skipped, injecting expected column for validation.", "debug")
+        for _, json_field in field_map.items():
+            if json_field not in json_df.columns:
+                log_and_print(f"❗ Field '{json_field}' missing in raw JSON. Confirm it is extracted in extract_request_logs_from_json().", "warning")
+
+    log_and_print(f"📋 Menora DataFrame columns to compare: {list(field_map.keys())}", "debug")
+    log_and_print(f"📋 JSON DataFrame expected fields: {expected_json_fields}", "debug")
+    log_and_print(f"📋 JSON DataFrame available columns: {available_json_fields}", "debug")
+    log_and_print(f"📋 JSON fields that will be compared (found): {valid_json_fields}", "debug")
+
     if len(valid_json_fields) < len(expected_json_fields):
         missing = set(expected_json_fields) - set(valid_json_fields)
         log_and_print(f"⚠️ Warning: Missing expected JSON columns: {missing}", "warning")
@@ -99,6 +123,9 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
                     continue
                 menora_val = str(row.get(menora_col, "")).strip()
                 json_val = str(row.get(json_col, "")).strip()
+                log_and_print(f"🔍 Comparing for Status_Date {status_date}: {menora_col}='{menora_val}' vs {json_col}='{json_val}'", "debug")
+                if (menora_val == "" and json_val.lower() == "none") or (menora_val.lower() == "none" and json_val == ""):
+                    continue
                 if menora_val != json_val:
                     mismatched_fields.append({
                         "Status_Date": status_date,
@@ -108,16 +135,17 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
                     })
 
     all_dates = (
-        [parse(d).replace(tzinfo=None) for d in missing_json_dates if d] +
-        [parse(d).replace(tzinfo=None) for d in missing_menora_dates if d] +
-        [parse(row["Status_Date"]).replace(tzinfo=None) for row in mismatched_fields if row.get("Status_Date")]
+        [d if isinstance(d, datetime) else parse(d).replace(tzinfo=None) for d in missing_json_dates if d] +
+        [d if isinstance(d, datetime) else parse(d).replace(tzinfo=None) for d in missing_menora_dates if d] +
+        [d if isinstance(d, datetime) else parse(row["Status_Date"]).replace(tzinfo=None) for row in mismatched_fields if row.get("Status_Date")]
     )
-    any_after_cutoff = any(dt > CUTOFF_DATETIME for dt in all_dates if dt)
+
+    all_issues_after_cutoff = all(dt > CUTOFF_DATETIME for dt in all_dates if dt)
 
     if not missing_json_dates and not missing_menora_dates and not mismatched_fields:
         status_tab = "pass"
         log_and_print(f"🟡 יומן תיק - PASS", "info", is_hebrew=True)
-    elif any_after_cutoff:
+    elif all_issues_after_cutoff:
         status_tab = "pass"
         log_and_print(f"✅ Discrepancies occurred after cutoff {CUTOFF_DATETIME.strftime('%d/%m/%Y')}. Ignored by policy.", "info")
     else:
