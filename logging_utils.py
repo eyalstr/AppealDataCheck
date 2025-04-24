@@ -1,5 +1,6 @@
 import logging
 from bidi.algorithm import get_display
+from dateutil.parser import parse
 import unicodedata
 import os
 import re
@@ -27,6 +28,33 @@ def setup_logging(log_file='application.log'):
     return logging.getLogger()
 
 logger = setup_logging()
+
+
+def filter_post_cutoff_docs(doc_ids, source_df, cutoff_datetime, source_label=""):
+    filtered = []
+
+    for moj in doc_ids:
+        row = source_df[source_df["mojId"] == moj]
+        if not row.empty:
+            raw_date = row.iloc[0].get("statusDate")
+            if raw_date:
+                try:
+                    parsed = parse(raw_date).replace(tzinfo=None)
+                    if parsed <= cutoff_datetime:
+                        filtered.append(moj)
+                    else:
+                        log_and_print(f"✅ Skipping [{source_label}] {moj}, post-CUTOFF: {parsed}", "debug")
+                except Exception as e:
+                    log_and_print(f"⚠️ Failed to parse statusDate for mojId {moj}: {e}", "warning")
+                    filtered.append(moj)
+            else:
+                filtered.append(moj)
+        else:
+            filtered.append(moj)
+
+    return filtered
+
+
 
 def normalize_whitespace(text):
     if not isinstance(text, str):

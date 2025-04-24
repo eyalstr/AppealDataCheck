@@ -1,5 +1,7 @@
 import pandas as pd
 from logging_utils import log_and_print
+from fetcher import get_case_data
+
 
 def extract_decision_data_from_json(case_json):
     decisions = case_json.get("decisions")
@@ -116,3 +118,69 @@ def extract_request_logs_from_json(case_json):
         log_and_print(f"📋 Extracted request log DataFrame preview:\n{df.head(3)}", "info", is_hebrew=True)
 
     return df
+
+
+def extract_decisions(case_data):
+    return case_data.get("decisions", [])
+
+def extract_documents(case_data):
+    return case_data.get("documents", [])
+
+def extract_discussions(case_data):
+    return case_data.get("discussions", [])
+
+
+
+def is_case_type_supported(case_id, expected_type=328):
+    """
+    Loads case JSON and checks if the caseTypeId matches the expected type.
+
+    Args:
+        case_id (int): The case ID to check.
+        expected_type (int): The expected caseTypeId.
+
+    Returns:
+        bool: True if caseTypeId matches, False otherwise.
+    """
+    case_json = get_case_data(case_id)
+    if not case_json:
+        log_and_print(f"❌ Cannot validate caseTypeId — case {case_id} not found", "error")
+        return False
+
+    actual_type = case_json.get("caseTypeId")
+    if actual_type != expected_type:
+        log_and_print(
+            f"⚠️ Skipping case {case_id}: caseTypeId is {actual_type}, expected {expected_type}",
+            "warning"
+        )
+        return False
+
+    return True
+
+def get_first_request_id(case_id):
+    """
+    Returns the requestId of the first request in the case JSON.
+    
+    Args:
+        case_id (int): The case ID to extract from.
+    
+    Returns:
+        int | None: The requestId of the first request, or None if not found.
+    """
+    case_json = get_case_data(case_id)
+    if not case_json:
+        log_and_print(f"❌ Could not load case JSON for {case_id}", "error")
+        return None
+
+    requests = case_json.get("requests")
+    if not requests or not isinstance(requests, list):
+        log_and_print(f"⚠️ No 'requests' array found in case {case_id}", "warning")
+        return None
+
+    first_request = requests[0]
+    request_id = first_request.get("requestId")
+
+    if request_id is None:
+        log_and_print(f"⚠️ First request in case {case_id} has no 'requestId'", "warning")
+
+    return request_id
