@@ -9,6 +9,8 @@ from dateutil.parser import parse
 from tabulate import tabulate
 import pandas as pd
 import os
+from logging_utils import filter_post_cutoff_docs
+
 
 def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
     if tab_config is None:
@@ -79,10 +81,9 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"🔎 Mismatched Fields for mojId {moj_id}:", "warning")
         print(tabulate(mismatches, headers="keys", tablefmt="grid"))
 
-    # Load CUTOFF from .env file
+    # Load CUTOFF from .env
     load_dotenv()
     raw_cutoff = os.getenv("CUTOFF")
-
     if not raw_cutoff or len(raw_cutoff) != 6 or not raw_cutoff.isdigit():
         raise ValueError("❌ Invalid or missing CUTOFF in environment. Expected format: ddmmyy (e.g., 250421)")
 
@@ -90,25 +91,20 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
     CUTOFF = parse(formatted_cutoff).replace(tzinfo=None)
     log_and_print(f"🔍 CUTOFF datetime: {CUTOFF}", level="debug")
 
-    ignore_fail = False
-    for moj in test_status["missing_in_menora"]:
-        json_row = json_df[json_df["mojId"] == moj]
-        if not json_row.empty:
-            raw_date = json_row.iloc[0].get("statusDate")
-            log_and_print(f"🔍 [Missing in Menora] Full row for {moj}: {json_row.iloc[0].to_dict()}", "debug")
-            log_and_print(f"🔍 Raw statusDate for {moj}: {raw_date}", "debug")
-            if raw_date:
-                try:
-                    parsed = parse(raw_date).replace(tzinfo=None)
-                    log_and_print(f"🔍 Parsed statusDate for {moj}: {parsed}", "debug")
-                    if parsed > CUTOFF:
-                        log_and_print(f"✅ Ignoring document {moj} created after cutoff: {parsed}", "debug")
-                        ignore_fail = True
-                        break
-                except Exception as e:
-                    log_and_print(f"⚠️ Failed parsing statusDate for mojId {moj}: {e}", "warning")
+    # Use filter logic to ignore post-cutoff issues
+    test_status["missing_in_menora"] = filter_post_cutoff_docs(
+        test_status["missing_in_menora"], json_df, CUTOFF, source_label="Missing in Menora"
+    )
 
-    status_tab = "pass" if (not test_status["missing_in_menora"] and not test_status["missing_in_json"] and not test_status["field_mismatches"]) or ignore_fail else "fail"
+    test_status["missing_in_json"] = filter_post_cutoff_docs(
+        test_status["missing_in_json"], menora_df, CUTOFF, source_label="Missing in JSON"
+    )
+
+    status_tab = "pass" if (
+        not test_status["missing_in_menora"] and
+        not test_status["missing_in_json"] and
+        not test_status["field_mismatches"]
+    ) else "fail"
 
     return {
         "document": {
@@ -126,6 +122,7 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
             ]
         }
     }
+
 
 
 def values_match(field, menora_value, json_value):
