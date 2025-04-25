@@ -49,13 +49,13 @@ def process_case(case_id, tab_configs):
         # if discussion_result:
         #     case_results["discussion"] = discussion_result["discussion"]
 
-        decision_result = run_decision_comparison(case_id, appeal_number, conn, tab_config=tab_configs["decision"])
-        if decision_result:
-            case_results["decision"] = decision_result["decision"]
+        # decision_result = run_decision_comparison(case_id, appeal_number, conn, tab_config=tab_configs["decision"])
+        # if decision_result:
+        #     case_results["decision"] = decision_result["decision"]
 
-        # document_result = run_document_comparison(case_id, appeal_number, conn, tab_config=tab_configs["document"])
-        # if document_result:
-        #     case_results["document"] = document_result["document"]
+        document_result = run_document_comparison(case_id, appeal_number, conn, tab_config=tab_configs["document"])
+        if document_result:
+            case_results["document"] = document_result["document"]
 
         # representator_result = run_representator_comparison(case_id, appeal_number, conn, tab_config=tab_configs["representator_log"])
         # representator_section = representator_result.get(str(case_id), {})
@@ -79,7 +79,7 @@ def process_case(case_id, tab_configs):
 def main():
     load_configuration()
 
-    case_ids = [2004891]
+    case_ids = [2004891,2004759, 2005285, 2005281, 2005287]
 
 
 #     case_ids = [2004759, 2005285, 2005281, 2005287, 2004338, 2004339, 2001968, 2004759, 2004761, 2004762,

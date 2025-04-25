@@ -11,13 +11,32 @@ import pandas as pd
 import os
 from logging_utils import filter_post_cutoff_docs
 
+from datetime import datetime
+import os
+import json
+from dotenv import load_dotenv
+from dateutil.parser import parse
+from collections import defaultdict
+
 
 def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
     if tab_config is None:
         tab_config = load_tab_config("מסמכים")
-    log_and_print(f"📁 Available tabs in config: {list(tab_config.keys())}", is_hebrew=True)
+    log_and_print(f"\U0001F4C1 Available tabs in config: {list(tab_config.keys())}", is_hebrew=True)
 
-    json_data = fetch_case_documents(case_id)
+    # --- Load document tab JSON from cache or fetch and save ---
+    cache_path = f"data/{case_id}/doc_{case_id}.json"
+    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+    if os.path.exists(cache_path):
+        with open(cache_path, "r", encoding="utf-8") as f:
+            json_data = json.load(f)
+        log_and_print(f"\U0001F4C1 Loaded document data from cache: {cache_path}", "debug")
+    else:
+        json_data = fetch_case_documents(case_id)
+        with open(cache_path, "w", encoding="utf-8") as f:
+            json.dump(json_data, f, ensure_ascii=False, indent=2)
+        log_and_print(f"\U0001F4BE Cached document data to: {cache_path}", "debug")
+
     if not json_data:
         log_and_print(f"❌ Failed to fetch JSON documents for case_id {case_id}.", "error")
         return
@@ -71,7 +90,7 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
             elif row["Type"] == "Missing in Menora":
                 test_status["missing_in_menora"] = [moj.strip() for moj in row["mojIds"].split(",") if moj.strip()]
 
-    log_and_print(f"\n🧪 Test Result Summary for Case ID {case_id} [Documents]:", "info")
+    log_and_print(f"\n\U0001F9EA Test Result Summary for Case ID {case_id} [Documents]:", "info")
     log_and_print(f"{'✅' if not test_status['missing_in_menora'] else '❌'} {len(test_status['missing_in_menora'])} document(s) missing in Menora.", "info")
     log_and_print(f"{'✅' if not test_status['missing_in_json'] else '❌'} {len(test_status['missing_in_json'])} document(s) missing in JSON.", "info")
     log_and_print(f"{'✅' if not test_status['field_mismatches'] else '❌'} {len(mismatch_by_mojid)} document(s) with field mismatch(es).", "info")
