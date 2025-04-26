@@ -1,12 +1,12 @@
 import pandas as pd
 from sql_client import fetch_menora_case_contacts
-from client_api import fetch_case_details, fetch_role_contacts,fetch_connect_contacts
+from client_api import fetch_case_details, fetch_connect_contacts
 from logging_utils import log_and_print
 import json
 import os
 from dotenv import load_dotenv
+from fetcher import get_case_data,fetch_role_contacts
 from config_loader import load_tab_config
-
 
 def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
     if tab_config is None:
@@ -16,7 +16,6 @@ def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
 
     log_and_print("\n📂 Running case contact comparison...", "info")
 
-    # Step 1: Fetch Menora SQL data
     try:
         menora_df = fetch_menora_case_contacts(appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
@@ -27,14 +26,11 @@ def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"❌ SQL query execution failed: {e}", "error")
         menora_df = pd.DataFrame()
 
-    # Step 2: Fetch JSON API data (two-step)
-    json_data = fetch_case_details(case_id)
+    json_data = get_case_data(case_id)
     json_df = pd.DataFrame()
 
     try:
         first_involved = next((ci for ci in json_data.get("caseInvolveds", []) if ci.get("representors")), None)
-        log_and_print(f"🔍 First caseInvolved entry: {first_involved}", "debug")
-
         use_role_based = any(
             rep.get("appointmentEndDate") is None and rep.get("roleInCorporationId")
             for rep in first_involved.get("representors", [])
@@ -44,16 +40,12 @@ def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
 
         if use_role_based:
             role_ids = [rep.get("roleInCorporationId") for rep in first_involved.get("representors", []) if rep.get("appointmentEndDate") is None and rep.get("roleInCorporationId")]
-            log_and_print(f"🔍 Using RoleInCorporation path with IDs: {role_ids}", "debug")
-
-            contact_data = fetch_role_contacts(role_ids)
-
+            contact_data = fetch_role_contacts(role_ids, case_id)
             for role in contact_data.get("roleInCorporationDetails", []):
                 corp_id = role.get("corporationDetails", {}).get("corporationIDNumber")
                 mail = role.get("connectDetails", {}).get("mail")
                 phone1 = role.get("connectDetails", {}).get("primaryPhone")
                 phone2 = role.get("connectDetails", {}).get("secondaryPhone")
-
                 contact_records.append({
                     "Main_Id_Number": str(corp_id),
                     "orerEmail": mail,
@@ -63,16 +55,10 @@ def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
         else:
             connect_map = {}
             for rep in first_involved.get("representors", []):
-                log_and_print(f"🔍 Inspecting representor: {rep}", "debug")
                 connect_id = rep.get("connectDetailsId")
                 case_ident = rep.get("caseInvolvedIdentifyId")
                 if connect_id and case_ident:
                     connect_map[connect_id] = case_ident
-
-            log_and_print(f"🔍 Final connect_map: {connect_map}", "debug")
-
-            if not connect_map:
-                raise ValueError("No connectDetailsId found in caseInvolveds")
 
             contact_data = fetch_connect_contacts(list(connect_map.keys()))
 
@@ -82,7 +68,6 @@ def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
                 mail = role.get("mail")
                 phone1 = role.get("primaryPhone")
                 phone2 = role.get("secondaryPhone")
-
                 contact_records.append({
                     "Main_Id_Number": str(corp_id),
                     "orerEmail": mail,
@@ -107,7 +92,6 @@ def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"❌ Failed to fetch or parse case contact data: {e}", "error")
         json_df = pd.DataFrame()
 
-    # Step 3: Compare
     missing_json_list = []
     missing_menora_list = []
     mismatched_fields = []
@@ -122,7 +106,27 @@ def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
             missing_json_list = merged[merged["_merge"] == "right_only"]["Main_Id_Number"].dropna().unique().tolist()
             missing_menora_list = merged[merged["_merge"] == "left_only"]["Main_Id_Number"].dropna().unique().tolist()
 
-            fully_matched = merged[merged["_merge"] == "both"].shape[0]
+            both_matched = merged[merged["_merge"] == "both"]
+
+            for _, row in both_matched.iterrows():
+                for field_ui, field_db in field_map.items():
+                    json_field = f"{field_ui}_json"
+                    menora_field = field_ui
+
+                    if json_field in row and menora_field in row:
+                        json_val = str(row[json_field]).strip() if pd.notnull(row[json_field]) else ""
+                        menora_val = str(row[menora_field]).strip() if pd.notnull(row[menora_field]) else ""
+
+                        if (json_val == "" and menora_val.lower() == "none") or (json_val.lower() == "none" and menora_val == ""):
+                            continue
+                        if json_val != menora_val:
+                            mismatched_fields.append({
+                                "Main_Id_Number": row["Main_Id_Number"],
+                                "Field": field_ui,
+                                "Menora": menora_val,
+                                "JSON": json_val
+                            })
+
         except Exception as e:
             log_and_print(f"❌ Merge failed: {e}", "error")
             missing_json_list = menora_df["Main_Id_Number"].dropna().unique().tolist()
@@ -135,7 +139,6 @@ def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
 
     status_tab = "pass" if not missing_json_list and not missing_menora_list and not mismatched_fields else "fail"
 
-    # Return in dashboard-compatible format
     return {
         str(case_id): {
             "case_contact": {

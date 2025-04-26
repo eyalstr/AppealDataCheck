@@ -95,3 +95,53 @@ def get_case_data(case_id, force_refresh=False):
             log_and_print(f"*******cached******")
             return cached
     return fetch_case_details(case_id)
+
+
+def fetch_role_contacts(role_ids: list, case_id=None, force_refresh=False) -> dict:
+    """
+    Fetch role contact data, using cache if available unless force_refresh=True.
+    Saves as 'role_{case_id}.json' under data/{case_id}/
+    """
+    if not role_ids:
+        return {}
+
+    #from fetcher import get_tab_file_path, read_cached_json, write_json_to_cache
+
+    if case_id is None:
+        case_id = "general_roles"
+
+    path = get_tab_file_path(case_id, "role")
+
+    if not force_refresh:
+        cached = read_cached_json(path)
+        if cached:
+            log_and_print(f"*******cached role contacts******")
+            return cached
+
+    base_url = "https://bo-contacts-int.prod.k8s.justice.gov.il/api/RoleInCorporation"
+    params = "&".join(f"RoleInCorporationIds={rid}" for rid in role_ids)
+    url = f"{base_url}?{params}"
+
+    headers = {
+        "Authorization": f"Bearer {BEARER_TOKEN}",
+        "Accept": "application/json",
+        "Moj-Application-Id": MOJ_APP_ID
+    }
+
+    try:
+        log_and_print(f"🌐 Fetching role contacts from API for {len(role_ids)} roles...")
+        response = requests.get(url, headers=headers, verify=False)
+        log_and_print(f"🔎 Contact API response status: {response.status_code}", "info")
+
+        if response.status_code != 200:
+            log_and_print(f"❌ Failed to fetch contact data. Status: {response.status_code}", "error")
+            return {}
+
+        role_json = response.json()
+        write_json_to_cache(path, role_json)
+
+        return role_json
+
+    except Exception as e:
+        log_and_print(f"❌ Exception occurred while fetching contact data: {e}", "error")
+        return {}

@@ -2,7 +2,7 @@ from client_api import fetch_case_details
 from config_loader import load_tab_config
 from logging_utils import log_and_print,normalize_whitespace
 from sql_client import fetch_menora_case_involved_data
-
+from fetcher import get_case_data
 
 def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
     tab_config = load_tab_config("מעורבים בתיק")
@@ -18,7 +18,7 @@ def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"❌ SQL query execution failed: {e}", "error")
         return {str(case_id): {"representator_log": {"status_tab": "fail", "missing_json_dates": [], "missing_menora_dates": [], "mismatched_fields": []}}}
 
-    json_data = fetch_case_details(case_id)
+    json_data = get_case_data(case_id)
     try:
         case_involveds = json_data.get("caseInvolveds", [])
 
