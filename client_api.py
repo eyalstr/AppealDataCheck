@@ -7,6 +7,7 @@ import config
 from dotenv import load_dotenv
 from logging_utils import log_and_print
 from urllib.parse import urlencode
+from json_parser import get_first_request_id
 import datetime
 
 # Load environment variables from .env file
@@ -53,7 +54,6 @@ def fetch_case_details(case_id):
         log_and_print(f"❌ Unexpected error: {e}", "error")
 
     return None
-
 def fetch_case_documents(case_id: int) -> dict:
     url = "https://ecourtsdocumentsint.justice.gov.il/api/Documents"
 
@@ -62,6 +62,30 @@ def fetch_case_documents(case_id: int) -> dict:
         "Content-Type": "application/json",
         "Moj-Application-Id": MOJ_APP_ID
     }
+
+    # Attempt to get the first request_id for this case
+    try:
+        request_id = get_first_request_id(case_id)
+        log_and_print(f"📌 Retrieved request_id={request_id} for case_id={case_id}", "debug")
+    except Exception as e:
+        log_and_print(f"⚠️ Failed to retrieve request_id for case_id {case_id}: {e}", "warning")
+        request_id = None
+
+    # Compose propertiesList with both folder_ids
+    properties_list = [
+        {
+            "propertyName": "folder_ids",
+            "values": [f"1 {case_id}"],
+            "operator": 0
+        }
+    ]
+
+    if request_id:
+        properties_list.append({
+            "propertyName": "folder_ids",
+            "values": [f"2 {request_id}"],
+            "operator": 0
+        })
 
     payload = {
         "defaultValue": {
@@ -78,13 +102,7 @@ def fetch_case_documents(case_id: int) -> dict:
         },
         "entitiesOperator": 0,
         "expression": {
-            "propertiesList": [
-                {
-                    "propertyName": "folder_ids",
-                    "values": [f"1 {case_id}"],
-                    "operator": 0
-                }
-            ],
+            "propertiesList": properties_list,
             "operator": 0
         },
         "itemsPerPage": 40,
@@ -120,6 +138,7 @@ def fetch_case_documents(case_id: int) -> dict:
     except Exception as e:
         log_and_print(f"❌ Exception occurred while fetching documents: {e}", "error")
         return {}
+
 
 def fetch_case_discussions(case_id: int) -> dict:
     url = f"https://bo-discussions-int.prod.k8s.justice.gov.il/api/DiscussionsBo/All/{case_id}"
