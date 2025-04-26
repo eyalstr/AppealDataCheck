@@ -116,7 +116,7 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
     )
 
     test_status["missing_in_json"] = filter_post_cutoff_docs(
-        test_status["missing_in_json"], menora_df, CUTOFF, source_label="Missing in JSON"
+        test_status["missing_in_json"], json_df, CUTOFF, source_label="Missing in JSON"
     )
 
     status_tab = "pass" if (
