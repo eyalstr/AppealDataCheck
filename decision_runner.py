@@ -14,8 +14,15 @@ from datetime import datetime
 
 from datetime import datetime
 
+from datetime import datetime
+import os
+import json
+from dotenv import load_dotenv
+from dateutil.parser import parse
+from collections import defaultdict
+
 def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=None):
-    log_and_print("\n📂 Running decision comparison...", "info")
+    log_and_print("\n\U0001F4C2 Running decision comparison...", "info")
     if tab_config is None:
         tab_config = load_tab_config("החלטות")
     matching_keys = tab_config.get("matchingKeys", [])
@@ -79,28 +86,34 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
     CUTOFF_DATETIME = parse(formatted_cutoff).replace(tzinfo=None)
     log_and_print(f"🔍 CUTOFF datetime: {CUTOFF_DATETIME}", level="debug")
 
-    all_dates = []
-    if "decisionDate_json" in json_df.columns:
-        try:
-            for d in json_df["decisionDate_json"].dropna():
-                try:
-                    parsed = parse(str(d)).replace(tzinfo=None)
-                    all_dates.append(parsed)
-                except Exception as parse_err:
-                    log_and_print(f"⚠️ Failed parsing date value '{d}': {parse_err}", "warning")
-        except Exception as e:
-            log_and_print(f"⚠️ Failed to process decisionDate_json values: {e}", "warning")
-    else:
-        log_and_print("❌ 'decisionDate_json' column not found in JSON.", "error")
+    # Filter issues based on cutoff date
+    filtered_missing_json = []
+    for moj in missing_json_dates:
+        date_row = menora_df[menora_df["mojId"] == moj]
+        if not date_row.empty:
+            dec_date = date_row.iloc[0].get("Decision_Date")
+            if dec_date and parse(str(dec_date)).replace(tzinfo=None) <= CUTOFF_DATETIME:
+                filtered_missing_json.append(moj)
 
-    all_issues_after_cutoff = all(dt > CUTOFF_DATETIME for dt in all_dates if dt)
+    filtered_missing_menora = []
+    for moj in missing_menora_dates:
+        date_row = json_df[json_df["mojId"] == moj]
+        if not date_row.empty:
+            dec_date = date_row.iloc[0].get("decisionDate_json")
+            if dec_date and parse(str(dec_date)).replace(tzinfo=None) <= CUTOFF_DATETIME:
+                filtered_missing_menora.append(moj)
 
-    if not missing_json_dates and not missing_menora_dates and not mismatched_fields:
+    filtered_mismatched_fields = []
+    for row in mismatched_fields:
+        date_row = json_df[json_df["mojId"] == row["Status_Date"]]
+        if not date_row.empty:
+            dec_date = date_row.iloc[0].get("decisionDate_json")
+            if dec_date and parse(str(dec_date)).replace(tzinfo=None) <= CUTOFF_DATETIME:
+                filtered_mismatched_fields.append(row)
+
+    if not filtered_missing_json and not filtered_missing_menora and not filtered_mismatched_fields:
         status_tab = "pass"
         log_and_print("🔹 החלטות - PASS", "info", is_hebrew=True)
-    elif all_issues_after_cutoff:
-        status_tab = "pass"
-        log_and_print("✅ החלטות - All discrepancies occurred after cutoff. Ignored.", "info")
     else:
         status_tab = "fail"
         log_and_print("❌ החלטות - FAIL", "warning", is_hebrew=True)
@@ -108,11 +121,12 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
     return {
         "decision": {
             "status_tab": status_tab,
-            "missing_json_dates": missing_json_dates,
-            "missing_menora_dates": missing_menora_dates,
-            "mismatched_fields": mismatched_fields
+            "missing_json_dates": filtered_missing_json,
+            "missing_menora_dates": filtered_missing_menora,
+            "mismatched_fields": filtered_mismatched_fields
         }
     }
+
 
 def values_match(field, menora_value, json_value):
     menora_str = str(menora_value).strip()
