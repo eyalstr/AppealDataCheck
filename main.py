@@ -1,5 +1,4 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from config import load_configuration
 from apis.client_api import fetch_case_details
 from apis.sql_client import fetch_appeal_number_by_case_id
 from runners.requestlog_runner import run_request_log_comparison
@@ -11,9 +10,43 @@ from runners.case_involved_runner import run_case_involved_comparison
 from utils.logging_utils import log_and_print
 from configs.config_loader import load_tab_config
 from utils.sql_connection import get_sql_connection
-import json
 from utils.fetcher import get_case_data
+from dotenv import load_dotenv
 from utils.json_parser import extract_decisions
+import json
+import os
+import sys
+
+
+def load_configuration():
+    """
+    Dynamically load the .env file, even from an executable context.
+    """
+    # Detect execution context
+    if getattr(sys, 'frozen', False):
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    env_path = os.path.join(base_dir, '.env')
+
+    if os.path.exists(env_path):
+        load_dotenv(env_path, override=True)
+        log_and_print(f"✅ Loaded configuration from {env_path}")
+    else:
+        log_and_print(f"❌ Configuration file not found at {env_path}", "error")
+        exit(1)
+
+    required_env_vars = [
+        "BEARER_TOKEN",
+        "MOJ_APPLICATION_ID",
+        "BASE_URL"
+    ]
+
+    for var in required_env_vars:
+        if not os.getenv(var):
+            log_and_print(f"❌ Missing required environment variable: {var}", "error")
+            exit(1)
 
 
 def process_case(case_id, tab_configs):
