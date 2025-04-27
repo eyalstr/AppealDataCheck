@@ -1,11 +1,11 @@
 import pandas as pd
 from apis.sql_client import fetch_menora_discussion_data
-from apis.client_api import fetch_case_discussions
 from utils.logging_utils import log_and_print
 from jsonpath_ng import parse
 from configs.config_loader import load_tab_config
 from dateutil.parser import parse
 from datetime import datetime
+from utils.fetcher import fetch_case_discussions
 import os
 import json
 from dotenv import load_dotenv
@@ -30,7 +30,7 @@ def run_discussion_comparison(case_id, appeal_number, conn, tab_config=None):
         menora_df = pd.DataFrame()
 
     # --- Load discussion tab JSON from cache or fetch and save ---
-    cache_path = f"data/{case_id}/dis_{case_id}.json"
+    cache_path = f"data/{case_id}/disc_{case_id}.json"
     os.makedirs(os.path.dirname(cache_path), exist_ok=True)
     if os.path.exists(cache_path):
         with open(cache_path, "r", encoding="utf-8") as f:

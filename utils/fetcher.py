@@ -145,3 +145,84 @@ def fetch_role_contacts(role_ids: list, case_id=None, force_refresh=False) -> di
     except Exception as e:
         log_and_print(f"❌ Exception occurred while fetching contact data: {e}", "error")
         return {}
+
+
+def fetch_case_discussions(case_id: int, force_refresh: bool = False) -> dict:
+    """
+    Fetches discussions for a case, with cache support.
+    Saves to: data/{case_id}/dist_{case_id}.json
+    """
+    cache_path = get_tab_file_path(case_id, "disc")
+
+    if not force_refresh:
+        cached = read_cached_json(cache_path)
+        if cached:
+            log_and_print(f"*******cached discussions******")
+            return cached
+
+    url = f"https://bo-discussions-int.prod.k8s.justice.gov.il/api/DiscussionsBo/All/{case_id}"
+
+    headers = {
+        "Authorization": f"Bearer {BEARER_TOKEN}",
+        "Accept": "application/json",
+        "Moj-Application-Id": MOJ_APP_ID
+    }
+
+    try:
+        log_and_print(f"🌐 Fetching discussion JSON from API for CaseId {case_id}...")
+        response = requests.get(url, headers=headers, verify=False)
+        log_and_print(f"🔎 Discussion API response status: {response.status_code}", "info")
+
+        if response.status_code != 200:
+            log_and_print(f"❌ Failed to fetch discussions for case {case_id}. Status: {response.status_code}", "error")
+            return {}
+
+        discussion_json = response.json()
+        write_json_to_cache(cache_path, discussion_json)
+
+        return discussion_json
+
+    except Exception as e:
+        log_and_print(f"❌ Exception occurred while fetching discussions: {e}", "error")
+        return {}
+    
+def fetch_distribution_data(case_id: int) -> dict:
+    """
+    Fetches and caches distribution data for a given case ID.
+    """
+    from utils.fetcher import get_tab_file_path, read_cached_json, write_json_to_cache
+
+    cache_path = get_tab_file_path(case_id, "dist")
+
+    # Try loading from cache first
+    cached_data = read_cached_json(cache_path)
+    if cached_data:
+        log_and_print(f"📁 Loaded distribution data from cache: {cache_path}", "debug")
+        return cached_data
+
+    # Fetch from API if no cache
+    url = f"https://bo-distribution-int.prod.k8s.justice.gov.il/api/Distribution/GetDistributionsByCaseOrRequest?CaseId={case_id}"
+    headers = {
+        "Authorization": f"Bearer {BEARER_TOKEN}",
+        "Accept": "application/json",
+        "Moj-Application-Id": MOJ_APP_ID
+    }
+
+    try:
+        log_and_print(f"🌐 Fetching distribution data from API for CaseId {case_id}...", "info")
+        response = requests.get(url, headers=headers, verify=False)
+        log_and_print(f"🔎 Distribution API response status: {response.status_code}", "info")
+
+        if response.status_code == 200:
+            json_data = response.json()
+            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+            write_json_to_cache(cache_path, json_data)
+            log_and_print(f"💾 Cached distribution data to: {cache_path}", "debug")
+            return json_data
+        else:
+            log_and_print(f"❌ Failed to fetch distribution data for case {case_id}. Status: {response.status_code}", "error")
+            return {}
+
+    except Exception as e:
+        log_and_print(f"❌ Exception occurred while fetching distribution data: {e}", "error")
+        return {}
