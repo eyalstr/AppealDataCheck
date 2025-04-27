@@ -40,6 +40,15 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
         menora_df = pd.DataFrame()
 
     json_data = get_case_data(case_id)
+
+    from utils.json_parser import is_case_type_supported
+    if not is_case_type_supported(case_id):
+        return {
+            "decision": {
+                "status_tab": "skip",
+                "reason": "Not relevant case type"
+            }
+        }
     json_df = pd.DataFrame()
 
     if json_data:

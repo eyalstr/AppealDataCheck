@@ -34,6 +34,15 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
 
     json_df = extract_request_logs_from_json(full_json)
 
+    from utils.json_parser import is_case_type_supported
+    if not is_case_type_supported(case_id):
+        return {
+            "request_log": {
+                "status_tab": "skip",
+                "reason": "Not relevant case type"
+            }
+        }
+
     # Safely rename based on what exists
     # Prefer createActionDate over createLogDate to x`match Menora behavior
     if "createActionDate" in json_df.columns:

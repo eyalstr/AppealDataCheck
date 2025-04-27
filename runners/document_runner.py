@@ -41,6 +41,16 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"❌ Failed to fetch JSON documents for case_id {case_id}.", "error")
         return
 
+    from utils.json_parser import is_case_type_supported
+
+    if not is_case_type_supported(case_id):
+        return {
+            "document": {
+                "status_tab": "skip",
+                "reason": "Not relevant case type"
+            }
+        }
+
     documents = json_data.get("documentList")
     if not documents:
         log_and_print("⚠️ No 'documentList' found in JSON.", "warning")

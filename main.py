@@ -59,16 +59,7 @@ def process_case(case_id, tab_configs):
             return case_id, {}
 
         case_results = {}
-        from utils.json_parser import is_case_type_supported
-
-        if not is_case_type_supported(case_id):
-            return case_id, {
-                "document": {
-                    "status_tab": "skip",
-                    "reason": "Not relevant case type"
-                }
-            }
-
+        
         case_json = get_case_data(case_id)
         #log_and_print(f"case_json={case_json}")               
 
