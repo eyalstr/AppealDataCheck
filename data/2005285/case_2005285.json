@@ -1,0 +1,576 @@
+{
+  "businessCaseDetails": {
+    "taxAutorityRequestNumber": 58316722,
+    "entitlementPeriodId": 1,
+    "taxAuthorityDecisionDateInObjection": "2025-01-22T00:00:00+02:00",
+    "transactionTurnover": 5105700,
+    "publicRepresentatives": [
+      {
+        "partyInvolvedId": 2,
+        "publicRepresentativeFullName": "ברוך ברוכי",
+        "appointmentStartDate": "2025-03-26T13:51:40.35+02:00",
+        "appointmentEndDate": null,
+        "endReasonTypeId": null,
+        "isActive": true,
+        "createBy": "LiatM@justice.gov.il",
+        "createByFullName": "ליאת קציר מרגלית",
+        "endBy": null,
+        "endByFullName": null
+      }
+    ],
+    "taxRequestNumber": null,
+    "taxObjectionDate": null,
+    "entitlementPeriodTypeId": null,
+    "annualTurnover": null,
+    "judgeId": null,
+    "publicDelegateFullName": null,
+    "privateCompanyNumber": null,
+    "companyType": null
+  },
+  "caseId": 2005285,
+  "caseDisplayId": "1365/25",
+  "unitId": 1,
+  "courtId": 11,
+  "officeId": 27,
+  "caseTypeId": 328,
+  "caseSummary": null,
+  "caseOpenDate": "2025-03-20T08:19:22+02:00",
+  "caseCloseDate": null,
+  "caseSubmissionTypeId": 1,
+  "nextDiscussionDate": "2025-04-28T09:00:00+03:00",
+  "judges": [
+    {
+      "userName": "justice\\liatm",
+      "judgeFullName": "ליאת קציר-מרגלית",
+      "appointmentStartDate": "2025-03-21T09:24:41+02:00",
+      "appointmentEndDate": null,
+      "mojId": null,
+      "endReasonTypeId": null,
+      "isActive": true,
+      "createBy": "justice\\SteynerT",
+      "createByFullName": "תמר שטיינר",
+      "endBy": null,
+      "endByFullName": null
+    }
+  ],
+  "requests": [
+    {
+      "requestId": 5273,
+      "displayRequestId": 1,
+      "siteActionId": 84601,
+      "requestTypeId": 106,
+      "isMainRequest": true,
+      "requestSubmissionDate": "2025-03-19T20:08:12.637+02:00",
+      "requestSubmitterId": 2938,
+      "requestSubmissionTypeId": 1,
+      "requestSourceTypeId": 1,
+      "requestLeadingStatuses": [
+        {
+          "requestStatusTypeId": 21,
+          "startDate": "2025-03-21T09:24:41+02:00",
+          "endDate": "2025-03-26T11:24:45.845+02:00"
+        },
+        {
+          "requestStatusTypeId": 12,
+          "startDate": "2025-03-26T11:25:08.879+02:00",
+          "endDate": "2025-03-26T12:41:15.776+02:00"
+        },
+        {
+          "requestStatusTypeId": 9,
+          "startDate": "2025-03-26T12:42:09.78+02:00",
+          "endDate": "2025-03-26T13:53:05.411+02:00"
+        },
+        {
+          "requestStatusTypeId": 7,
+          "startDate": "2025-03-26T13:53:12.834+02:00",
+          "endDate": "2025-03-26T14:00:01.328+02:00"
+        },
+        {
+          "requestStatusTypeId": 8,
+          "startDate": "2025-03-26T14:02:11.18+02:00",
+          "endDate": null
+        }
+      ],
+      "requestDistributions": [
+        193170,
+        193171,
+        193172
+      ],
+      "processes": [
+        {
+          "processId": "65617E5C-EF53-498B-AEF6-D5ABFC9DBFBB",
+          "processTypeId": 1,
+          "lastPublishDate": "2025-03-26T11:24:57.978+02:00",
+          "steps": [
+            {
+              "processStepId": 23197,
+              "processTypeActivityId": 4,
+              "activityTypeId": 3,
+              "activityCategoryId": 2,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": 365934006,
+              "startDate": "2025-03-24T12:31:22.513+02:00",
+              "deadLineDate": null,
+              "endDate": "2025-03-26T11:24:47+02:00",
+              "displayBoRequestStatusTypeId": 21,
+              "data": null
+            },
+            {
+              "processStepId": 24126,
+              "processTypeActivityId": null,
+              "activityTypeId": null,
+              "activityCategoryId": null,
+              "eventTypeId": null,
+              "processTypeGatewayId": 3,
+              "gatewayTypeId": 7,
+              "taskId": null,
+              "startDate": "2025-03-26T11:24:57.833+02:00",
+              "deadLineDate": null,
+              "endDate": "2025-03-26T11:24:57.833+02:00",
+              "displayBoRequestStatusTypeId": null,
+              "data": null
+            }
+          ]
+        },
+        {
+          "processId": "2250f473-0e81-479c-9d1e-b8dd2b238484",
+          "processTypeId": 3,
+          "lastPublishDate": "2025-03-26T13:55:09.802+02:00",
+          "steps": [
+            {
+              "processStepId": 24127,
+              "processTypeActivityId": 13,
+              "activityTypeId": 23,
+              "activityCategoryId": 4,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": null,
+              "startDate": "2025-03-26T11:25:09.5+02:00",
+              "deadLineDate": "2025-04-01T06:00:00+03:00",
+              "endDate": "2025-03-26T12:41:15.533+02:00",
+              "displayBoRequestStatusTypeId": 12,
+              "data": null
+            },
+            {
+              "processStepId": 24199,
+              "processTypeActivityId": 14,
+              "activityTypeId": 10,
+              "activityCategoryId": 2,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": 365937163,
+              "startDate": "2025-03-26T12:42:08.577+02:00",
+              "deadLineDate": null,
+              "endDate": "2025-03-26T13:53:04.967+02:00",
+              "displayBoRequestStatusTypeId": 9,
+              "data": null
+            },
+            {
+              "processStepId": 24309,
+              "processTypeActivityId": null,
+              "activityTypeId": null,
+              "activityCategoryId": null,
+              "eventTypeId": null,
+              "processTypeGatewayId": 13,
+              "gatewayTypeId": 7,
+              "taskId": null,
+              "startDate": "2025-03-26T13:55:09.71+02:00",
+              "deadLineDate": null,
+              "endDate": "2025-03-26T13:55:09.71+02:00",
+              "displayBoRequestStatusTypeId": null,
+              "data": null
+            }
+          ]
+        },
+        {
+          "processId": "dc39a6a7-f53b-4eb4-877b-8b11ada6374b",
+          "processTypeId": 2,
+          "lastPublishDate": "2025-03-26T14:05:08.935+02:00",
+          "steps": [
+            {
+              "processStepId": 24302,
+              "processTypeActivityId": 29,
+              "activityTypeId": 6,
+              "activityCategoryId": 2,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": 365937198,
+              "startDate": "2025-03-26T13:53:10.713+02:00",
+              "deadLineDate": null,
+              "endDate": "2025-03-26T14:00:00.74+02:00",
+              "displayBoRequestStatusTypeId": 7,
+              "data": null
+            },
+            {
+              "processStepId": 24326,
+              "processTypeActivityId": 31,
+              "activityTypeId": 28,
+              "activityCategoryId": 6,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": null,
+              "startDate": "2025-03-26T14:02:11.537+02:00",
+              "deadLineDate": "2025-04-28T09:00:00+03:00",
+              "endDate": null,
+              "displayBoRequestStatusTypeId": 8,
+              "data": null
+            },
+            {
+              "processStepId": 24327,
+              "processTypeActivityId": 37,
+              "activityTypeId": 30,
+              "activityCategoryId": 6,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": null,
+              "startDate": "2025-03-26T14:02:11.61+02:00",
+              "deadLineDate": "2025-04-28T10:00:00+03:00",
+              "endDate": null,
+              "displayBoRequestStatusTypeId": null,
+              "data": null
+            },
+            {
+              "processStepId": 24328,
+              "processTypeActivityId": 35,
+              "activityTypeId": 29,
+              "activityCategoryId": 3,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": null,
+              "startDate": "2025-03-26T14:02:11.7+02:00",
+              "deadLineDate": null,
+              "endDate": "2025-03-26T14:02:18.237+02:00",
+              "displayBoRequestStatusTypeId": null,
+              "data": null
+            },
+            {
+              "processStepId": 24329,
+              "processTypeActivityId": 54,
+              "activityTypeId": 45,
+              "activityCategoryId": 3,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": null,
+              "startDate": "2025-03-26T14:02:11.817+02:00",
+              "deadLineDate": null,
+              "endDate": "2025-03-26T14:04:37.527+02:00",
+              "displayBoRequestStatusTypeId": null,
+              "data": null
+            },
+            {
+              "processStepId": 24333,
+              "processTypeActivityId": 30,
+              "activityTypeId": 21,
+              "activityCategoryId": 5,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": null,
+              "startDate": "2025-03-26T14:03:10.907+02:00",
+              "deadLineDate": null,
+              "endDate": null,
+              "displayBoRequestStatusTypeId": null,
+              "data": null
+            },
+            {
+              "processStepId": 24334,
+              "processTypeActivityId": null,
+              "activityTypeId": null,
+              "activityCategoryId": null,
+              "eventTypeId": null,
+              "processTypeGatewayId": 38,
+              "gatewayTypeId": 7,
+              "taskId": null,
+              "startDate": "2025-03-26T14:05:08.807+02:00",
+              "deadLineDate": null,
+              "endDate": "2025-03-26T14:05:08.807+02:00",
+              "displayBoRequestStatusTypeId": null,
+              "data": null
+            }
+          ]
+        }
+      ],
+      "requestDocuments": null,
+      "requestSecretarialCheck": [
+        {
+          "secretarialCheckId": 6496,
+          "secretarialCheckDate": "2025-03-20T08:19:30.603+02:00",
+          "incorrectDocuments": [],
+          "secretarialDecisionTypeId": 1,
+          "secretaryComment": null,
+          "createSecretaryName": "justice\\EinavC"
+        }
+      ],
+      "requestLogs": [
+        {
+          "actionLogTypeId": 1,
+          "createActionUser": "23693492_אפרים פרץ לבקוביץ",
+          "createActionDate": "2025-03-19T20:08:12.863+02:00",
+          "createLogDate": "2025-03-19T20:08:12.863+02:00",
+          "requestStatusId": 3,
+          "remark": "הגשת תיק ערר",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 18,
+          "createActionUser": null,
+          "createActionDate": "2025-03-19T20:22:50.16+02:00",
+          "createLogDate": "2025-03-19T20:22:50.16+02:00",
+          "requestStatusId": 5,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 2,
+          "createActionUser": "עינב כהן",
+          "createActionDate": "2025-03-20T08:19:30.603+02:00",
+          "createLogDate": "2025-03-20T08:19:30.603+02:00",
+          "requestStatusId": 6,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 3,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2025-03-21T09:24:41.78+02:00",
+          "createLogDate": "2025-03-21T09:24:41.78+02:00",
+          "requestStatusId": 21,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 8,
+          "createActionUser": "ליאת קציר מרגלית",
+          "createActionDate": "2025-03-26T11:24:45.636+02:00",
+          "createLogDate": "2025-03-26T11:24:45.907+02:00",
+          "requestStatusId": null,
+          "remark": "סוג החלטה לתגובת המשיבה",
+          "contentDataObjectName": "DecisionID",
+          "contentDataObjectId": "36083",
+          "processStepId": 23197
+        },
+        {
+          "actionLogTypeId": 7,
+          "createActionUser": "צד משיבה",
+          "createActionDate": "2025-03-26T12:39:21.807+02:00",
+          "createLogDate": "2025-03-26T12:41:15.903+02:00",
+          "requestStatusId": null,
+          "remark": "הוגשה תגובה מהאתר על ידי צד ב",
+          "contentDataObjectName": "ResponseId",
+          "contentDataObjectId": "421",
+          "processStepId": 24127
+        },
+        {
+          "actionLogTypeId": 8,
+          "createActionUser": "ליאת קציר מרגלית",
+          "createActionDate": "2025-03-26T13:53:03.573+02:00",
+          "createLogDate": "2025-03-26T13:53:06.579+02:00",
+          "requestStatusId": null,
+          "remark": "סוג החלטה קביעת דיון",
+          "contentDataObjectName": "DecisionID",
+          "contentDataObjectId": "36095",
+          "processStepId": 24199
+        },
+        {
+          "actionLogTypeId": 12,
+          "createActionUser": "איילת טפירו",
+          "createActionDate": "2025-03-26T13:59:01.28+02:00",
+          "createLogDate": "2025-03-26T14:00:01.405+02:00",
+          "requestStatusId": null,
+          "remark": "מועד הדיון 28/04/2025 09:00",
+          "contentDataObjectName": "DiscussionID",
+          "contentDataObjectId": "5000",
+          "processStepId": 24302
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "decisionId": 36083,
+      "decisionDate": "2025-03-26T11:24:41.291+02:00",
+      "decisionStatusTypeId": 3,
+      "isForPublication": null,
+      "publishDate": null,
+      "mojId": "676-2025-00018646",
+      "decisionJudges": [
+        {
+          "userName": "justice\\liatm",
+          "judgeFullName": "ליאת קציר מרגלית",
+          "appointmentStartDate": null,
+          "appointmentEndDate": null,
+          "mojId": null,
+          "endReasonTypeId": null,
+          "isActive": null,
+          "createBy": null,
+          "createByFullName": null,
+          "endBy": null,
+          "endByFullName": null
+        }
+      ],
+      "decisionRequests": [
+        {
+          "subDecisions": [
+            {
+              "subDecisionId": 36089,
+              "decisionTypeToCourtId": 30,
+              "continuedProcessId": "2250f473-0e81-479c-9d1e-b8dd2b238484",
+              "isFunctionSucceeded": false,
+              "days": 5,
+              "date": null,
+              "expensesSum": null,
+              "expensesPercent": null,
+              "decisionEssenceId": 4,
+              "assignmentId": null,
+              "discussionId": null,
+              "note": "",
+              "discussionStartTime": null,
+              "discussionEndTime": null,
+              "discussionCancelReasonId": null,
+              "discussionConferenceTypeId": null,
+              "discussionHallId": null,
+              "unitedCases": [],
+              "judgeName": null,
+              "judgeUserName": null,
+              "reasonChangeTypeId": null
+            }
+          ],
+          "requestId": 5273,
+          "isFromTask": true
+        }
+      ],
+      "processId": "94ec3fa8-7636-4e68-ae0a-092afa90c8cc",
+      "isActive": true,
+      "classifications": []
+    },
+    {
+      "decisionId": 36095,
+      "decisionDate": "2025-03-26T13:52:58.487+02:00",
+      "decisionStatusTypeId": 3,
+      "isForPublication": null,
+      "publishDate": null,
+      "mojId": "676-2025-00018701",
+      "decisionJudges": [
+        {
+          "userName": "justice\\liatm",
+          "judgeFullName": "ליאת קציר מרגלית",
+          "appointmentStartDate": null,
+          "appointmentEndDate": null,
+          "mojId": null,
+          "endReasonTypeId": null,
+          "isActive": null,
+          "createBy": null,
+          "createByFullName": null,
+          "endBy": null,
+          "endByFullName": null
+        }
+      ],
+      "decisionRequests": [
+        {
+          "subDecisions": [
+            {
+              "subDecisionId": 36105,
+              "decisionTypeToCourtId": 39,
+              "continuedProcessId": "dc39a6a7-f53b-4eb4-877b-8b11ada6374b",
+              "isFunctionSucceeded": false,
+              "days": null,
+              "date": null,
+              "expensesSum": null,
+              "expensesPercent": null,
+              "decisionEssenceId": 1,
+              "assignmentId": null,
+              "discussionId": null,
+              "note": "",
+              "discussionStartTime": "2025-04-28T09:00:00+03:00",
+              "discussionEndTime": "2025-04-28T10:00:00+03:00",
+              "discussionCancelReasonId": null,
+              "discussionConferenceTypeId": 1,
+              "discussionHallId": 2,
+              "unitedCases": [],
+              "judgeName": null,
+              "judgeUserName": null,
+              "reasonChangeTypeId": null
+            }
+          ],
+          "requestId": 5273,
+          "isFromTask": true
+        }
+      ],
+      "processId": "d13d4389-4ef4-462c-997a-688c31ef5e7b",
+      "isActive": true,
+      "classifications": []
+    }
+  ],
+  "caseInvolveds": [
+    {
+      "connectDetailsId": null,
+      "representors": [
+        {
+          "connectDetailsId": null,
+          "roleInCorporationId": 173,
+          "representorTypeId": 2,
+          "isLegalAid": false,
+          "appointmentStartDate": "2025-03-19T20:08:13.303+02:00",
+          "appointmentEndDate": null,
+          "reasonExchangeRepresentationId": null,
+          "caseInvolvedId": 16005,
+          "contactId": 2938,
+          "caseInvolvedTypeId": 23,
+          "caseInvolvedIdentifyType": 1,
+          "caseInvolvedIdentifyId": "23693492",
+          "caseInvolvedName": "אפרים פרץ לבקוביץ",
+          "caseInvolvedCategoryId": 3,
+          "isActive": true
+        }
+      ],
+      "caseInvolvedId": 5274,
+      "contactId": 2150,
+      "caseInvolvedTypeId": 14,
+      "caseInvolvedIdentifyType": 3,
+      "caseInvolvedIdentifyId": "512701467",
+      "caseInvolvedName": "אייזנברג את שין בע\"מ",
+      "caseInvolvedCategoryId": 1,
+      "isActive": true
+    },
+    {
+      "connectDetailsId": null,
+      "representors": [],
+      "caseInvolvedId": 10551,
+      "contactId": 104,
+      "caseInvolvedTypeId": 15,
+      "caseInvolvedIdentifyType": 8,
+      "caseInvolvedIdentifyId": "500106158",
+      "caseInvolvedName": "רשות המיסים",
+      "caseInvolvedCategoryId": 2,
+      "isActive": true
+    }
+  ],
+  "remarks": [],
+  "indicators": [],
+  "relatedCases": null,
+  "mainRequestStatuses": [
+    8
+  ],
+  "treatmentDays": null,
+  "hadDiscussion": false,
+  "isUnitedCase": null,
+  "isLeadingCase": null,
+  "unitedCases": []
+}

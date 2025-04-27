@@ -1,0 +1,805 @@
+{
+  "businessCaseDetails": {
+    "taxAutorityRequestNumber": 58154053,
+    "entitlementPeriodId": 1,
+    "taxAuthorityDecisionDateInObjection": "2024-10-22T00:00:00+03:00",
+    "transactionTurnover": 8421618,
+    "publicRepresentatives": [
+      {
+        "partyInvolvedId": 16,
+        "publicRepresentativeFullName": "אילן עזרא",
+        "appointmentStartDate": "2025-02-11T12:05:14+02:00",
+        "appointmentEndDate": null,
+        "endReasonTypeId": null,
+        "isActive": true,
+        "createBy": "justice\\SteynerT",
+        "createByFullName": "תמר שטיינר",
+        "endBy": null,
+        "endByFullName": null
+      }
+    ],
+    "taxRequestNumber": null,
+    "taxObjectionDate": null,
+    "entitlementPeriodTypeId": null,
+    "annualTurnover": null,
+    "judgeId": null,
+    "publicDelegateFullName": null,
+    "privateCompanyNumber": null,
+    "companyType": null
+  },
+  "caseId": 2004762,
+  "caseDisplayId": "1397/24",
+  "unitId": 1,
+  "courtId": 11,
+  "officeId": 27,
+  "caseTypeId": 328,
+  "caseSummary": null,
+  "caseOpenDate": "2024-11-11T08:22:56+02:00",
+  "caseCloseDate": null,
+  "caseSubmissionTypeId": 1,
+  "nextDiscussionDate": null,
+  "judges": [
+    {
+      "userName": "justice\\steynert",
+      "judgeFullName": "תמר שטיינר",
+      "appointmentStartDate": "2024-11-11T10:20:59+02:00",
+      "appointmentEndDate": null,
+      "mojId": null,
+      "endReasonTypeId": null,
+      "isActive": true,
+      "createBy": "justice\\SteynerT",
+      "createByFullName": "תמר שטיינר",
+      "endBy": null,
+      "endByFullName": null
+    }
+  ],
+  "requests": [
+    {
+      "requestId": 4758,
+      "displayRequestId": 1,
+      "siteActionId": 59915,
+      "requestTypeId": 106,
+      "isMainRequest": true,
+      "requestSubmissionDate": "2024-11-10T11:53:47.063+02:00",
+      "requestSubmitterId": 3291,
+      "requestSubmissionTypeId": 1,
+      "requestSourceTypeId": 1,
+      "requestLeadingStatuses": [
+        {
+          "requestStatusTypeId": 12,
+          "startDate": "2025-03-13T16:16:39+02:00",
+          "endDate": "2025-03-27T23:59:01.451+02:00"
+        },
+        {
+          "requestStatusTypeId": 12,
+          "startDate": "2025-03-28T00:00:17.545+02:00",
+          "endDate": null
+        }
+      ],
+      "requestDistributions": [
+        183690,
+        183691,
+        183692,
+        183732,
+        183733,
+        183734,
+        183840,
+        183841,
+        183842,
+        183843,
+        183850,
+        183851,
+        183852,
+        189072,
+        189073,
+        189074,
+        189894,
+        189895,
+        189896,
+        192695,
+        192696,
+        192709,
+        192710,
+        192711
+      ],
+      "processes": [
+        {
+          "processId": "AC2E5D1B-1D6E-484C-8CD1-85BAB584BBAA",
+          "processTypeId": 3,
+          "lastPublishDate": "2025-03-28T00:00:19.378+02:00",
+          "steps": [
+            {
+              "processStepId": 23262,
+              "processTypeActivityId": 13,
+              "activityTypeId": 23,
+              "activityCategoryId": 4,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": null,
+              "startDate": "2025-03-24T12:33:07.19+02:00",
+              "deadLineDate": "2025-03-27T23:59:00+02:00",
+              "endDate": "2025-03-27T23:59:00.22+02:00",
+              "displayBoRequestStatusTypeId": 12,
+              "data": null
+            },
+            {
+              "processStepId": 24425,
+              "processTypeActivityId": 15,
+              "activityTypeId": 11,
+              "activityCategoryId": 2,
+              "eventTypeId": null,
+              "processTypeGatewayId": null,
+              "gatewayTypeId": null,
+              "taskId": 365937378,
+              "startDate": "2025-03-28T00:00:19.294+02:00",
+              "deadLineDate": null,
+              "endDate": null,
+              "displayBoRequestStatusTypeId": 9,
+              "data": null
+            }
+          ]
+        }
+      ],
+      "requestDocuments": null,
+      "requestSecretarialCheck": [
+        {
+          "secretarialCheckId": 5869,
+          "secretarialCheckDate": "2024-11-11T08:23:06.117+02:00",
+          "incorrectDocuments": [],
+          "secretarialDecisionTypeId": 1,
+          "secretaryComment": null,
+          "createSecretaryName": "justice\\AyeletT"
+        }
+      ],
+      "requestLogs": [
+        {
+          "actionLogTypeId": 1,
+          "createActionUser": "301747853_חנה ברלינר",
+          "createActionDate": "2024-11-10T11:53:47.087+02:00",
+          "createLogDate": "2024-11-10T11:53:47.087+02:00",
+          "requestStatusId": 3,
+          "remark": "הגשת תיק ערר",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 18,
+          "createActionUser": null,
+          "createActionDate": "2024-11-10T17:32:15.117+02:00",
+          "createLogDate": "2024-11-10T17:32:15.117+02:00",
+          "requestStatusId": 5,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 2,
+          "createActionUser": "איילת טפירו",
+          "createActionDate": "2024-11-11T08:23:06.117+02:00",
+          "createLogDate": "2024-11-11T08:23:06.117+02:00",
+          "requestStatusId": 6,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 3,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2024-11-11T10:20:59.507+02:00",
+          "createLogDate": "2024-11-11T10:20:59.507+02:00",
+          "requestStatusId": 21,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 8,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2024-11-11T13:06:37.837+02:00",
+          "createLogDate": "2024-11-11T13:06:37.837+02:00",
+          "requestStatusId": 11,
+          "remark": "החלטה לתגובת עורר",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 18,
+          "createActionUser": null,
+          "createActionDate": "2024-11-12T10:13:47.393+02:00",
+          "createLogDate": "2024-11-12T10:13:47.393+02:00",
+          "requestStatusId": 4,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 1,
+          "createActionUser": null,
+          "createActionDate": "2024-11-12T13:51:20.497+02:00",
+          "createLogDate": "2024-11-12T13:51:20.497+02:00",
+          "requestStatusId": 32,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 20,
+          "createActionUser": "איילת טפירו",
+          "createActionDate": "2024-11-12T14:19:47.677+02:00",
+          "createLogDate": "2024-11-12T14:19:47.677+02:00",
+          "requestStatusId": 9,
+          "remark": "הוספת מסמך תקין ע\"י",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 20,
+          "createActionUser": "איילת טפירו",
+          "createActionDate": "2024-11-12T14:20:02.16+02:00",
+          "createLogDate": "2024-11-12T14:20:02.16+02:00",
+          "requestStatusId": 9,
+          "remark": "הוספת מסמך תקין ע\"י",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 20,
+          "createActionUser": "איילת טפירו",
+          "createActionDate": "2024-11-12T14:20:34.737+02:00",
+          "createLogDate": "2024-11-12T14:20:34.737+02:00",
+          "requestStatusId": 9,
+          "remark": "הוספת מסמך תקין ע\"י",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 20,
+          "createActionUser": "איילת טפירו",
+          "createActionDate": "2024-11-12T14:20:45.3+02:00",
+          "createLogDate": "2024-11-12T14:20:45.3+02:00",
+          "requestStatusId": 9,
+          "remark": "הוספת מסמך תקין ע\"י",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 8,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2024-11-12T14:38:11.14+02:00",
+          "createLogDate": "2024-11-12T14:38:11.14+02:00",
+          "requestStatusId": 11,
+          "remark": "החלטה לתגובת עורר",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 21,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2024-11-12T14:38:44.33+02:00",
+          "createLogDate": "2024-11-12T14:38:44.33+02:00",
+          "requestStatusId": 11,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 21,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2024-11-12T14:38:44.38+02:00",
+          "createLogDate": "2024-11-12T14:38:44.38+02:00",
+          "requestStatusId": 11,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 21,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2024-11-12T14:38:44.43+02:00",
+          "createLogDate": "2024-11-12T14:38:44.43+02:00",
+          "requestStatusId": 11,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 21,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2024-11-12T14:38:44.477+02:00",
+          "createLogDate": "2024-11-12T14:38:44.477+02:00",
+          "requestStatusId": 11,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 17,
+          "createActionUser": "עינב כהן",
+          "createActionDate": "2025-02-13T10:05:16.473+02:00",
+          "createLogDate": "2025-02-13T10:05:16.473+02:00",
+          "requestStatusId": 9,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 8,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2025-02-13T11:33:33.47+02:00",
+          "createLogDate": "2025-02-13T11:33:33.47+02:00",
+          "requestStatusId": 12,
+          "remark": "החלטה לתגובת המשיב",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 21,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2025-02-13T11:34:22.567+02:00",
+          "createLogDate": "2025-02-13T11:34:22.567+02:00",
+          "requestStatusId": 12,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 18,
+          "createActionUser": null,
+          "createActionDate": "2025-03-13T15:02:57.187+02:00",
+          "createLogDate": "2025-03-13T15:02:57.187+02:00",
+          "requestStatusId": 4,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 1,
+          "createActionUser": null,
+          "createActionDate": "2025-03-13T15:17:32.247+02:00",
+          "createLogDate": "2025-03-13T15:17:32.247+02:00",
+          "requestStatusId": 32,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 20,
+          "createActionUser": "חוה לוי",
+          "createActionDate": "2025-03-13T16:03:13.49+02:00",
+          "createLogDate": "2025-03-13T16:03:13.49+02:00",
+          "requestStatusId": 9,
+          "remark": "הוספת מסמך תקין ע\"י",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 20,
+          "createActionUser": "חוה לוי",
+          "createActionDate": "2025-03-13T16:03:32.693+02:00",
+          "createLogDate": "2025-03-13T16:03:32.693+02:00",
+          "requestStatusId": 9,
+          "remark": "הוספת מסמך תקין ע\"י",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 8,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2025-03-13T16:16:26.27+02:00",
+          "createLogDate": "2025-03-13T16:16:26.27+02:00",
+          "requestStatusId": 12,
+          "remark": "החלטה לתגובת המשיב",
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 21,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2025-03-13T16:16:39.877+02:00",
+          "createLogDate": "2025-03-13T16:16:39.877+02:00",
+          "requestStatusId": 12,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        },
+        {
+          "actionLogTypeId": 21,
+          "createActionUser": "תמר שטיינר",
+          "createActionDate": "2025-03-13T16:16:39.983+02:00",
+          "createLogDate": "2025-03-13T16:16:39.983+02:00",
+          "requestStatusId": 12,
+          "remark": null,
+          "contentDataObjectName": null,
+          "contentDataObjectId": null,
+          "processStepId": null
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "decisionId": 29281,
+      "decisionDate": "2025-02-05T00:00:00+02:00",
+      "decisionStatusTypeId": 3,
+      "isForPublication": false,
+      "publishDate": null,
+      "mojId": "676-2025-00012880",
+      "decisionJudges": [
+        {
+          "userName": "justice\\steynert",
+          "judgeFullName": "תמר שטיינר",
+          "appointmentStartDate": "2024-11-11T10:20:59+02:00",
+          "appointmentEndDate": null,
+          "mojId": null,
+          "endReasonTypeId": null,
+          "isActive": true,
+          "createBy": "justice\\SteynerT",
+          "createByFullName": "תמר שטיינר",
+          "endBy": null,
+          "endByFullName": null
+        }
+      ],
+      "decisionRequests": [
+        {
+          "subDecisions": [
+            {
+              "subDecisionId": 29281,
+              "decisionTypeToCourtId": 29,
+              "continuedProcessId": null,
+              "isFunctionSucceeded": null,
+              "days": null,
+              "date": null,
+              "expensesSum": null,
+              "expensesPercent": null,
+              "decisionEssenceId": null,
+              "assignmentId": null,
+              "discussionId": null,
+              "note": null,
+              "discussionStartTime": null,
+              "discussionEndTime": null,
+              "discussionCancelReasonId": null,
+              "discussionConferenceTypeId": null,
+              "discussionHallId": null,
+              "unitedCases": [],
+              "judgeName": null,
+              "judgeUserName": null,
+              "reasonChangeTypeId": null
+            }
+          ],
+          "requestId": 4758,
+          "isFromTask": false
+        }
+      ],
+      "processId": null,
+      "isActive": true,
+      "classifications": []
+    },
+    {
+      "decisionId": 29467,
+      "decisionDate": "2025-02-13T00:00:00+02:00",
+      "decisionStatusTypeId": 3,
+      "isForPublication": false,
+      "publishDate": null,
+      "mojId": "676-2025-00012741",
+      "decisionJudges": [
+        {
+          "userName": "justice\\steynert",
+          "judgeFullName": "תמר שטיינר",
+          "appointmentStartDate": "2024-11-11T10:20:59+02:00",
+          "appointmentEndDate": null,
+          "mojId": null,
+          "endReasonTypeId": null,
+          "isActive": true,
+          "createBy": "justice\\SteynerT",
+          "createByFullName": "תמר שטיינר",
+          "endBy": null,
+          "endByFullName": null
+        }
+      ],
+      "decisionRequests": [
+        {
+          "subDecisions": [
+            {
+              "subDecisionId": 29467,
+              "decisionTypeToCourtId": 30,
+              "continuedProcessId": null,
+              "isFunctionSucceeded": null,
+              "days": null,
+              "date": null,
+              "expensesSum": null,
+              "expensesPercent": null,
+              "decisionEssenceId": null,
+              "assignmentId": null,
+              "discussionId": null,
+              "note": null,
+              "discussionStartTime": null,
+              "discussionEndTime": null,
+              "discussionCancelReasonId": null,
+              "discussionConferenceTypeId": null,
+              "discussionHallId": null,
+              "unitedCases": [],
+              "judgeName": null,
+              "judgeUserName": null,
+              "reasonChangeTypeId": null
+            }
+          ],
+          "requestId": 4758,
+          "isFromTask": false
+        }
+      ],
+      "processId": null,
+      "isActive": true,
+      "classifications": []
+    },
+    {
+      "decisionId": 30065,
+      "decisionDate": "2025-03-13T00:00:00+02:00",
+      "decisionStatusTypeId": 3,
+      "isForPublication": false,
+      "publishDate": null,
+      "mojId": "676-2025-00018296",
+      "decisionJudges": [
+        {
+          "userName": "justice\\steynert",
+          "judgeFullName": "תמר שטיינר",
+          "appointmentStartDate": "2024-11-11T10:20:59+02:00",
+          "appointmentEndDate": null,
+          "mojId": null,
+          "endReasonTypeId": null,
+          "isActive": true,
+          "createBy": "justice\\SteynerT",
+          "createByFullName": "תמר שטיינר",
+          "endBy": null,
+          "endByFullName": null
+        }
+      ],
+      "decisionRequests": [
+        {
+          "subDecisions": [
+            {
+              "subDecisionId": 30065,
+              "decisionTypeToCourtId": 30,
+              "continuedProcessId": "AC2E5D1B-1D6E-484C-8CD1-85BAB584BBAA",
+              "isFunctionSucceeded": null,
+              "days": null,
+              "date": null,
+              "expensesSum": null,
+              "expensesPercent": null,
+              "decisionEssenceId": null,
+              "assignmentId": null,
+              "discussionId": null,
+              "note": null,
+              "discussionStartTime": null,
+              "discussionEndTime": null,
+              "discussionCancelReasonId": null,
+              "discussionConferenceTypeId": null,
+              "discussionHallId": null,
+              "unitedCases": [],
+              "judgeName": null,
+              "judgeUserName": null,
+              "reasonChangeTypeId": null
+            }
+          ],
+          "requestId": 4758,
+          "isFromTask": false
+        }
+      ],
+      "processId": null,
+      "isActive": true,
+      "classifications": []
+    },
+    {
+      "decisionId": 30816,
+      "decisionDate": "2024-11-11T00:00:00+02:00",
+      "decisionStatusTypeId": 3,
+      "isForPublication": false,
+      "publishDate": null,
+      "mojId": "676-2025-00001068",
+      "decisionJudges": [
+        {
+          "userName": "justice\\steynert",
+          "judgeFullName": "תמר שטיינר",
+          "appointmentStartDate": "2024-11-11T10:20:59+02:00",
+          "appointmentEndDate": null,
+          "mojId": null,
+          "endReasonTypeId": null,
+          "isActive": true,
+          "createBy": "justice\\SteynerT",
+          "createByFullName": "תמר שטיינר",
+          "endBy": null,
+          "endByFullName": null
+        }
+      ],
+      "decisionRequests": [
+        {
+          "subDecisions": [
+            {
+              "subDecisionId": 30816,
+              "decisionTypeToCourtId": 29,
+              "continuedProcessId": null,
+              "isFunctionSucceeded": null,
+              "days": null,
+              "date": null,
+              "expensesSum": null,
+              "expensesPercent": null,
+              "decisionEssenceId": null,
+              "assignmentId": null,
+              "discussionId": null,
+              "note": null,
+              "discussionStartTime": null,
+              "discussionEndTime": null,
+              "discussionCancelReasonId": null,
+              "discussionConferenceTypeId": null,
+              "discussionHallId": null,
+              "unitedCases": [],
+              "judgeName": null,
+              "judgeUserName": null,
+              "reasonChangeTypeId": null
+            }
+          ],
+          "requestId": 4758,
+          "isFromTask": false
+        }
+      ],
+      "processId": null,
+      "isActive": true,
+      "classifications": []
+    },
+    {
+      "decisionId": 32134,
+      "decisionDate": "2024-11-12T00:00:00+02:00",
+      "decisionStatusTypeId": 3,
+      "isForPublication": false,
+      "publishDate": null,
+      "mojId": "676-2025-00002868",
+      "decisionJudges": [
+        {
+          "userName": "justice\\steynert",
+          "judgeFullName": "תמר שטיינר",
+          "appointmentStartDate": "2024-11-11T10:20:59+02:00",
+          "appointmentEndDate": null,
+          "mojId": null,
+          "endReasonTypeId": null,
+          "isActive": true,
+          "createBy": "justice\\SteynerT",
+          "createByFullName": "תמר שטיינר",
+          "endBy": null,
+          "endByFullName": null
+        }
+      ],
+      "decisionRequests": [
+        {
+          "subDecisions": [
+            {
+              "subDecisionId": 32134,
+              "decisionTypeToCourtId": 29,
+              "continuedProcessId": null,
+              "isFunctionSucceeded": null,
+              "days": null,
+              "date": null,
+              "expensesSum": null,
+              "expensesPercent": null,
+              "decisionEssenceId": null,
+              "assignmentId": null,
+              "discussionId": null,
+              "note": null,
+              "discussionStartTime": null,
+              "discussionEndTime": null,
+              "discussionCancelReasonId": null,
+              "discussionConferenceTypeId": null,
+              "discussionHallId": null,
+              "unitedCases": [],
+              "judgeName": null,
+              "judgeUserName": null,
+              "reasonChangeTypeId": null
+            }
+          ],
+          "requestId": 4758,
+          "isFromTask": false
+        }
+      ],
+      "processId": null,
+      "isActive": true,
+      "classifications": []
+    }
+  ],
+  "caseInvolveds": [
+    {
+      "connectDetailsId": null,
+      "representors": [
+        {
+          "connectDetailsId": null,
+          "roleInCorporationId": 301,
+          "representorTypeId": 2,
+          "isLegalAid": false,
+          "appointmentStartDate": "2024-11-10T11:53:47.183+02:00",
+          "appointmentEndDate": null,
+          "reasonExchangeRepresentationId": null,
+          "caseInvolvedId": 15483,
+          "contactId": 3291,
+          "caseInvolvedTypeId": 23,
+          "caseInvolvedIdentifyType": 1,
+          "caseInvolvedIdentifyId": "301747853",
+          "caseInvolvedName": "חנה ברלינר",
+          "caseInvolvedCategoryId": 3,
+          "isActive": true
+        }
+      ],
+      "caseInvolvedId": 4759,
+      "contactId": 2546,
+      "caseInvolvedTypeId": 14,
+      "caseInvolvedIdentifyType": 3,
+      "caseInvolvedIdentifyId": "515671121",
+      "caseInvolvedName": "אספרסו מינוס 420 בע\"מ",
+      "caseInvolvedCategoryId": 1,
+      "isActive": true
+    },
+    {
+      "connectDetailsId": null,
+      "representors": [
+        {
+          "connectDetailsId": 77,
+          "roleInCorporationId": null,
+          "representorTypeId": 10,
+          "isLegalAid": false,
+          "appointmentStartDate": "2024-11-11T00:00:00+02:00",
+          "appointmentEndDate": null,
+          "reasonExchangeRepresentationId": null,
+          "caseInvolvedId": 17245,
+          "contactId": 77,
+          "caseInvolvedTypeId": 24,
+          "caseInvolvedIdentifyType": 1,
+          "caseInvolvedIdentifyId": "310279856",
+          "caseInvolvedName": "בת אל אזמרה אסרסה",
+          "caseInvolvedCategoryId": 3,
+          "isActive": true
+        }
+      ],
+      "caseInvolvedId": 10036,
+      "contactId": 104,
+      "caseInvolvedTypeId": 15,
+      "caseInvolvedIdentifyType": 8,
+      "caseInvolvedIdentifyId": "500106158",
+      "caseInvolvedName": "רשות המיסים",
+      "caseInvolvedCategoryId": 2,
+      "isActive": true
+    }
+  ],
+  "remarks": [],
+  "indicators": [],
+  "relatedCases": null,
+  "mainRequestStatuses": [
+    9
+  ],
+  "treatmentDays": null,
+  "hadDiscussion": false,
+  "isUnitedCase": null,
+  "isLeadingCase": null,
+  "unitedCases": []
+}

@@ -1,0 +1,26 @@
+{
+  "roleInCorporationDetails": [
+    {
+      "roleInCorporationId": 301,
+      "licenseNumber": 0,
+      "professionTypeId": 2,
+      "corporationDetails": {
+        "corporationId": 2742,
+        "identifyTypeId": 9,
+        "corporationIDNumber": 301747853,
+        "corporationTypeId": null,
+        "corporationName": "חנה ברלינר",
+        "address": null
+      },
+      "connectDetails": {
+        "connectDetailsId": 741,
+        "primaryPhone": "0504144001",
+        "secondaryPhone": null,
+        "mail": "chanab23@gmail.com",
+        "fax": null
+      }
+    }
+  ],
+  "isSuccess": true,
+  "errorMessageId": null
+}

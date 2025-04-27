@@ -1,0 +1,78 @@
+{
+  "documentList": [
+    {
+      "mojId": "676-2025-00016399",
+      "subType": 926,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:20:15+02:00",
+      "statusDate": "2025-02-02T00:00:00+02:00",
+      "objectName": "DefaultTemplate_60",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00016066",
+      "subType": 16,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:49+02:00",
+      "statusDate": "2024-12-31T09:57:21+02:00",
+      "objectName": "מדן כבישים עררים 1542 1543 בקשת ארכה.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00015623",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:14+02:00",
+      "statusDate": "2025-03-03T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00015149",
+      "subType": 832,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:18:34+02:00",
+      "statusDate": "2024-12-31T09:57:21+02:00",
+      "objectName": "כתב תשובה מדן כבישיים  1542-25.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00015116",
+      "subType": 832,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:18:31+02:00",
+      "statusDate": "2024-12-31T09:57:21+02:00",
+      "objectName": "מדן כבישים נספחים.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00013836",
+      "subType": 16,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:16:49+02:00",
+      "statusDate": "2024-12-31T09:57:21+02:00",
+      "objectName": "טופס עדכון מייצג 1542 1543 מדן.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00012422",
+      "subType": 926,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:14:51+02:00",
+      "statusDate": "2025-01-01T00:00:00+02:00",
+      "objectName": "DefaultTemplate_60",
+      "departmentId": ""
+    }
+  ],
+  "documentsCount": 7,
+  "extData": 0,
+  "total": null,
+  "hasMoreObjects": false
+}

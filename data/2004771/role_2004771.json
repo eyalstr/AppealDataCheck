@@ -1,0 +1,26 @@
+{
+  "roleInCorporationDetails": [
+    {
+      "roleInCorporationId": 313,
+      "licenseNumber": 0,
+      "professionTypeId": 2,
+      "corporationDetails": {
+        "corporationId": 2753,
+        "identifyTypeId": 9,
+        "corporationIDNumber": 302957550,
+        "corporationTypeId": null,
+        "corporationName": "מוסא חג'אזי",
+        "address": null
+      },
+      "connectDetails": {
+        "connectDetailsId": 770,
+        "primaryPhone": "0506226689",
+        "secondaryPhone": null,
+        "mail": "hijazi.msa@gmail.com",
+        "fax": null
+      }
+    }
+  ],
+  "isSuccess": true,
+  "errorMessageId": null
+}

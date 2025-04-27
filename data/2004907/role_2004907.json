@@ -1,0 +1,26 @@
+{
+  "roleInCorporationDetails": [
+    {
+      "roleInCorporationId": 644,
+      "licenseNumber": 0,
+      "professionTypeId": 7,
+      "corporationDetails": {
+        "corporationId": 3037,
+        "identifyTypeId": 9,
+        "corporationIDNumber": 67612135,
+        "corporationTypeId": null,
+        "corporationName": "שלמה אנקאוה",
+        "address": null
+      },
+      "connectDetails": {
+        "connectDetailsId": 1793,
+        "primaryPhone": "0507560656",
+        "secondaryPhone": null,
+        "mail": "nir@levincpa.co.il",
+        "fax": null
+      }
+    }
+  ],
+  "isSuccess": true,
+  "errorMessageId": null
+}

@@ -1,0 +1,158 @@
+{
+  "documentList": [
+    {
+      "mojId": "676-2025-00018541",
+      "subType": 926,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-25T13:34:21+02:00",
+      "statusDate": null,
+      "objectName": "החלטה 36049 25.3.2025 13:37:14",
+      "departmentId": "3"
+    },
+    {
+      "mojId": "676-2025-00017734",
+      "subType": 899,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:54+02:00",
+      "statusDate": "2025-03-20T00:00:00+02:00",
+      "objectName": "pirtey_tik_136725_20032025_160324",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017737",
+      "subType": 920,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:54+02:00",
+      "statusDate": "2025-03-20T00:00:00+02:00",
+      "objectName": "pirtey_tik_136725_20032025_160328",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017705",
+      "subType": 873,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:48+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250320_151952.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017515",
+      "subType": 891,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:11+02:00",
+      "statusDate": "2025-03-19T00:00:00+02:00",
+      "objectName": "DefaultTemplate_2.docx_1_0",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017497",
+      "subType": 883,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:08+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250319_105550.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017494",
+      "subType": 876,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:07+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250319_104542.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017487",
+      "subType": 15,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:06+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250309_203108.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017490",
+      "subType": 870,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:06+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250309_202539.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017492",
+      "subType": 880,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:06+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250319_103950.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017483",
+      "subType": 871,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:05+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250309_203857.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017485",
+      "subType": 879,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:05+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250319_103757.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017478",
+      "subType": 878,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:04+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250319_104120.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017480",
+      "subType": 877,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:04+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250309_203623.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017476",
+      "subType": 869,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:03+02:00",
+      "statusDate": "2025-03-20T16:03:24+02:00",
+      "objectName": "Scan_20250319_104932.pdf",
+      "departmentId": ""
+    }
+  ],
+  "documentsCount": 15,
+  "extData": 0,
+  "total": null,
+  "hasMoreObjects": false
+}

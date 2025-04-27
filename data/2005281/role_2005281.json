@@ -1,0 +1,26 @@
+{
+  "roleInCorporationDetails": [
+    {
+      "roleInCorporationId": 461,
+      "licenseNumber": 0,
+      "professionTypeId": 7,
+      "corporationDetails": {
+        "corporationId": 2882,
+        "identifyTypeId": 9,
+        "corporationIDNumber": 39145685,
+        "corporationTypeId": null,
+        "corporationName": "אחמד ח'יר",
+        "address": null
+      },
+      "connectDetails": {
+        "connectDetailsId": 1212,
+        "primaryPhone": "0502023294",
+        "secondaryPhone": null,
+        "mail": "mrosh5@walla.com",
+        "fax": null
+      }
+    }
+  ],
+  "isSuccess": true,
+  "errorMessageId": null
+}

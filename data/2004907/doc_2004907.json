@@ -1,0 +1,88 @@
+{
+  "documentList": [
+    {
+      "mojId": "676-2025-00016859",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:20:53+02:00",
+      "statusDate": "2025-02-03T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00016068",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:49+02:00",
+      "statusDate": "2025-03-03T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00016075",
+      "subType": 944,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:49+02:00",
+      "statusDate": "2025-01-01T08:49:48+02:00",
+      "objectName": "בקשת ארכה מוסכמת.pdf",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00015972",
+      "subType": 944,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:40+02:00",
+      "statusDate": "2025-01-01T08:49:48+02:00",
+      "objectName": "בקשת ארכה מוסכמת מטעם המשיבה.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00013913",
+      "subType": 945,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:16:55+02:00",
+      "statusDate": "2025-01-01T08:49:48+02:00",
+      "objectName": "טופס פרטי מייצג.pdf",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00012750",
+      "subType": 926,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:15:22+02:00",
+      "statusDate": "2025-01-02T00:00:00+02:00",
+      "objectName": "DefaultTemplate_60",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00012305",
+      "subType": 899,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:14:44+02:00",
+      "statusDate": "2025-01-01T00:00:00+02:00",
+      "objectName": "pirtey_tik_100125_01012025_084949",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00012306",
+      "subType": 920,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:14:44+02:00",
+      "statusDate": "2025-01-01T00:00:00+02:00",
+      "objectName": "pirtey_tik_100125_01012025_084952",
+      "departmentId": "True"
+    }
+  ],
+  "documentsCount": 8,
+  "extData": 0,
+  "total": null,
+  "hasMoreObjects": false
+}

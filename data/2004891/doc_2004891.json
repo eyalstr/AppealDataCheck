@@ -1,0 +1,78 @@
+{
+  "documentList": [
+    {
+      "mojId": "676-2025-00017683",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:44+02:00",
+      "statusDate": "2025-03-20T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017667",
+      "subType": 944,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:22:41+02:00",
+      "statusDate": "2024-12-29T09:26:23+02:00",
+      "objectName": "img20250320_0002.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017367",
+      "subType": 944,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:21:43+02:00",
+      "statusDate": "2024-12-29T09:26:23+02:00",
+      "objectName": "img20250212_0001.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00016940",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:21:00+02:00",
+      "statusDate": "2025-03-06T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00016750",
+      "subType": 944,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:20:44+02:00",
+      "statusDate": "2024-12-29T09:26:23+02:00",
+      "objectName": "img20250305_0002.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00015965",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:40+02:00",
+      "statusDate": "2025-01-30T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00012333",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:14:45+02:00",
+      "statusDate": "2025-02-12T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    }
+  ],
+  "documentsCount": 7,
+  "extData": 0,
+  "total": null,
+  "hasMoreObjects": false
+}

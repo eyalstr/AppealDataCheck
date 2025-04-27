@@ -1,0 +1,26 @@
+{
+  "roleInCorporationDetails": [
+    {
+      "roleInCorporationId": 564,
+      "licenseNumber": 0,
+      "professionTypeId": 2,
+      "corporationDetails": {
+        "corporationId": 2969,
+        "identifyTypeId": 9,
+        "corporationIDNumber": 56719347,
+        "corporationTypeId": null,
+        "corporationName": "עדו ולנשטין",
+        "address": null
+      },
+      "connectDetails": {
+        "connectDetailsId": 1538,
+        "primaryPhone": "054-4714444",
+        "secondaryPhone": null,
+        "mail": "iddow@hwcpa.co.il",
+        "fax": null
+      }
+    }
+  ],
+  "isSuccess": true,
+  "errorMessageId": null
+}

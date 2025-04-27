@@ -1,0 +1,26 @@
+{
+  "roleInCorporationDetails": [
+    {
+      "roleInCorporationId": 150,
+      "licenseNumber": 0,
+      "professionTypeId": 2,
+      "corporationDetails": {
+        "corporationId": 2613,
+        "identifyTypeId": 9,
+        "corporationIDNumber": 22293534,
+        "corporationTypeId": null,
+        "corporationName": "רובי רקח",
+        "address": null
+      },
+      "connectDetails": {
+        "connectDetailsId": 315,
+        "primaryPhone": "0544942166",
+        "secondaryPhone": null,
+        "mail": "rubi@robcpa.co.il",
+        "fax": null
+      }
+    }
+  ],
+  "isSuccess": true,
+  "errorMessageId": null
+}

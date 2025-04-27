@@ -1,0 +1,188 @@
+{
+  "documentList": [
+    {
+      "mojId": "676-2025-00018717",
+      "subType": 961,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-26T14:16:55+02:00",
+      "statusDate": null,
+      "objectName": "החלטה 36101 3/26/2025 2:17:46 PM",
+      "departmentId": "3"
+    },
+    {
+      "mojId": "676-2025-00017904",
+      "subType": 890,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:24:05+02:00",
+      "statusDate": "2025-03-11T00:00:00+02:00",
+      "objectName": "DefaultTemplate_130_1",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017782",
+      "subType": 419,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:23:03+02:00",
+      "statusDate": "2025-03-10T00:00:00+02:00",
+      "objectName": "DefaultTemplate_58_2_1",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00017775",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:23:01+02:00",
+      "statusDate": "2025-03-10T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00016478",
+      "subType": 16,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:20:21+02:00",
+      "statusDate": "2024-12-18T09:05:41+02:00",
+      "objectName": "תשובת עוררים.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00016203",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:59+02:00",
+      "statusDate": "2025-01-15T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00016027",
+      "subType": 944,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:46+02:00",
+      "statusDate": "2024-12-18T09:05:41+02:00",
+      "objectName": "ולנשטיין 1499 בקשת ארכה.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00015840",
+      "subType": 945,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:30+02:00",
+      "statusDate": "2024-12-18T09:05:41+02:00",
+      "objectName": "מכתב ייפוי כח ארצי את חיבה.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00015774",
+      "subType": 926,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:25+02:00",
+      "statusDate": "2025-02-20T00:00:00+02:00",
+      "objectName": "DefaultTemplate_60",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00015653",
+      "subType": 16,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:19:16+02:00",
+      "statusDate": "2024-12-18T09:05:41+02:00",
+      "objectName": "20.2.25!!תגובה לועדה ולנשטיין 1499-24.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00014503",
+      "subType": 283,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:17:43+02:00",
+      "statusDate": "2025-02-09T00:00:00+02:00",
+      "objectName": "DefaultTemplate_57_2_0_1",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00013767",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:16:44+02:00",
+      "statusDate": "2025-01-05T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00013716",
+      "subType": 16,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:16:40+02:00",
+      "statusDate": "2024-12-18T09:05:41+02:00",
+      "objectName": "בקשת ארכה  נוספת בהסכמה ערר 1499-24.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00013324",
+      "subType": 926,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:16:11+02:00",
+      "statusDate": "2025-02-09T00:00:00+02:00",
+      "objectName": "DefaultTemplate_60",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00013199",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:16:01+02:00",
+      "statusDate": "2025-01-04T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00013144",
+      "subType": 832,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:15:57+02:00",
+      "statusDate": "2024-12-18T09:05:41+02:00",
+      "objectName": "נספחים ערר לונשטיין חגי.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00013150",
+      "subType": 832,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:15:57+02:00",
+      "statusDate": "2024-12-18T09:05:41+02:00",
+      "objectName": "כתב תשובה ולנשטיין  ערר 1499-24.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00012431",
+      "subType": 16,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:14:52+02:00",
+      "statusDate": "2024-12-18T09:05:41+02:00",
+      "objectName": "בקשת ארכה בהסכמה.pdf",
+      "departmentId": ""
+    }
+  ],
+  "documentsCount": 18,
+  "extData": 0,
+  "total": null,
+  "hasMoreObjects": false
+}

@@ -1,0 +1,26 @@
+{
+  "roleInCorporationDetails": [
+    {
+      "roleInCorporationId": 244,
+      "licenseNumber": 0,
+      "professionTypeId": 7,
+      "corporationDetails": {
+        "corporationId": 2694,
+        "identifyTypeId": 9,
+        "corporationIDNumber": 28123446,
+        "corporationTypeId": null,
+        "corporationName": "מור שם טוב",
+        "address": null
+      },
+      "connectDetails": {
+        "connectDetailsId": 587,
+        "primaryPhone": null,
+        "secondaryPhone": "046721970",
+        "mail": "gilad@rpeleg.co.il",
+        "fax": null
+      }
+    }
+  ],
+  "isSuccess": true,
+  "errorMessageId": null
+}

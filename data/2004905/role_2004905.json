@@ -1,0 +1,26 @@
+{
+  "roleInCorporationDetails": [
+    {
+      "roleInCorporationId": 488,
+      "licenseNumber": 0,
+      "professionTypeId": 2,
+      "corporationDetails": {
+        "corporationId": 2906,
+        "identifyTypeId": 9,
+        "corporationIDNumber": 40565269,
+        "corporationTypeId": null,
+        "corporationName": "רפאל אוזנה",
+        "address": null
+      },
+      "connectDetails": {
+        "connectDetailsId": 1278,
+        "primaryPhone": "0525330196",
+        "secondaryPhone": "035681065",
+        "mail": "rafi.uzana@il.ey.com",
+        "fax": null
+      }
+    }
+  ],
+  "isSuccess": true,
+  "errorMessageId": null
+}

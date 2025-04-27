@@ -3,7 +3,7 @@
 import os
 import sys
 from dotenv import load_dotenv
-from logging_utils import log_and_print  # Optional if you have structured logging
+from utils.logging_utils import log_and_print  # Optional if you have structured logging
 
 def load_configuration():
     """

@@ -1,0 +1,73 @@
+[
+  {
+    "discussionId": 5000,
+    "discussionTypeId": 9,
+    "startTime": "2025-04-28T09:00:00+03:00",
+    "endTime": "2025-04-28T10:00:00+03:00",
+    "conferenceTypeId": 1,
+    "discussionHallId": 2,
+    "isOpenDoors": false,
+    "discussionStatusId": 1,
+    "link": "https://www.stage.vc.justice.gov.il/meeting/join?meetingId=b3278e07-0416-4fed-92f2-b083b0c9cb96&unitId=2_d106e3e8-1bf8-4dc5-beda-392a2cb29596",
+    "vcMeetingGuid": "b3278e07-0416-4fed-92f2-b083b0c9cb96",
+    "cancelReasonId": null,
+    "discussionPlatphormTypeId": 1,
+    "createProcessId": "dc39a6a7-f53b-4eb4-877b-8b11ada6374b",
+    "cancelProcessId": null,
+    "calendarMeetingId": "",
+    "protocolDocMojId": null,
+    "discussionCancelUser": null,
+    "discussionCancelDate": null,
+    "discussionCreateUser": "AyeletT@Justice.gov.il",
+    "discussionCreateDate": "2025-03-26T13:59:01.28+02:00",
+    "discussionRequests": [
+      {
+        "requestToDiscussionId": 6595,
+        "discussionId": 5000,
+        "caseId": 2005285,
+        "requestId": 5273,
+        "courtId": 11,
+        "officeId": 27,
+        "unitId": 1,
+        "caseDisplayId": "1365/25",
+        "caseTypeId": 328,
+        "caseLeadingStatusId": 8,
+        "sideAFullName": "אייזנברג את שין בע\"מ",
+        "caseOpenDate": "2025-03-20T08:19:22+02:00",
+        "isUnitedCase": null,
+        "isLeadingCase": null
+      }
+    ],
+    "discussionInvolveds": [
+      {
+        "discussionInvolvedId": 34,
+        "discussionId": 5000,
+        "contactId": 2938,
+        "discussionPositionTypeId": 7,
+        "involvedFullName": "אפרים פרץ לבקוביץ",
+        "userName": null,
+        "identifyId": "23693492"
+      },
+      {
+        "discussionInvolvedId": 35,
+        "discussionId": 5000,
+        "contactId": null,
+        "discussionPositionTypeId": 1,
+        "involvedFullName": "ליאת קציר-מרגלית",
+        "userName": "justice\\liatm",
+        "identifyId": null
+      },
+      {
+        "discussionInvolvedId": 36,
+        "discussionId": 5000,
+        "contactId": 2,
+        "discussionPositionTypeId": 13,
+        "involvedFullName": "ברוך ברוכי",
+        "userName": null,
+        "identifyId": "35851229"
+      }
+    ],
+    "discussionHistories": [],
+    "caseStatuses": null
+  }
+]

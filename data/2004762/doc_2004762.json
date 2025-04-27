@@ -1,0 +1,198 @@
+{
+  "documentList": [
+    {
+      "mojId": "676-2025-00018296",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:26:33+02:00",
+      "statusDate": "2025-03-13T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00018291",
+      "subType": 944,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:26:32+02:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "בקשת ארכה מוסכמת.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00018292",
+      "subType": 944,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:26:32+02:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "טופס פרטי מייצג.pdf",
+      "departmentId": ""
+    },
+    {
+      "mojId": "676-2025-00012880",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:15:32+02:00",
+      "statusDate": "2025-02-05T00:00:00+02:00",
+      "objectName": "file.pdf",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00012741",
+      "subType": 926,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:15:21+02:00",
+      "statusDate": "2025-02-13T00:00:00+02:00",
+      "objectName": "DefaultTemplate_60",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00012631",
+      "subType": 16,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2025-03-24T19:15:10+02:00",
+      "statusDate": "2025-02-13T00:00:00+02:00",
+      "objectName": "נימוקי ערר",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00002868",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2023-09-28T18:47:30+03:00",
+      "statusDate": null,
+      "objectName": "בקשת הבהרה  מגנזי.pdf",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00002813",
+      "subType": 351,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2023-08-30T17:13:28+03:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "file.pdf",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00002464",
+      "subType": 899,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2023-01-29T17:58:42+02:00",
+      "statusDate": null,
+      "objectName": "DefaultTemplate_38_34_1",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00002201",
+      "subType": 873,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2022-12-29T20:24:21+02:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "DefaultTemplate_38_34_1",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00002196",
+      "subType": 871,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2022-12-28T15:45:55+02:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "DefaultTemplate_38_34_1",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00001373",
+      "subType": 351,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2022-06-06T14:11:15+03:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "DefaultTemplate_38_34_1",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00001362",
+      "subType": 351,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2022-06-02T17:22:39+03:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "DefaultTemplate_38_34_1",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00001338",
+      "subType": 351,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2022-05-30T12:52:52+03:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "DefaultTemplate_60",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00001068",
+      "subType": 919,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2022-03-22T17:48:32+02:00",
+      "statusDate": null,
+      "objectName": "DefaultTemplate_38_34_1",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00000707",
+      "subType": 870,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2022-02-10T13:19:38+02:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "DefaultTemplate_38_34_1",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00000684",
+      "subType": 869,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2022-02-02T16:41:08+02:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "DefaultTemplate_38_34_1",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00000676",
+      "subType": 15,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2022-02-01T18:40:41+02:00",
+      "statusDate": "2024-11-11T08:22:56+02:00",
+      "objectName": "DefaultTemplate_38_34_1",
+      "departmentId": "True"
+    },
+    {
+      "mojId": "676-2025-00000982",
+      "subType": 920,
+      "docType": 1,
+      "docDate": null,
+      "rCreationDate": "2022-01-06T13:56:52+02:00",
+      "statusDate": null,
+      "objectName": "DefaultTemplate_38_34_1",
+      "departmentId": "True"
+    }
+  ],
+  "documentsCount": 19,
+  "extData": 0,
+  "total": null,
+  "hasMoreObjects": false
+}
