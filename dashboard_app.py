@@ -33,6 +33,37 @@ tab_labels = {
     "case_contact": "פרטי עורר"
 }
 
+# Initialize counters
+total_pass = 0
+total_fail = 0
+total_skip = 0
+
+# First, calculate global counters
+for case_id, tabs in summary_data.items():
+    tab_keys_rtl = list(tab_labels.keys())[::-1]
+    case_status = []
+
+    for key in tab_keys_rtl:
+        tab_data = tabs.get(key, {})
+        status = tab_data.get("status_tab", "fail") if isinstance(tab_data, dict) else "fail"
+        if status in ["pass", "fail", "skip"]:
+            case_status.append(status)
+        else:
+            case_status.append("fail")
+
+    if all(s == "skip" for s in case_status):
+        total_skip += 1
+    elif all(s in ["pass", "skip"] for s in case_status):
+        total_pass += 1
+    else:
+        total_fail += 1
+
+# Display total summary at top
+st.markdown("## 🧮 סיכום כללי")
+st.success(f"✅ סה\"כ תיקים שעברו: {total_pass}")
+st.error(f"❌ סה\"כ תיקים שנכשלו: {total_fail}")
+#st.info(f"⚪ סה\"כ תיקים שלא נדרשו לבדיקה: {total_skip}")
+
 # Process each case
 for index, (case_id, tabs) in enumerate(summary_data.items(), start=1):
     st.markdown(f"### {index}. 📁 תיק מספר: {case_id}")
@@ -67,7 +98,7 @@ for index, (case_id, tabs) in enumerate(summary_data.items(), start=1):
             tab_name = tab_labels.get(key, key)
             with st.expander(f"🔍 {tab_name} - פירוט תקלות"):
                 if tab_data.get("status_tab") == "skip":
-                    st.info(f"⚪ לא נדרש לבדיקה")
+                    st.info("⚪ לא נדרש לבדיקה")
                 else:
                     if tab_data.get("missing_json_dates"):
                         st.markdown("**❌ חסרים ב-JSON:**")
