@@ -66,39 +66,39 @@ def process_case(case_id, tab_configs):
 
 
 
-        # request_log_result = run_request_log_comparison(case_id, appeal_number, conn, tab_config=tab_configs["request_log"])
-        # if request_log_result:
-        #     case_results["request_log"] = request_log_result["request_log"]
+        request_log_result = run_request_log_comparison(case_id, appeal_number, conn, tab_config=tab_configs["request_log"])
+        if request_log_result:
+            case_results["request_log"] = request_log_result["request_log"]
 
-        # discussion_result = run_discussion_comparison(case_id, appeal_number, conn, tab_config=tab_configs["discussion"])
-        # if discussion_result:
-        #     case_results["discussion"] = discussion_result["discussion"]
+        discussion_result = run_discussion_comparison(case_id, appeal_number, conn, tab_config=tab_configs["discussion"])
+        if discussion_result:
+            case_results["discussion"] = discussion_result["discussion"]
 
-        # decision_result = run_decision_comparison(case_id, appeal_number, conn, tab_config=tab_configs["decision"])
-        # if decision_result:
-        #     case_results["decision"] = decision_result["decision"]
+        decision_result = run_decision_comparison(case_id, appeal_number, conn, tab_config=tab_configs["decision"])
+        if decision_result:
+            case_results["decision"] = decision_result["decision"]
 
-        # document_result = run_document_comparison(case_id, appeal_number, conn, tab_config=tab_configs["document"])
-        # if document_result:
-        #     case_results["document"] = document_result["document"]
+        document_result = run_document_comparison(case_id, appeal_number, conn, tab_config=tab_configs["document"])
+        if document_result:
+            case_results["document"] = document_result["document"]
 
-        # representator_result = run_representator_comparison(case_id, appeal_number, conn, tab_config=tab_configs["representator_log"])
-        # representator_section = representator_result.get(str(case_id), {})
-        # if "representator_log" in representator_section:
-        #     case_results["representator_log"] = representator_section["representator_log"]
+        representator_result = run_representator_comparison(case_id, appeal_number, conn, tab_config=tab_configs["representator_log"])
+        representator_section = representator_result.get(str(case_id), {})
+        if "representator_log" in representator_section:
+            case_results["representator_log"] = representator_section["representator_log"]
 
-        # case_contact_result = run_case_involved_comparison(case_id, appeal_number, conn, tab_config=tab_configs["case_contact"])
-        # case_contact_section = case_contact_result.get(str(case_id), {})
-        # if "case_contact" in case_contact_section:
-        #     case_results["case_contact"] = case_contact_section["case_contact"]
+        case_contact_result = run_case_involved_comparison(case_id, appeal_number, conn, tab_config=tab_configs["case_contact"])
+        case_contact_section = case_contact_result.get(str(case_id), {})
+        if "case_contact" in case_contact_section:
+            case_results["case_contact"] = case_contact_section["case_contact"]
 
         # inside your main flow (per case_id)
 
+        
         distribution_result = run_distribution_comparison(case_id, appeal_number, conn,tab_config=tab_configs.get("distribution"))
 
         if distribution_result:
             case_results["distribution"] = distribution_result["distribution"]
-
 
 
         return case_id, case_results
@@ -112,8 +112,8 @@ def process_case(case_id, tab_configs):
 
 def main():
     load_configuration()
-
-    case_ids = [2004891]
+ 
+    case_ids = [2004891,2004759, 2005285, 2005281, 2005287]
     
     # case_ids = [2004759, 2005285, 2005281, 2005287, 2004338, 2004339, 2001968, 2004759, 2004761, 2004762,
     #             2004771, 2004804, 2004805, 2004854, 2004860, 2004891, 2004892, 2004893, 2004905, 2004907]

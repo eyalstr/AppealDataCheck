@@ -30,8 +30,15 @@ tab_labels = {
     "decision": "החלטות",
     "discussion": "דיונים",
     "request_log": "יומן תיק",
-    "case_contact": "פרטי עורר"
+    "case_contact": "פרטי עורר",
+    "distribution": "הפצות"
 }
+
+# Helper function for safe tab status
+def safe_tab_status(tab_data):
+    if not tab_data:
+        return "skip"
+    return tab_data.get("status_tab", "fail")
 
 # Initialize counters
 total_pass = 0
@@ -45,11 +52,8 @@ for case_id, tabs in summary_data.items():
 
     for key in tab_keys_rtl:
         tab_data = tabs.get(key, {})
-        status = tab_data.get("status_tab", "fail") if isinstance(tab_data, dict) else "fail"
-        if status in ["pass", "fail", "skip"]:
-            case_status.append(status)
-        else:
-            case_status.append("fail")
+        status = safe_tab_status(tab_data)
+        case_status.append(status)
 
     if all(s == "skip" for s in case_status):
         total_skip += 1
@@ -62,7 +66,6 @@ for case_id, tabs in summary_data.items():
 st.markdown("## 🧮 סיכום כללי")
 st.success(f"✅ סה\"כ תיקים שעברו: {total_pass}")
 st.error(f"❌ סה\"כ תיקים שנכשלו: {total_fail}")
-#st.info(f"⚪ סה\"כ תיקים שלא נדרשו לבדיקה: {total_skip}")
 
 # Process each case
 for index, (case_id, tabs) in enumerate(summary_data.items(), start=1):
@@ -75,7 +78,7 @@ for index, (case_id, tabs) in enumerate(summary_data.items(), start=1):
     for key in tab_keys_rtl:
         label = tab_labels.get(key, key).strip()
         tab_data = tabs.get(key, {})
-        status = tab_data.get("status_tab", "fail") if isinstance(tab_data, dict) else "fail"
+        status = safe_tab_status(tab_data)
         if status == "pass":
             icon = "🟡"
         elif status == "fail":
@@ -94,10 +97,11 @@ for index, (case_id, tabs) in enumerate(summary_data.items(), start=1):
     # Show expanders for failed and skipped tabs
     for key in tab_keys_rtl:
         tab_data = tabs.get(key, {})
-        if isinstance(tab_data, dict) and tab_data.get("status_tab") in ["fail", "skip"]:
+        status = safe_tab_status(tab_data)
+        if status in ["fail", "skip"]:
             tab_name = tab_labels.get(key, key)
             with st.expander(f"🔍 {tab_name} - פירוט תקלות"):
-                if tab_data.get("status_tab") == "skip":
+                if status == "skip":
                     st.info("⚪ לא נדרש לבדיקה")
                 else:
                     if tab_data.get("missing_json_dates"):

@@ -270,14 +270,13 @@ GROUP BY p.Main_Id_Number;
 
 def fetch_menora_distributions(appeal_number, conn):
     query = """
-    SELECT d.SendDate,d.SendUser,d.SendFrom,d.SendTo,d.SendSubject,d.SendBody,
-           d.AttachmentsDocMojID,d.Discussion_Id,d.SendErrorCode,d.SendErrorDesc,
-           d.Distribution_Status,d.Distribution_Status_Desc,d.Distribution_type, 
-           dt.Name AS 'סוג הפצה'
-    FROM Menora.dbo.Log_DistributionService d
-    JOIN Menora.dbo.CT_Distribution_Type dt ON d.Distribution_type = dt.Code
-    JOIN Menora.dbo.Appeal a ON d.appeal_id = a.Appeal_ID
-    WHERE a.Appeal_Number_Display = ?
+    select d.SendDate,d.SendUser,d.SendFrom,d.SendTo,d.SendSubject,d.SendBody,d.AttachmentsDocMojID,d.Discussion_Id,
+        d.SendErrorCode,d.SendErrorDesc,d.Distribution_Status,d.Distribution_Status_Desc,
+        d.Distribution_type, dt.Name 'סוג הפצה'
+        from Menora.dbo.Log_DistributionService d
+        join Menora.dbo.CT_Distribution_Type dt on d.Distribution_type=dt.Code
+        join Menora.dbo.Appeal a on d.appeal_id=a.Appeal_ID
+        where a.Appeal_Number_Display= ?
     """
     try:
         #conn = get_sql_connection()
