@@ -6,8 +6,13 @@ from tabulate import tabulate
 from utils.logging_utils import normalize_hebrew
 from collections import defaultdict
 from configs.config_loader import load_tab_config
+import json
+import os
 
-def run_distribution_comparison(case_id, appeal_number, conn,tab_config=None):
+def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
+
+      
+
     log_and_print("\n\U0001F4C2 Running distribution comparison...", "info")
 
     if tab_config is None:
@@ -17,7 +22,7 @@ def run_distribution_comparison(case_id, appeal_number, conn,tab_config=None):
 
     # Step 1: Fetch Menora SQL data
     try:
-        menora_df = fetch_menora_distributions(appeal_number,conn)
+        menora_df = fetch_menora_distributions(appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
 
@@ -48,7 +53,9 @@ def run_distribution_comparison(case_id, appeal_number, conn,tab_config=None):
         json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
 
         date_col = "SendDate_json" if "SendDate_json" in json_df.columns else "SendDate"
-        json_df[date_col] = pd.to_datetime(json_df[date_col], errors="coerce")
+        json_df[date_col] = pd.to_datetime(json_df[date_col], errors="coerce", utc=True)
+        json_df[date_col] = json_df[date_col].dt.tz_convert('Asia/Jerusalem')
+        json_df[date_col] = json_df[date_col].dt.tz_localize(None)
         json_df[date_col] = json_df[date_col].dt.strftime("%Y-%m-%d %H:%M:%S")
 
         log_and_print(f"✅ Extracted {len(json_df)} distributions from API for case {case_id}", "success")

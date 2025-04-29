@@ -37,7 +37,7 @@ def run_discussion_comparison(case_id, appeal_number, conn, tab_config=None):
             json_data = json.load(f)
         log_and_print(f"📁 Loaded discussion data from cache: {cache_path}", "debug")
     else:
-        json_data = fetch_case_discussions(case_id)
+        json_data = fetch_case_discussions(case_id,True)
         with open(cache_path, "w", encoding="utf-8") as f:
             json.dump(json_data, f, ensure_ascii=False, indent=2)
         log_and_print(f"💾 Cached discussion data to: {cache_path}", "debug")
