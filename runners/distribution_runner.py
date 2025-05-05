@@ -41,11 +41,31 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
     try:
         cache_path = f"data/{case_id}/dist_{case_id}.json"
         os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-        if os.path.exists(cache_path):
-            import json
+
+        if os.path.exists(cache_path):            
             with open(cache_path, "r", encoding="utf-8") as f:
-                json_data = json.load(f)
-            log_and_print(f"📁 Loaded distribution data from cache: {cache_path}", "debug")
+                content = f.read().strip()
+                if content:
+                    try:
+                        json_data = json.loads(content)
+                        log_and_print(f"📁 Loaded distribution data from cache: {cache_path}", "debug")
+                    except json.JSONDecodeError as e:
+                        log_and_print(f"⚠️ Cache file malformed, re-fetching from API: {e}", "warning")
+                        json_data = fetch_distribution_data(case_id)
+                        with open(cache_path, "w", encoding="utf-8") as wf:
+                            json.dump(json_data, wf, ensure_ascii=False, indent=2)
+                else:
+                    log_and_print(f"⚠️ Cache file empty, re-fetching from API", "warning")
+                    json_data = fetch_distribution_data(case_id)
+                    with open(cache_path, "w", encoding="utf-8") as wf:
+                        json.dump(json_data, wf, ensure_ascii=False, indent=2)
+
+
+
+        # if os.path.exists(cache_path):            
+        #     with open(cache_path, "r", encoding="utf-8") as f:
+        #         json_data = json.load(f)
+        #     log_and_print(f"📁 Loaded distribution data from cache: {cache_path}", "debug")
         else:
             json_data = fetch_distribution_data(case_id)
             with open(cache_path, "w", encoding="utf-8") as f:
