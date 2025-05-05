@@ -102,15 +102,13 @@
     "table": "Distributions.sql",
     "matchingKeys": [
       {
-        "key": "SendKey",
-        "jsonKey": "SendKey"
-      }
-    ],
-    "field_map": {
-      "SendDate": "createDate",
-      "SendTo": "sendTo",
-      "SendSubject": "subject"
-    }
+        "key": "SendDate",
+        "jsonPath": "$.createDate",
+        "columns": {
+          "SendSubject": "subject"
+        }
+      }   
+    ]
   },
  "עורר פרטי קשר": {
   "url": "https://bo-contacts-int.prod.k8s.justice.gov.il/api/ConnectDetails",

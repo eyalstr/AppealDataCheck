@@ -9,100 +9,112 @@ from configs.config_loader import load_tab_config
 from dateutil.parser import parse
 import json
 import os
-from dateutil.parser import parse
-
 
 def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
-    from dateutil.parser import parse
-    import pandas as pd
-    from utils.fetcher import fetch_distribution_data
-
-    log_and_print("\n\U0001F4C2 Running distribution comparison...", "info")
+    tab_key = "distribution"
+    tab_label = "תוצפה"
+    log_and_print(f"\n📂 Running {tab_label} comparison...", "info")
 
     if tab_config is None:
-        tab_config = load_tab_config("הפצות")
-    matching_keys = tab_config.get("matchingKeys", [])
-    field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
+        tab_config = load_tab_config(tab_label)
 
-    # Step 1: Fetch Menora SQL data
+    matching_keys = tab_config.get("matchingKeys", [])
+    key_sql = matching_keys[0].get("key", "SendDate")
+    key_json = matching_keys[0].get("jsonPath", "createDate").split(".")[-1]  # e.g., "createDate"
+    field_map = matching_keys[0].get("columns", {})
+    json_subject_field = list(field_map.values())[0] if field_map else "subject"
+    sql_subject_field = list(field_map.keys())[0] if field_map else "SendSubject"
+
     try:
         menora_df = fetch_menora_distributions(appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
-
-        menora_df["SendDate"] = pd.to_datetime(menora_df["SendDate"], errors="coerce")
-        menora_df["SendDate"] = menora_df["SendDate"].dt.strftime("%Y-%m-%d %H:%M:%S")
-
+        menora_df[key_sql] = pd.to_datetime(menora_df[key_sql], errors="coerce")
+        menora_df[key_sql] = menora_df[key_sql].dt.floor("s")
+        menora_df[f"{key_sql}_str"] = menora_df[key_sql].dt.strftime("%Y-%m-%d %H:%M:%S")
+        menora_df[sql_subject_field] = menora_df[sql_subject_field].fillna("").astype(str).str.strip()
         log_and_print(f"✅ Retrieved {len(menora_df)} distributions from Menora for appeal {appeal_number}", "success")
-        log_and_print(f"📋 Menora columns: {list(menora_df.columns)}", "debug")
     except Exception as e:
-        log_and_print(f"❌ SQL query execution failed: {e}", "error")
-        return {}
+        log_and_print(f"❌ Menora fetch error: {e}", "error")
+        return {tab_key: {"status_tab": "error", "error": str(e)}}
 
-    # Step 2: Fetch JSON API data
     try:
-        json_data = fetch_distribution_data(case_id)
-        if not json_data:
-            raise ValueError("Empty or invalid JSON returned from API")
+        cache_path = f"data/{case_id}/dist_{case_id}.json"
+        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+        if os.path.exists(cache_path):
+            import json
+            with open(cache_path, "r", encoding="utf-8") as f:
+                json_data = json.load(f)
+            log_and_print(f"📁 Loaded distribution data from cache: {cache_path}", "debug")
+        else:
+            json_data = fetch_distribution_data(case_id)
+            with open(cache_path, "w", encoding="utf-8") as f:
+                json.dump(json_data, f, ensure_ascii=False, indent=2)
 
         json_df = pd.json_normalize(json_data)
-        json_df.rename(columns={
-            "createDate": "SendDate",
-            "subject": "SendSubject"
-        }, inplace=True)
 
-        for ui_field in field_map.keys():
-            if ui_field in json_df.columns and not ui_field.endswith("_json"):
-                json_df.rename(columns={ui_field: f"{ui_field}_json"}, inplace=True)
+        def safe_parse(val):
+            try:
+                return pd.to_datetime(val)
+            except Exception:
+                return pd.NaT
 
-        json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
+        json_df[key_json] = json_df[key_json].apply(safe_parse)
 
-        date_col = "SendDate_json" if "SendDate_json" in json_df.columns else "SendDate"
-        json_df[date_col] = pd.to_datetime(json_df[date_col], errors="coerce", utc=True)
-        json_df[date_col] = json_df[date_col].dt.tz_convert('Asia/Jerusalem')
-        json_df[date_col] = json_df[date_col].dt.tz_localize(None)
-        json_df[date_col] = json_df[date_col].dt.strftime("%Y-%m-%d %H:%M:%S")
+        if json_df[key_json].dt.tz is None:
+            json_df[key_json] = json_df[key_json].dt.tz_localize("UTC")
 
-        log_and_print(f"✅ Extracted {len(json_df)} distributions from API for case {case_id}", "success")
-        log_and_print(f"📋 JSON columns: {list(json_df.columns)}", "debug")
+        json_df[key_json] = json_df[key_json].dt.tz_convert("Asia/Jerusalem").dt.tz_localize(None)
+        json_df[key_json] = json_df[key_json].dt.floor("s")
+        json_df[f"{key_json}_str"] = json_df[key_json].dt.strftime("%Y-%m-%d %H:%M:%S")
+        json_df[json_subject_field] = json_df[json_subject_field].fillna("").astype(str).str.strip()
+
+        log_and_print(f"✅ Extracted {len(json_df)} distributions from JSON", "success")
     except Exception as e:
-        log_and_print(f"❌ Failed to fetch or parse distribution data: {e}", "error")
-        return {}
+        log_and_print(f"❌ JSON parse error: {e}", "error")
+        return {tab_key: {"status_tab": "error", "error": str(e)}}
 
-    # Step 3: Composite Key Comparison
-    try:
-        json_send_date_col = "SendDate_json" if "SendDate_json" in json_df.columns else "SendDate"
-        json_send_subject_col = "SendSubject_json" if "SendSubject_json" in json_df.columns else "SendSubject"
+    menora_group = menora_df.groupby(f"{key_sql}_str")
+    json_group = json_df.groupby(f"{key_json}_str")
 
-        # Normalize nulls before creating keys
-        menora_df["SendDate"] = menora_df["SendDate"].fillna("").astype(str).str.strip()
-        menora_df["SendSubject"] = menora_df["SendSubject"].fillna("").astype(str).str.strip()
+    mismatched_fields = []
+    missing_in_json = []
+    missing_in_menora = []
 
-        json_df[json_send_date_col] = json_df[json_send_date_col].fillna("").astype(str).str.strip()
-        json_df[json_send_subject_col] = json_df[json_send_subject_col].fillna("").astype(str).str.strip()
+    for date_key, menora_rows in menora_group:
+        if date_key not in json_group.groups:
+            log_and_print(f"❌ JSON is missing expected timestamp {date_key}", "warning")
+            missing_in_json.append(date_key)
+            continue
 
-        menora_df["DistKey"] = menora_df["SendDate"] + "|" + menora_df["SendSubject"]
-        json_df["DistKey"] = json_df[json_send_date_col] + "|" + json_df[json_send_subject_col]
+        json_rows = json_group.get_group(date_key)
 
-        menora_keys = set(menora_df["DistKey"].dropna().unique())
-        json_keys = set(json_df["DistKey"].dropna().unique())
+        menora_subjects = sorted(menora_rows[sql_subject_field].dropna().astype(str).str.strip().unique())
+        json_subjects = sorted(json_rows[json_subject_field].dropna().astype(str).str.strip().unique())
 
-        missing_in_json = sorted(list(menora_keys - json_keys))
-        missing_in_menora = sorted(list(json_keys - menora_keys))
+        if menora_subjects != json_subjects:
+            mismatched_fields.append({
+                "date": date_key,
+                "Field": sql_subject_field,
+                "Menora": "; ".join(menora_subjects),
+                "JSON": "; ".join(json_subjects)
+            })
 
-        mismatched_fields = []
+    for date_key in json_group.groups.keys():
+        if date_key not in menora_group.groups:
+            missing_in_menora.append(date_key)
 
-        status_tab = "pass" if not missing_in_json and not missing_in_menora else "fail"
+    status_tab = "pass" if not (missing_in_json or missing_in_menora or mismatched_fields) else "fail"
+    if status_tab == "pass":
+        log_and_print(f"🔹 {tab_label} - PASS", "info", is_hebrew=True)
+    else:
+        log_and_print(f"❌ {tab_label} - FAIL", "warning", is_hebrew=True)
 
-        return {
-            "distribution": {
-                "status_tab": status_tab,
-                "missing_json_dates": missing_in_json,
-                "missing_menora_dates": missing_in_menora,
-                "mismatched_fields": mismatched_fields
-            }
+    return {
+        tab_key: {
+            "status_tab": status_tab,
+            "missing_json_dates": sorted(missing_in_json),
+            "missing_menora_dates": sorted(missing_in_menora),
+            "mismatched_fields": mismatched_fields
         }
-
-    except Exception as e:
-        log_and_print(f"❌ Error during distribution comparison logic: {e}", "error")
-        return {"distribution": {"status_tab": "fail", "reason": str(e)}}
+    }
