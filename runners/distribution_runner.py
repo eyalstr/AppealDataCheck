@@ -10,6 +10,18 @@ from dateutil.parser import parse
 import json
 import os
 
+import pandas as pd
+from apis.sql_client import fetch_menora_distributions
+from utils.fetcher import fetch_distribution_data
+from utils.logging_utils import log_and_print
+from tabulate import tabulate
+from utils.logging_utils import normalize_hebrew
+from collections import defaultdict
+from configs.config_loader import load_tab_config
+from dateutil.parser import parse
+import json as json_module
+import os
+
 def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
     tab_key = "distribution"
     tab_label = "תוצפה"
@@ -20,7 +32,7 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
 
     matching_keys = tab_config.get("matchingKeys", [])
     key_sql = matching_keys[0].get("key", "SendDate")
-    key_json = matching_keys[0].get("jsonPath", "createDate").split(".")[-1]  # e.g., "createDate"
+    key_json = matching_keys[0].get("jsonPath", "createDate").split(".")[-1]
     field_map = matching_keys[0].get("columns", {})
     json_subject_field = list(field_map.values())[0] if field_map else "subject"
     sql_subject_field = list(field_map.keys())[0] if field_map else "SendSubject"
@@ -41,48 +53,40 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
     try:
         cache_path = f"data/{case_id}/dist_{case_id}.json"
         os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-
-        if os.path.exists(cache_path):            
+        if os.path.exists(cache_path):
             with open(cache_path, "r", encoding="utf-8") as f:
-                content = f.read().strip()
-                if content:
-                    try:
-                        json_data = json.loads(content)
-                        log_and_print(f"📁 Loaded distribution data from cache: {cache_path}", "debug")
-                    except json.JSONDecodeError as e:
-                        log_and_print(f"⚠️ Cache file malformed, re-fetching from API: {e}", "warning")
-                        json_data = fetch_distribution_data(case_id)
-                        with open(cache_path, "w", encoding="utf-8") as wf:
-                            json.dump(json_data, wf, ensure_ascii=False, indent=2)
-                else:
-                    log_and_print(f"⚠️ Cache file empty, re-fetching from API", "warning")
-                    json_data = fetch_distribution_data(case_id)
-                    with open(cache_path, "w", encoding="utf-8") as wf:
-                        json.dump(json_data, wf, ensure_ascii=False, indent=2)
-
-
-
-        # if os.path.exists(cache_path):            
-        #     with open(cache_path, "r", encoding="utf-8") as f:
-        #         json_data = json.load(f)
-        #     log_and_print(f"📁 Loaded distribution data from cache: {cache_path}", "debug")
+                json_data = json_module.load(f)
+            log_and_print(f"📁 Loaded distribution data from cache: {cache_path}", "debug")
         else:
             json_data = fetch_distribution_data(case_id)
             with open(cache_path, "w", encoding="utf-8") as f:
-                json.dump(json_data, f, ensure_ascii=False, indent=2)
+                json_module.dump(json_data, f, ensure_ascii=False, indent=2)
 
         json_df = pd.json_normalize(json_data)
 
         def safe_parse(val):
             try:
-                return pd.to_datetime(val)
+                return pd.to_datetime(val, utc=True)
             except Exception:
                 return pd.NaT
 
         json_df[key_json] = json_df[key_json].apply(safe_parse)
 
-        if json_df[key_json].dt.tz is None:
-            json_df[key_json] = json_df[key_json].dt.tz_localize("UTC")
+        #log_and_print(f"🔎 Raw {key_json} values before parsing:", "debug")
+        # for idx, raw_entry in enumerate(json_data):
+        #     raw_val = raw_entry.get(key_json, "MISSING")
+        #     parsed_val = json_df.at[idx, key_json]
+        #     log_and_print(f"  - Raw: {raw_val} | Parsed: {parsed_val}", "debug")
+
+        # unparsed = json_df[json_df[key_json].isna()]
+        # if not unparsed.empty:
+        #     log_and_print(f"❗ Unparsed {key_json} values in JSON (NaT count = {len(unparsed)}):", "warning")
+        #     for i in unparsed.index:
+        #         raw_val = json_data[i].get(key_json, "MISSING")
+        #         log_and_print(f"  - Index {i} → Raw: {raw_val}", "debug")
+
+        if not pd.api.types.is_datetime64_any_dtype(json_df[key_json]):
+            raise ValueError(f"{key_json} column could not be converted to datetime.")
 
         json_df[key_json] = json_df[key_json].dt.tz_convert("Asia/Jerusalem").dt.tz_localize(None)
         json_df[key_json] = json_df[key_json].dt.floor("s")
