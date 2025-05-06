@@ -1,7 +1,7 @@
 import os
 import json
 import requests
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 from utils.logging_utils import log_and_print
 
 load_dotenv()
@@ -9,6 +9,8 @@ load_dotenv()
 BASE_URL = os.getenv("BASE_URL")
 BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 MOJ_APP_ID = os.getenv("APPLICATION_ID")
+ENV_PATH = os.path.join(os.getcwd(), ".env")
+
 
 BASE_CACHE_DIR = os.path.join("data")
 
@@ -58,9 +60,7 @@ def write_json_to_cache(path, data):
 
 
 def fetch_case_details(case_id):
-    """
-    Calls the API to get full case details, saves as case_{case_id}.json
-    """
+    global BEARER_TOKEN
     url = f"{BASE_URL}/api/Case/GetCase?CaseId={case_id}"
     headers = {
         "Authorization": f"Bearer {BEARER_TOKEN}",
@@ -68,19 +68,28 @@ def fetch_case_details(case_id):
         "Accept": "application/json"
     }
 
-    try:
-        log_and_print(f"🌐 Fetching case JSON from API for CaseId {case_id}...")
-        response = requests.get(url, headers=headers, verify=False)
-        response.raise_for_status()
-        case_json = response.json()
-
-        path = get_tab_file_path(case_id, "case")
-        write_json_to_cache(path, case_json)
-
-        return case_json
-    except Exception as e:
-        log_and_print(f"❌ Failed to fetch case {case_id}: {e}", "error")
-        return None
+    while True:
+        try:
+            log_and_print(f"\U0001F310 Fetching case JSON from API for CaseId {case_id}...")
+            response = requests.get(url, headers=headers, verify=False)
+            if response.status_code == 401:
+                log_and_print("❌ Authorization failed (401). Token may have expired.", "error")
+                new_token = input("Enter a new auth token: ").strip()
+                if not new_token:
+                    log_and_print("❌ No token provided. Exiting fetch.", "error")
+                    return None
+                BEARER_TOKEN = new_token
+                headers["Authorization"] = f"Bearer {new_token}"
+                set_key(ENV_PATH, "BEARER_TOKEN", new_token)
+                continue
+            response.raise_for_status()
+            case_json = response.json()
+            path = get_tab_file_path(case_id, "case")
+            write_json_to_cache(path, case_json)
+            return case_json
+        except Exception as e:
+            log_and_print(f"❌ Failed to fetch case {case_id}: {e}", "error")
+            return None
 
 
 def get_case_data(case_id, force_refresh=False):
