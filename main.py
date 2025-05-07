@@ -152,7 +152,8 @@ def main():
         "discussion": load_tab_config("דיונים"),
         "request_log": load_tab_config("יומן תיק"),
         "representator_log": load_tab_config("מעורבים בתיק"),
-        "case_contact": load_tab_config("עורר פרטי קשר")
+        "case_contact": load_tab_config("עורר פרטי קשר"),
+        "distribution": load_tab_config("הפצות")
     }
 
     dashboard_results = {}
