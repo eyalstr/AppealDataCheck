@@ -125,32 +125,35 @@ def extract_discussions(case_data):
     return case_data.get("discussions", [])
 
 
-
-def is_case_type_supported(case_id, expected_type=328):
+def is_case_type_supported(case_id, expected_types=None):
     """
-    Loads case JSON and checks if the caseTypeId matches the expected type.
+    Loads case JSON and checks if the caseTypeId is in the expected types list.
 
     Args:
         case_id (int): The case ID to check.
-        expected_type (int): The expected caseTypeId.
+        expected_types (list[int]): A list of valid caseTypeIds.
 
     Returns:
-        bool: True if caseTypeId matches, False otherwise.
+        bool: True if caseTypeId is in the list, False otherwise.
     """
+    if expected_types is None:
+        expected_types = [328, 329, 330, 331]
+
     case_json = get_case_data(case_id)
     if not case_json:
         log_and_print(f"❌ Cannot validate caseTypeId — case {case_id} not found", "error")
         return False
 
     actual_type = case_json.get("caseTypeId")
-    if actual_type != expected_type:
+    if actual_type not in expected_types:
         log_and_print(
-            f"⚠️ Skipping case {case_id}: caseTypeId is {actual_type}, expected {expected_type}",
+            f"⚠️ Skipping case {case_id}: caseTypeId is {actual_type}, expected one of {expected_types}",
             "warning"
         )
         return False
 
     return True
+
 
 def get_first_request_id(case_id):
     """
