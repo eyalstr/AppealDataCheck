@@ -16,14 +16,7 @@ def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"📋 Menora DataFrame:\n{menora_df}", "debug")
     except Exception as e:
         log_and_print(f"❌ SQL query execution failed: {e}", "error")
-        return {str(case_id): {
-            "representator_log": {
-                "status_tab": "fail",
-                "missing_json_dates": [],
-                "missing_menora_dates": [],
-                "mismatched_fields": []
-            }
-        }}
+        return {str(case_id): {"representator_log": {"status_tab": "fail", "missing_json_dates": [], "missing_menora_dates": [], "mismatched_fields": []}}}
 
     json_data = get_case_data(case_id)
     try:
@@ -31,16 +24,17 @@ def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
 
         orer_rep = next((r for r in case_involveds[0].get("representors", []) if r.get("appointmentEndDate") is None), {}) if len(case_involveds) > 0 else {}
         meshiva_rep = next((r for r in case_involveds[1].get("representors", []) if r.get("appointmentEndDate") is None), {}) if len(case_involveds) > 1 else {}
+
     except Exception as e:
         log_and_print(f"❌ Failed to parse JSON structure: {e}", "error")
-        return {str(case_id): {
-            "representator_log": {
-                "status_tab": "fail",
-                "missing_json_dates": [],
-                "missing_menora_dates": [],
-                "mismatched_fields": []
-            }
-        }}
+        return {str(case_id): {"representator_log": {"status_tab": "fail", "missing_json_dates": [], "missing_menora_dates": [], "mismatched_fields": []}}}
+
+    def normalize_whitespace(s):
+        return " ".join(str(s).split()) if s is not None else ""
+
+    def safe_id(val):
+        val = str(val).strip()
+        return val.zfill(9) if val.isdigit() else ""
 
     def safe(val):
         import numpy as np
@@ -53,40 +47,27 @@ def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
     row = menora_df.iloc[0] if not menora_df.empty else None
 
     if row is not None:
-        menora_orer_id = str(row.get("Main_Id_Number", "")).strip().zfill(9)
-        menora_orer_name = str(row.get("orer", "")).strip()
-        menora_meshiva_name = str(row.get("meshiva", "")).strip()
-        menora_meshiva_id = str(row.get("meshivaID", "")).strip().zfill(9)
+        # Extract and clean Menora values
+        menora_orer_id = safe_id(row.get("Main_Id_Number"))
+        menora_orer_name = normalize_whitespace(row.get("orer", ""))
+        menora_meshiva_name = normalize_whitespace(row.get("meshiva", ""))
+        menora_meshiva_id = safe_id(row.get("meshivaID"))
 
-        json_orer_id = str(orer_rep.get("caseInvolvedIdentifyId", "")).strip().zfill(9)
-        json_orer_name = str(orer_rep.get("caseInvolvedName", "")).strip()
-        json_meshiva_id = str(meshiva_rep.get("caseInvolvedIdentifyId", "")).strip().zfill(9)
-        json_meshiva_name = str(meshiva_rep.get("caseInvolvedName", "")).strip()
+        # Extract and clean JSON values
+        json_orer_id = safe_id(orer_rep.get("caseInvolvedIdentifyId"))
+        json_orer_name = normalize_whitespace(orer_rep.get("caseInvolvedName", ""))
+        json_meshiva_id = safe_id(meshiva_rep.get("caseInvolvedIdentifyId"))
+        json_meshiva_name = normalize_whitespace(meshiva_rep.get("caseInvolvedName", ""))
 
+        # Compare fields
         if menora_orer_id != json_orer_id:
-            mismatched_fields.append({
-                "Field": "orerID",
-                "Menora": safe(menora_orer_id),
-                "JSON": safe(json_orer_id)
-            })
-        if normalize_whitespace(menora_orer_name) != normalize_whitespace(json_orer_name):
-            mismatched_fields.append({
-                "Field": "orer",
-                "Menora": safe(menora_orer_name),
-                "JSON": safe(json_orer_name)
-            })
-        if normalize_whitespace(menora_meshiva_name) != normalize_whitespace(json_meshiva_name):
-            mismatched_fields.append({
-                "Field": "meshiva",
-                "Menora": safe(menora_meshiva_name),
-                "JSON": safe(json_meshiva_name)
-            })
+            mismatched_fields.append({"Field": "orerID", "Menora": safe(menora_orer_id), "JSON": safe(json_orer_id)})
+        if menora_orer_name != json_orer_name:
+            mismatched_fields.append({"Field": "orer", "Menora": safe(menora_orer_name), "JSON": safe(json_orer_name)})
+        if menora_meshiva_name != json_meshiva_name:
+            mismatched_fields.append({"Field": "meshiva", "Menora": safe(menora_meshiva_name), "JSON": safe(json_meshiva_name)})
         if menora_meshiva_id != json_meshiva_id:
-            mismatched_fields.append({
-                "Field": "meshivaID",
-                "Menora": safe(menora_meshiva_id),
-                "JSON": safe(json_meshiva_id)
-            })
+            mismatched_fields.append({"Field": "meshivaID", "Menora": safe(menora_meshiva_id), "JSON": safe(json_meshiva_id)})
 
     status_tab = "pass" if not mismatched_fields else "fail"
 
