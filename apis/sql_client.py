@@ -10,11 +10,11 @@ def fetch_appeal_number_by_case_id(case_id,conn):
     query = """
     SELECT a.Appeal_Number_Display
     FROM Menora_Conversion.dbo.Appeal a 
-    JOIN External_Courts.cnvrt.Case_Status_To_Case_Status_BO cn 
+    left JOIN External_Courts.cnvrt.Case_Status_To_Case_Status_BO cn 
         ON a.Appeal_Status = cn.Case_Status_BO
-    JOIN cases_bo.dbo.CT_Case_Status_Types c 
+    left JOIN cases_bo.dbo.CT_Case_Status_Types c 
         ON c.Case_Status_Type_Id = cn.Case_Status_Type_Id
-    JOIN cases_bo.dbo.CT_Request_Status_Types r 
+    left JOIN cases_bo.dbo.CT_Request_Status_Types r 
         ON r.Request_Status_Type_Id = c.Request_Status_Type_Id
     WHERE cn.Court_Id = 11 AND a.Case_id = ?
     """
