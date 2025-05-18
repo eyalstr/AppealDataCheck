@@ -73,6 +73,14 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
             log_and_print("🔍 Extracting decision data from JSON...", "debug")
             json_df = extract_decision_data_from_json(json_data)
             json_df.columns = [col.strip() for col in json_df.columns]
+
+            # ✅ Skip all decisionTypeToCourtId == 60 before any validation
+            if "decisionTypeToCourtId" in json_df.columns:
+                before_count = len(json_df)
+                json_df = json_df[json_df["decisionTypeToCourtId"] != 60].copy()
+                skipped = before_count - len(json_df)
+                if skipped > 0:
+                    log_and_print(f"⚠️ Skipped {skipped} JSON decision(s) with decisionTypeToCourtId = 60", "debug")
             for ui_field in field_map:
                 for col in json_df.columns:
                     if col.strip().lower() == ui_field.strip().lower() and not col.endswith("_json"):
