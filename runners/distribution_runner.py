@@ -38,7 +38,7 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
     sql_subject_field = list(field_map.keys())[0] if field_map else "SendSubject"
 
     try:
-        menora_df = fetch_menora_distributions(appeal_number, conn)
+        menora_df = fetch_menora_distributions(case_id,appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         menora_df[key_sql] = pd.to_datetime(menora_df[key_sql], errors="coerce")

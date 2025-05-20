@@ -47,7 +47,7 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 
     try:
-        menora_df = fetch_menora_decision_data(appeal_number, conn)
+        menora_df = fetch_menora_decision_data(case_id,appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         if "Moj_ID" in menora_df.columns:

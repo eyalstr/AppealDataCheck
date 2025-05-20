@@ -19,6 +19,7 @@ def fetch_appeal_number_by_case_id(case_id,conn):
     WHERE cn.Court_Id = 11 AND a.Case_id = ?
     """
     try:
+        #log_and_print(f"a.Appeal_Number_Display={query}")
         #conn = get_sql_connection()
         df = pd.read_sql(query, conn, params=[case_id])
         #conn.close()
@@ -35,7 +36,7 @@ def fetch_appeal_number_by_case_id(case_id,conn):
         log_and_print(f"❌ Error fetching appeal number: {e}", "error")
         return None
 
-def fetch_menora_decision_data(appeal_number, conn):
+def fetch_menora_decision_data(case_id,appeal_number, conn):
     query = """
         SELECT DISTINCT 
             d.Decision_Date,
@@ -56,19 +57,19 @@ def fetch_menora_decision_data(appeal_number, conn):
         JOIN Menora_Conversion.dbo.CT_Decision_Type dt ON dt.Code = d.Decision_Type
         JOIN Menora_Conversion.dbo.Appeal a ON ld.appeal_id = a.Appeal_ID
         JOIN External_Courts.cnvrt.Decision_Types_To_BO_Decision_Type ec_dt ON ec_dt.BO_Decision_Type_Id = d.Decision_Type
-        WHERE a.Appeal_Number_Display = ? AND ec_dt.Court_ID = 11
+        WHERE a.Case_Id = ? AND ec_dt.Court_ID = 11
     """
     try:
         #conn = get_sql_connection()
-        df = pd.read_sql(query, conn, params=[appeal_number])
+        df = pd.read_sql(query, conn, params=[case_id])
         #conn.close()
-        log_and_print(f"✅ Retrieved {len(df)} decisions from Menora for appeal {appeal_number}", "success")
+        log_and_print(f"✅ Retrieved {len(df)} decisions from Menora for case {case_id}", "success")
         return df
     except Exception as e:
         log_and_print(f"❌ Error while fetching Menora decision data: {e}", "error")
         return pd.DataFrame()
 
-def fetch_menora_document_data(appeal_number, conn):
+def fetch_menora_document_data(case_id,appeal_number, conn):
     query = """
     SELECT 
         a.Appeal_Number_Display AS m_tik,
@@ -88,13 +89,13 @@ def fetch_menora_document_data(appeal_number, conn):
         SELECT DISTINCT d.moj_id
         FROM Menora_Conversion.dbo.documents d
         JOIN Menora_Conversion.dbo.Appeal a ON d.mis_tik = a.Appeal_ID
-        WHERE a.Appeal_Number_Display = ? AND d.user_mochek = 0
+        WHERE a.Case_Id = ? AND d.user_mochek = 0
     ) AS d_base
     OUTER APPLY (
         SELECT TOP 1 d1.*
         FROM Menora_Conversion.dbo.documents d1
         JOIN Menora_Conversion.dbo.Appeal a ON d1.mis_tik = a.Appeal_ID
-        WHERE d1.moj_id = d_base.moj_id AND a.Appeal_Number_Display = ?
+        WHERE d1.moj_id = d_base.moj_id AND a.WHERE a.Case_Id = ?
         ORDER BY d1.DocStatus DESC
     ) AS d1
     JOIN Menora_Conversion.dbo.doc_types dt 
@@ -111,15 +112,15 @@ def fetch_menora_document_data(appeal_number, conn):
     """
     try:
         #conn = get_sql_connection()
-        df = pd.read_sql(query, conn, params=[appeal_number, appeal_number])
+        df = pd.read_sql(query, conn, params=[case_id, case_id])
         #conn.close()
-        log_and_print(f"✅ Retrieved {len(df)} documents from Menora for appeal {appeal_number}", "success")
+        log_and_print(f"✅ Retrieved {len(df)} documents from Menora for case {case_id}", "success")
         return df
     except Exception as e:
         log_and_print(f"❌ Error while fetching Menora document data: {e}", "error")
         return pd.DataFrame()
 
-def fetch_menora_discussion_data(appeal_number, conn):
+def fetch_menora_discussion_data(case_id,appeal_number, conn):
     query = """
     SELECT 
         FORMAT(Discussion_Date, 'dd/MM/yyyy') + ' ' + CONVERT(VARCHAR, d.Discussion_Strat_Time, 8) AS Strat_Time,
@@ -142,19 +143,19 @@ def fetch_menora_discussion_data(appeal_number, conn):
     LEFT JOIN External_Courts.cnvrt.Discussion_Change_Reason_To_BO ec_cr ON cr.Code = ec_cr.Discussion_Change_Reason_BO
     JOIN Menora_Conversion.dbo.Appeal a ON lr.appeal_id = a.Appeal_ID
     JOIN Discussions.code.CT_Discussion_Conference_Types dc ON dc.Discussion_Conference_Type_ID = d.virtualDiscussion
-    WHERE a.Appeal_Number_Display = ?
+    WHERE a.Case_Id = ?
     """
     try:
         #conn = get_sql_connection()
-        df = pd.read_sql(query, conn, params=[appeal_number])
+        df = pd.read_sql(query, conn, params=[case_id])
         #conn.close()
-        log_and_print(f"✅ Retrieved {len(df)} discussions from Menora for appeal {appeal_number}", "success")
+        log_and_print(f"✅ Retrieved {len(df)} discussions from Menora for case {case_id}", "success")
         return df
     except Exception as e:
         log_and_print(f"❌ Error while fetching Menora discussion data: {e}", "error")
         return pd.DataFrame()
 
-def fetch_menora_case_involved_data(appeal_number, conn):
+def fetch_menora_case_involved_data(case_id,appeal_number, conn):
     query = """
 SELECT
     COALESCE(p.Main_Id_Number, r.ID_Num) AS Main_Id_Number,
@@ -176,13 +177,13 @@ LEFT JOIN Menora_Conversion.dbo.Person p
     ON ap.Person_ID = p.Person_ID
 LEFT JOIN Menora_Conversion.dbo.Respondents r 
     ON a.Respondent_Code = r.RespondentID
-WHERE a.Appeal_Number_Display = ?
+WHERE a.Case_Id = ?
     """
     try:
         #conn = get_sql_connection()
-        df = pd.read_sql(query, conn, params=[appeal_number])
+        df = pd.read_sql(query, conn, params=[case_id])
         #conn.close()
-        log_and_print(f"✅ Retrieved {len(df)} case involved entries from Menora for appeal {appeal_number}", "success")
+        log_and_print(f"✅ Retrieved {len(df)} case involved entries from Menora for case {case_id}", "success")
         return df
     except Exception as e:
         log_and_print(f"❌ Error while fetching case involved data: {e}", "error")
@@ -190,7 +191,7 @@ WHERE a.Appeal_Number_Display = ?
     
 
 
-def fetch_menora_case_contacts(appeal_number, conn):
+def fetch_menora_case_contacts(case_id,appeal_number, conn):
     query = """
     SELECT
     MAX(a.CompanyName) AS CompanyName,
@@ -254,21 +255,21 @@ JOIN [Cases_BO].[dbo].[CT_Case_Status_Types] cb_s
 LEFT JOIN [External_Courts].[cnvrt].[Case_Subject_Type_And_Case_Type_To_BO_Case_Type] ec_st 
     ON ec_st.BO_Case_Type = a.Main_Subject 
     AND ec_pt.[Entitlement_Periods_Type_Id] = ec_st.Entitlement_Period_Id
-WHERE a.Appeal_Number_Display = ?
+WHERE a.Case_Id = ?
 GROUP BY p.Main_Id_Number;
     """
     try:
         #conn = get_sql_connection()
-        df = pd.read_sql(query, conn, params=[appeal_number])
+        df = pd.read_sql(query, conn, params=[case_id])
         #conn.close()
-        log_and_print(f"✅ Retrieved {len(df)} case involved entries from Menora for appeal {appeal_number}", "success")
+        log_and_print(f"✅ Retrieved {len(df)} case involved entries from Menora for case {case_id}", "success")
         return df
     except Exception as e:
         log_and_print(f"❌ Error while fetching case involved data: {e}", "error")
         return pd.DataFrame()
     
 
-def fetch_menora_distributions(appeal_number, conn):
+def fetch_menora_distributions(case_id,appeal_number, conn):
     query = """ 
         select d.SendDate,d.SendUser,d.SendFrom,d.SendTo,d.SendSubject,d.SendBody,d.AttachmentsDocMojID,d.Discussion_Id,
         d.SendErrorCode,d.SendErrorDesc,d.Distribution_Status,d.Distribution_Status_Desc,
@@ -276,20 +277,20 @@ def fetch_menora_distributions(appeal_number, conn):
         from [Menora_Conversion].[dbo].[Log_DistributionService] d
         join [Menora_Conversion].dbo.CT_Distribution_Type dt on d.Distribution_type=dt.Code
         join [Menora_Conversion].dbo.Appeal a on d.appeal_id=a.Appeal_ID
-        where  a.Appeal_Number_Display=?
+        WHERE a.Case_Id = ?
     """
     try:
         #conn = get_sql_connection()
-        df = pd.read_sql(query, conn, params=[appeal_number])
+        df = pd.read_sql(query, conn, params=[case_id])
         #conn.close()
-        log_and_print(f"✅ Retrieved {len(df)} distribution entries from Menora for appeal {appeal_number}", "success")
+        log_and_print(f"✅ Retrieved {len(df)} distribution entries from Menora for case {case_id}", "success")
         return df
     except Exception as e:
         log_and_print(f"❌ Error while fetching distribution data: {e}", "error")
         return pd.DataFrame()
     
 
-def fetch_menora_log_requests(appeal_number, conn):
+def fetch_menora_log_requests(case_id,appeal_number, conn):
     query = """
         SELECT 
             la.Status_Date,
@@ -303,12 +304,12 @@ def fetch_menora_log_requests(appeal_number, conn):
         FROM [Menora_Conversion].[dbo].[Log_Appeal_Status] la
         JOIN Menora_Conversion.dbo.Appeal a 
             ON la.Appeal_ID = a.Appeal_ID
-        WHERE a.Appeal_Number_Display = ?
+        WHERE a.Case_Id = ?
         ORDER BY la.Log_Code DESC;
     """
     try:
         #conn = get_sql_connection()
-        df = pd.read_sql(query, conn, params=[appeal_number])
+        df = pd.read_sql(query, conn, params=[case_id])
         #conn.close()
 
         required_columns = ["Status_Date", "Action_Description", "Status_Reason", "Action_Type", "Create_User"]
@@ -317,9 +318,9 @@ def fetch_menora_log_requests(appeal_number, conn):
             log_and_print(f"❌ Missing expected columns in Menora response: {missing_columns}", "error")
             return pd.DataFrame()
 
-        log_and_print(f"✅ Retrieved {len(df)} request log entries from Menora for appeal number {appeal_number}", "success")
+        log_and_print(f"✅ Retrieved {len(df)} request log entries from Menora for case number {case_id}", "success")
         return df
 
     except Exception as e:
-        log_and_print(f"❌ Error while fetching request log data for appeal number {appeal_number}: {e}", "error")
+        log_and_print(f"❌ Error while fetching request log data for case number {case_id}: {e}", "error")
         return pd.DataFrame()

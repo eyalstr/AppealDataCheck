@@ -9,7 +9,7 @@ def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
     log_and_print(f"\n📂 Running case involved comparison for case_id {case_id}...", "info")
 
     try:
-        menora_df = fetch_menora_case_involved_data(appeal_number, conn)
+        menora_df = fetch_menora_case_involved_data(case_id,appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         log_and_print(f"✅ Retrieved {len(menora_df)} case involved entries from Menora for appeal {appeal_number}", "success")

@@ -21,7 +21,7 @@ def run_discussion_comparison(case_id, appeal_number, conn, tab_config=None):
     field_map = matching_keys[0].get("columns", {}) if matching_keys else {}
 
     try:
-        menora_df = fetch_menora_discussion_data(appeal_number, conn)
+        menora_df = fetch_menora_discussion_data(case_id,appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         log_and_print(f"✅ Retrieved {len(menora_df)} discussions from Menora for appeal {appeal_number}", "success")

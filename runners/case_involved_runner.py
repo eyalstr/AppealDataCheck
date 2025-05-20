@@ -17,7 +17,7 @@ def run_case_involved_comparison(case_id, appeal_number, conn, tab_config=None):
     log_and_print("\n📂 Running case contact comparison...", "info")
 
     try:
-        menora_df = fetch_menora_case_contacts(appeal_number, conn)
+        menora_df = fetch_menora_case_contacts(case_id,appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df["Main_Id_Number"] = menora_df["Main_Id_Number"].astype(str)
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()

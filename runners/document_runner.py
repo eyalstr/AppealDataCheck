@@ -57,7 +57,7 @@ def run_document_comparison(case_id, appeal_number, conn, tab_config=None):
         return
 
     json_df = extract_document_data_from_json(documents)
-    menora_df = fetch_menora_document_data(appeal_number, conn)
+    menora_df = fetch_menora_document_data(case_id,appeal_number, conn)
 
     field_map = tab_config["field_map"]
     comparison_results = compare_document_data(json_df, menora_df, field_map)
