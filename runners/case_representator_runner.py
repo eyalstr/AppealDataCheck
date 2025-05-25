@@ -4,12 +4,13 @@ from utils.logging_utils import log_and_print,normalize_whitespace
 from apis.sql_client import fetch_menora_case_involved_data
 from utils.fetcher import get_case_data
 
+
 def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
     tab_config = load_tab_config("מעורבים בתיק")
     log_and_print(f"\n📂 Running case involved comparison for case_id {case_id}...", "info")
 
     try:
-        menora_df = fetch_menora_case_involved_data(case_id,appeal_number, conn)
+        menora_df = fetch_menora_case_involved_data(case_id, appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         log_and_print(f"✅ Retrieved {len(menora_df)} case involved entries from Menora for appeal {appeal_number}", "success")
@@ -22,8 +23,22 @@ def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
     try:
         case_involveds = json_data.get("caseInvolveds", [])
 
-        orer_rep = next((r for r in case_involveds[0].get("representors", []) if r.get("appointmentEndDate") is None), {}) if len(case_involveds) > 0 else {}
-        meshiva_rep = next((r for r in case_involveds[1].get("representors", []) if r.get("appointmentEndDate") is None), {}) if len(case_involveds) > 1 else {}
+        orer_rep = {}
+        meshiva_rep = {}
+        all_active_representors = []
+
+        for ci in case_involveds:
+            name = ci.get("caseInvolvedName", "")
+            reps = ci.get("representors", [])
+            active_reps = [r for r in reps if r.get("appointmentEndDate") is None]
+
+            all_active_representors.extend(active_reps)
+
+            if name.strip() == "רשות המיסים":
+                if active_reps:
+                    meshiva_rep = active_reps[0]
+            elif not orer_rep and active_reps:
+                orer_rep = active_reps[0]
 
     except Exception as e:
         log_and_print(f"❌ Failed to parse JSON structure: {e}", "error")
@@ -77,7 +92,8 @@ def run_representator_comparison(case_id, appeal_number, conn, tab_config=None):
                 "status_tab": status_tab,
                 "missing_json_dates": [],
                 "missing_menora_dates": [],
-                "mismatched_fields": mismatched_fields
+                "mismatched_fields": mismatched_fields,
+                "all_active_representors": all_active_representors
             }
         }
     }
