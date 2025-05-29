@@ -33,6 +33,13 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
     #full_json =  fetch_case_details(case_id)
 
     json_df = extract_request_logs_from_json(full_json)
+    # ✅ Skip all request logs with remark == "סוג החלטה שינוי מותב"
+    if "remark" in json_df.columns:
+        before_count = len(json_df)
+        json_df = json_df[json_df["remark"] != "סוג החלטה שינוי מותב"].copy()
+        skipped = before_count - len(json_df)
+        if skipped > 0:
+            log_and_print(f"⚠️ Skipped {skipped} JSON request log(s) with remark 'סוג החלטה שינוי מותב'", "debug", is_hebrew=True)
 
     from utils.json_parser import is_case_type_supported
     if not is_case_type_supported(case_id):
