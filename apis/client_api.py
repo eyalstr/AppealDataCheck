@@ -80,12 +80,12 @@ def fetch_case_documents(case_id: int) -> dict:
         }
     ]
 
-    if request_id:
-        properties_list.append({
-            "propertyName": "folder_ids",
-            "values": [f"2 {request_id}"],
-            "operator": 0
-        })
+    # if request_id:
+    #     properties_list.append({
+    #         "propertyName": "folder_ids",
+    #         "values": [f"2 {request_id}"],
+    #         "operator": 0
+    #     })
 
     payload = {
         "defaultValue": {
@@ -105,7 +105,7 @@ def fetch_case_documents(case_id: int) -> dict:
             "propertiesList": properties_list,
             "operator": 0
         },
-        "itemsPerPage": 40,
+        "itemsPerPage": 200,
         "pageNo": 1,
         "sorts": [
             {

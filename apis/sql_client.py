@@ -71,44 +71,48 @@ def fetch_menora_decision_data(case_id,appeal_number, conn):
 
 def fetch_menora_document_data(case_id,appeal_number, conn):
     query = """
-    SELECT 
-        a.Appeal_Number_Display AS m_tik,
-        d1.t_mismach,
-        d1.sug_mismach,
-        d1.tat_sug_mismach,
-        dt.sug_mismach_teur,
-        d1.filename,
-        d1.moj_id,
-        d1.UserIdNo,
-        ds.Name,
-        e_dt.document_Type_Id,
-        ec_ds.Document_Source_Type_Id,
-        COALESCE(ec_ds.Document_Source_Type_Id, 
-                 CASE WHEN e_dt.Document_Type_Id IN (3, 13, 30) THEN 3 ELSE 4 END) AS Source_Type
-    FROM (
-        SELECT DISTINCT d.moj_id
-        FROM Menora_Conversion.dbo.documents d
-        JOIN Menora_Conversion.dbo.Appeal a ON d.mis_tik = a.Appeal_ID
-        WHERE a.Case_Id = ? AND d.user_mochek = 0
-    ) AS d_base
-    OUTER APPLY (
-        SELECT TOP 1 d1.*
-        FROM Menora_Conversion.dbo.documents d1
-        JOIN Menora_Conversion.dbo.Appeal a ON d1.mis_tik = a.Appeal_ID
-        WHERE d1.moj_id = d_base.moj_id AND a.WHERE a.Case_Id = ?
-        ORDER BY d1.DocStatus DESC
-    ) AS d1
-    JOIN Menora_Conversion.dbo.doc_types dt 
-        ON d1.sug_mismach = dt.sug_mismach_rashi AND d1.tat_sug_mismach = dt.sug_mismach_mishani
-    JOIN Menora_Conversion.dbo.CT_DocStatus ds 
-        ON d1.DocStatus = ds.Code
-    JOIN Menora_Conversion.dbo.Appeal a 
-        ON d1.mis_tik = a.Appeal_ID
-    JOIN [External_Courts].[cnvrt].[Document_Type_To_BO_Document] e_dt 
-        ON e_dt.sug_mismach_BO = dt.sug_mismach
-    LEFT JOIN [External_Courts].[cnvrt].[Document_Source_Types_To_DocSource_Code_BO] ec_ds 
-        ON ec_ds.DocSource_Code_BO = doc_source_Id AND ec_ds.Court_id = 11
-    WHERE e_dt.Court_Id = 11
+  SELECT 
+    a.Appeal_Number_Display AS m_tik,
+    d1.t_mismach,
+    d1.sug_mismach,
+    d1.tat_sug_mismach,
+    dt.sug_mismach_teur,
+    d1.filename,
+    d1.moj_id,
+    d1.UserIdNo,
+    ds.Name,
+    e_dt.document_Type_Id,
+    ec_ds.Document_Source_Type_Id,
+    COALESCE(ec_ds.Document_Source_Type_Id, 
+             CASE WHEN e_dt.Document_Type_Id IN (3, 13, 30) THEN 3 ELSE 4 END) AS Source_Type
+FROM (
+    SELECT DISTINCT d.moj_id
+    FROM Menora_Conversion.dbo.documents d
+    JOIN Menora_Conversion.dbo.Appeal a ON d.mis_tik = a.Appeal_ID
+    WHERE a.Case_Id =?  and d.user_mochek = 0
+) AS d_base
+OUTER APPLY (
+    SELECT TOP 1 d1.*
+    FROM Menora_Conversion.dbo.documents d1
+    JOIN Menora_Conversion.dbo.Appeal a ON d1.mis_tik = a.Appeal_ID
+    WHERE d1.moj_id = d_base.moj_id
+      AND a.Case_Id =?
+    ORDER BY d1.DocStatus DESC -- Or replace with r_creation_date if available
+) AS d1
+JOIN Menora_Conversion.dbo.doc_types dt 
+    ON d1.sug_mismach = dt.sug_mismach_rashi 
+    AND d1.tat_sug_mismach = dt.sug_mismach_mishani
+JOIN Menora_Conversion.dbo.CT_DocStatus ds 
+    ON d1.DocStatus = ds.Code
+JOIN Menora_Conversion.dbo.Appeal a 
+    ON d1.mis_tik = a.Appeal_ID
+JOIN [External_Courts].[cnvrt].[Document_Type_To_BO_Document] e_dt 
+    ON e_dt.sug_mismach_BO = dt.sug_mismach
+LEFT JOIN [External_Courts].[cnvrt].[Document_Source_Types_To_DocSource_Code_BO] ec_ds 
+    ON ec_ds.DocSource_Code_BO = doc_source_Id 
+    AND ec_ds.Court_id = 11
+WHERE e_dt.Court_Id = 11 
+
     """
     try:
         #conn = get_sql_connection()
