@@ -38,26 +38,44 @@ def fetch_appeal_number_by_case_id(case_id,conn):
 
 def fetch_menora_decision_data(case_id,appeal_number, conn):
     query = """
-        SELECT DISTINCT 
+            SELECT DISTINCT 
             d.Decision_Date,
             d.Create_User, 
             d.Decision_Id, 
-            a.Appeal_Number_Display, 
+            a.Appeal_Number_Display,
+
             CASE 
-                WHEN ec_dt.Decision_Type_Id BETWEEN 70 AND 78 THEN ec_dt.Decision_Type_Id + 22
+                WHEN ec_dt.Decision_Type_Id BETWEEN 70 AND 85 THEN l.Decision_Type_To_Court_ID
                 ELSE ec_dt.Decision_Type_Id
             END as Decision_Type_Id,
+
             dt.Name,
             d.Is_For_Advertisement,
             d.Moj_ID,
             ec_ds.Decision_Status_Type_Id as Decision_Status
+
         FROM Menora_Conversion.dbo.Decision d
-        JOIN Menora_Conversion.dbo.Link_Request_Decision ld ON ld.Decision_Id = d.Decision_Id
-        JOIN External_Courts.cnvrt.Decision_Status_Types_To_BO ec_ds ON ec_ds.Decision_Status_Type_BO = d.Status
-        JOIN Menora_Conversion.dbo.CT_Decision_Type dt ON dt.Code = d.Decision_Type
-        JOIN Menora_Conversion.dbo.Appeal a ON ld.appeal_id = a.Appeal_ID
-        JOIN External_Courts.cnvrt.Decision_Types_To_BO_Decision_Type ec_dt ON ec_dt.BO_Decision_Type_Id = d.Decision_Type
-        WHERE a.Case_Id = ? AND ec_dt.Court_ID = 11
+        JOIN Menora_Conversion.dbo.Link_Request_Decision ld 
+            ON ld.Decision_Id = d.Decision_Id
+
+        JOIN External_Courts.cnvrt.Decision_Status_Types_To_BO ec_ds 
+            ON ec_ds.Decision_Status_Type_BO = d.Status
+
+        JOIN Menora_Conversion.dbo.CT_Decision_Type dt 
+            ON dt.Code = d.Decision_Type
+
+        JOIN Menora_Conversion.dbo.Appeal a 
+            ON ld.appeal_id = a.Appeal_ID
+
+        JOIN External_Courts.cnvrt.Decision_Types_To_BO_Decision_Type ec_dt 
+            ON ec_dt.BO_Decision_Type_Id = d.Decision_Type
+
+        LEFT JOIN CaseManagement_BO.dbo.lt_decision_type_to_court l 
+            ON l.Decision_Type_Id = ec_dt.Decision_Type_Id AND l.Court_Id = 11 
+
+        WHERE a.Case_Id = ?
+        AND ec_dt.Court_ID = 11
+
     """
     try:
         #conn = get_sql_connection()
