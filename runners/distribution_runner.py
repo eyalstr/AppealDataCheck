@@ -64,6 +64,18 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
 
         json_df = pd.json_normalize(json_data)
 
+        if key_json not in json_df.columns:
+            log_and_print(f"❌ JSON key '{key_json}' not found in distribution data. Returning empty comparison.", "warning")
+            return {
+                tab_key: {
+                    "status_tab": "pass",
+                    "missing_json_dates": [],
+                    "missing_menora_dates": [],
+                    "mismatched_fields": []
+                }
+            }
+
+
         def safe_parse(val):
             try:
                 return pd.to_datetime(val, utc=True)

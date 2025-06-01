@@ -150,11 +150,12 @@ def run_request_log_comparison(case_id, appeal_number, conn, tab_config=None):
                         "JSON": json_val
                     })
 
+    
     all_dates = (
-        [d if isinstance(d, datetime) else parse(d).replace(tzinfo=None) for d in missing_json_dates if d] +
-        [d if isinstance(d, datetime) else parse(d).replace(tzinfo=None) for d in missing_menora_dates if d] +
-        [d if isinstance(d, datetime) else parse(row["Status_Date"]).replace(tzinfo=None) for row in mismatched_fields if row.get("Status_Date")]
-    )
+    [d if isinstance(d, datetime) else parse(d).replace(tzinfo=None) for d in missing_json_dates if d] +
+    [d if isinstance(d, datetime) else parse(d).replace(tzinfo=None) for d in missing_menora_dates if d] +
+    [parse(row["Status_Date"]).replace(tzinfo=None) for row in mismatched_fields if row.get("Status_Date")]
+)
 
     all_issues_after_cutoff = all(dt > CUTOFF_DATETIME for dt in all_dates if dt)
 

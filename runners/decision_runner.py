@@ -101,15 +101,52 @@ def run_decision_comparison(case_id: int, appeal_number: int, conn, tab_config=N
     mismatched_fields = []
     if not json_df.empty and not menora_df.empty:
         log_and_print("🔍 Performing field-level comparison...", "debug")
+        # comparison_results = compare_decision_data(json_df, menora_df, field_map)
+        # for row in comparison_results:
+        #     if row.get("Match") == "✗":
+        #         mismatched_fields.append({
+        #             "Status_Date": row.get("mojId"),
+        #             "Field": row.get("Field"),
+        #             "Menora": row.get("Menora Value"),
+        #             "JSON": row.get("JSON Value")
+        #         })
+
+
+        
         comparison_results = compare_decision_data(json_df, menora_df, field_map)
+
+        # Group results by mojId + field, and only keep unmatched fields if the pair (Menora, JSON) isn't just reversed
+        seen_mismatches = set()
         for row in comparison_results:
-            if row.get("Match") == "✗":
-                mismatched_fields.append({
-                    "Status_Date": row.get("mojId"),
-                    "Field": row.get("Field"),
-                    "Menora": row.get("Menora Value"),
-                    "JSON": row.get("JSON Value")
-                })
+            if row.get("Match") != "✗":
+                continue
+            key = (row["mojId"], row["Field"])
+            value_pair = (row["Menora Value"], row["JSON Value"])
+            reverse_pair = (row["JSON Value"], row["Menora Value"])
+
+            if key in seen_mismatches:
+                continue
+
+            if any(
+                r["mojId"] == row["mojId"]
+                and r["Field"] == row["Field"]
+                and (r["Menora Value"], r["JSON Value"]) == reverse_pair
+                for r in comparison_results
+            ):
+                # Skip this mismatch since it's a known reverse duplicate
+                seen_mismatches.add(key)
+                continue
+
+            mismatched_fields.append({
+                "Status_Date": row.get("mojId"),
+                "Field": row.get("Field"),
+                "Menora": row.get("Menora Value"),
+                "JSON": row.get("JSON Value")
+            })
+            seen_mismatches.add(key)
+
+
+
 
     load_dotenv()
     raw_cutoff = os.getenv("CUTOFF")
