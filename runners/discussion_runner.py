@@ -61,8 +61,11 @@ def run_discussion_comparison(case_id, appeal_number, conn, tab_config=None):
     json_df = json_df.rename(columns=lambda x: x.strip())
     json_df = json_df.loc[:, ~json_df.columns.duplicated()].copy()
 
-    menora_ids = set(menora_df["Moj_ID"].dropna().astype(str).str.strip()) if "Moj_ID" in menora_df.columns else set()
-    json_ids = set(json_df["protocolDocMojId"].dropna().astype(str).str.strip()) if "protocolDocMojId" in json_df.columns else set()
+        # menora_ids = set(menora_df["Moj_ID"].dropna().astype(str).str.strip()) if "Moj_ID" in menora_df.columns else set()
+        # json_ids = set(json_df["protocolDocMojId"].dropna().astype(str).str.strip()) if "protocolDocMojId" in json_df.columns else set()
+
+    menora_ids = set(menora_df["Moj_ID"].dropna().astype(str).str.strip()) - {""} if "Moj_ID" in menora_df.columns else set()
+    json_ids = set(json_df["protocolDocMojId"].dropna().astype(str).str.strip()) - {""} if "protocolDocMojId" in json_df.columns else set()
 
     missing_json_dates = sorted(list(menora_ids - json_ids))
     missing_menora_dates = sorted(list(json_ids - menora_ids))
