@@ -23,6 +23,11 @@ import json as json_module
 import os
 
 def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
+    import os
+    from dateutil.parser import parse
+    from dotenv import load_dotenv
+    from datetime import datetime
+
     tab_key = "distribution"
     tab_label = "תוצפה"
     log_and_print(f"\n📂 Running {tab_label} comparison...", "info")
@@ -38,7 +43,7 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
     sql_subject_field = list(field_map.keys())[0] if field_map else "SendSubject"
 
     try:
-        menora_df = fetch_menora_distributions(case_id,appeal_number, conn)
+        menora_df = fetch_menora_distributions(case_id, appeal_number, conn)
         menora_df = menora_df.rename(columns=lambda x: x.strip())
         menora_df = menora_df.loc[:, ~menora_df.columns.duplicated()].copy()
         menora_df[key_sql] = pd.to_datetime(menora_df[key_sql], errors="coerce")
@@ -75,7 +80,6 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
                 }
             }
 
-
         def safe_parse(val):
             try:
                 return pd.to_datetime(val, utc=True)
@@ -83,19 +87,6 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
                 return pd.NaT
 
         json_df[key_json] = json_df[key_json].apply(safe_parse)
-
-        #log_and_print(f"🔎 Raw {key_json} values before parsing:", "debug")
-        # for idx, raw_entry in enumerate(json_data):
-        #     raw_val = raw_entry.get(key_json, "MISSING")
-        #     parsed_val = json_df.at[idx, key_json]
-        #     log_and_print(f"  - Raw: {raw_val} | Parsed: {parsed_val}", "debug")
-
-        # unparsed = json_df[json_df[key_json].isna()]
-        # if not unparsed.empty:
-        #     log_and_print(f"❗ Unparsed {key_json} values in JSON (NaT count = {len(unparsed)}):", "warning")
-        #     for i in unparsed.index:
-        #         raw_val = json_data[i].get(key_json, "MISSING")
-        #         log_and_print(f"  - Index {i} → Raw: {raw_val}", "debug")
 
         if not pd.api.types.is_datetime64_any_dtype(json_df[key_json]):
             raise ValueError(f"{key_json} column could not be converted to datetime.")
@@ -110,6 +101,15 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
         log_and_print(f"❌ JSON parse error: {e}", "error")
         return {tab_key: {"status_tab": "error", "error": str(e)}}
 
+    load_dotenv()
+    raw_cutoff = os.getenv("CUTOFF")
+    if not raw_cutoff or len(raw_cutoff) != 6 or not raw_cutoff.isdigit():
+        raise ValueError("❌ Invalid or missing CUTOFF in environment. Expected format: ddmmyy (e.g., 250421)")
+
+    formatted_cutoff = f"20{raw_cutoff[4:6]}-{raw_cutoff[2:4]}-{raw_cutoff[0:2]}T00:00:00"
+    CUTOFF_DATETIME = parse(formatted_cutoff).replace(tzinfo=None)
+    log_and_print(f"🔍 CUTOFF datetime: {CUTOFF_DATETIME}", level="debug")
+
     menora_group = menora_df.groupby(f"{key_sql}_str")
     json_group = json_df.groupby(f"{key_json}_str")
 
@@ -119,8 +119,8 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
 
     for date_key, menora_rows in menora_group:
         if date_key not in json_group.groups:
-            log_and_print(f"❌ JSON is missing expected timestamp {date_key}", "warning")
             missing_in_json.append(date_key)
+            log_and_print(f"❌ JSON is missing expected timestamp {date_key}", "warning")
             continue
 
         json_rows = json_group.get_group(date_key)
@@ -136,15 +136,27 @@ def run_distribution_comparison(case_id, appeal_number, conn, tab_config=None):
                 "JSON": "; ".join(json_subjects)
             })
 
-    for date_key in json_group.groups.keys():
+    for date_key, json_rows in json_group:
         if date_key not in menora_group.groups:
             missing_in_menora.append(date_key)
 
-    status_tab = "pass" if not (missing_in_json or missing_in_menora or mismatched_fields) else "fail"
-    if status_tab == "pass":
-        log_and_print(f"🔹 {tab_label} - PASS", "info", is_hebrew=True)
+    all_dates = (
+        [parse(d.split("|")[0].strip()).replace(tzinfo=None) for d in missing_in_json if d] +
+        [parse(d.split("|")[0].strip()).replace(tzinfo=None) for d in missing_in_menora if d] +
+        [parse(row["date"]).replace(tzinfo=None) for row in mismatched_fields if row.get("date")]
+    )
+
+    all_issues_after_cutoff = all(dt > CUTOFF_DATETIME for dt in all_dates if dt)
+
+    if not missing_in_json and not missing_in_menora and not mismatched_fields:
+        status_tab = "pass"
+        log_and_print(f"🟡 {tab_label} - PASS", "info", is_hebrew=True)
+    elif all_issues_after_cutoff:
+        status_tab = "pass"
+        log_and_print(f"✅ Discrepancies occurred after cutoff {CUTOFF_DATETIME.strftime('%d/%m/%Y')}. Ignored by policy.", "info")
     else:
-        log_and_print(f"❌ {tab_label} - FAIL", "warning", is_hebrew=True)
+        status_tab = "fail"
+        log_and_print(f"❌ {tab_label} - FAIL with mismatches or missing entries.", "warning", is_hebrew=True)
 
     return {
         tab_key: {
